@@ -10,9 +10,11 @@ To run the script, run python3 get_backups.py
 
 import requests
 from dotenv import dotenv_values
+from typing import List
 
 
 BASE_URL = "https://okpy.org/api/v3"
+C88C_PROJECT_NAMES = ["maps", "ants"]
 
 
 def get_backups(
@@ -54,14 +56,65 @@ def get_backups(
     )
 
 
-if __name__ == "__main__":
-    C88C_SP25_LAB00_OKPY_ENDPOINT = "cal/cs88/sp25/lab00"
+def get_all_lab_names(start: int, end: int) -> List[str]:
+    """
+    >>> get_all_lab_names(0, 5)
+    ['lab00', 'lab01', 'lab02', 'lab03', 'lab04', 'lab05']
+    """
+    return [f"lab{n:02}" for n in range(start, end + 1)]
 
+
+def get_all_hw_names(start: int, end: int) -> List[str]:
+    """
+    >>> get_all_hw_names(1, 5)
+    ['hw01', 'hw02', 'hw03', 'hw04', 'hw05']
+    """
+    return [f"hw{n:02}" for n in range(start, end + 1)]
+
+
+def get_backups_for_all_assignments(
+    course_endpoint: str,
+    email: str,
+    access_token: str,
+    limit: int = 150,
+    offset: int = 0,
+) -> List[requests.Response]:
+    lab_names = get_all_lab_names(0, 11)
+    hw_names = get_all_hw_names(1, 10)
+    project_names = C88C_PROJECT_NAMES
+    all_names = lab_names + hw_names + project_names
+
+    all_responses = []
+
+    for assignment_name in all_names:
+        assignment_endpoint = f"{course_endpoint}/{assignment_name}"
+        response = get_backups(
+            assignment_endpoint,
+            email,
+            access_token,
+            limit,
+            offset,
+        )
+
+        if not response.ok:
+            print(
+                f"Response for user {email}, assignment {assignment_name} did not have OK status code: {response}"
+            )
+
+        all_responses.append(response)
+    
+    return all_responses
+
+
+if __name__ == "__main__":
     config = dotenv_values(".env")
-    response = get_backups(
-        C88C_SP25_LAB00_OKPY_ENDPOINT,
-        config['OKPY_EMAIL'],
-        config['OKPY_TOKEN'],
+
+    responses = get_backups_for_all_assignments(
+        config["COURSE_OKPY_ENDPOINT"],
+        config["OKPY_EMAIL"],
+        config["OKPY_TOKEN"],
+        limit=10,
     )
 
-    print(response.text)
+    for r in responses:
+        print(r.text)
