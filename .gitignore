@@ -1,2 +1,7 @@
 .env
 env/
+
+# Student data
+emails.txt
+output.txt
+output.json

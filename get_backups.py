@@ -8,9 +8,11 @@ This was tested and works with Python 3.11.5.
 To run the script, run python3 get_backups.py
 """
 
+import json
 import requests
 from dotenv import dotenv_values
-from typing import List
+from typing import List, Dict
+from time import time
 
 
 BASE_URL = "https://okpy.org/api/v3"
@@ -106,15 +108,58 @@ def get_backups_for_all_assignments(
     return all_responses
 
 
+def read_all_emails(emails_file: str) -> List[str]:
+    """Reads file containing email addresses, one on each line"""
+    with open(emails_file, 'r') as f:
+        emails = []
+        for line in f.readlines():
+            emails.append(line.strip())
+        return emails
+
+
+def get_backups_for_all_users_all_assignments(
+    emails_file: str,
+    course_endpoint: str,
+    access_token: str,
+    limit: int = 150,
+    offset: int = 0,
+) -> Dict[str, Dict]:
+    emails = read_all_emails(emails_file)
+    email_to_responses = {} # key: email, value: list of all responses
+
+    for email in emails:
+        responses = get_backups_for_all_assignments(
+            course_endpoint,
+            email,
+            access_token,
+            limit,
+            offset,
+        )
+
+        # Convert into json dict (instead of storing as Response object, which isn't serializable)
+        for i, res in enumerate(responses):
+            responses[i] = res.json()
+        email_to_responses[email] = responses
+    
+    return email_to_responses
+
+
 if __name__ == "__main__":
     config = dotenv_values(".env")
+    emails_file = "emails.txt"
+    output_file = "output.json"
 
-    responses = get_backups_for_all_assignments(
+    start = time()
+    email_to_responses = get_backups_for_all_users_all_assignments(
+        emails_file,
         config["COURSE_OKPY_ENDPOINT"],
-        config["OKPY_EMAIL"],
         config["OKPY_TOKEN"],
-        limit=10,
+        limit=5,
     )
 
-    for r in responses:
-        print(r.text)
+    with open(output_file, 'w') as f:
+        json.dump(email_to_responses, f, indent=2)
+    
+    end = time()
+
+    print(f"Dumped backups in {output_file} in {end - start} seconds")
