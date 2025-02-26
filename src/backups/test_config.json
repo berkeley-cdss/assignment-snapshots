@@ -6,14 +6,15 @@
     },
     "course": {
         "lab_start": 0,
-        "lab_end": 11,
+        "lab_end": 2,
         "hw_start": 1,
-        "hw_end": 10,
+        "hw_end": 3,
         "projects": ["maps", "ants"]
     },
     "data": {
         "in_roster": "../../data/private/data_c88c_sp25_gradescope_roster.csv",
-        "out_roster": "../../data/private/data_c88c_sp25_emails.txt",
-        "database": "../../data/private/data_c88c_sp25_backups.db"
+        "out_roster": "../../data/private/emails.txt",
+        "dump": "../../data/private/output.json",
+        "database": "../../data/private/test_db.db"
     }
 }

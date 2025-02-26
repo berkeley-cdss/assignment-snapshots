@@ -3,10 +3,10 @@ Contains logic for making HTTP requests
 to the OkPy server to retrieve student backups
 """
 
-import json
 import requests
-from dotenv import dotenv_values
 from typing import List, Dict
+
+BASE_URL = "https://okpy.org/api/v3"
 
 
 def get_backups(
@@ -68,13 +68,18 @@ def get_backups_for_all_assignments(
     course_endpoint: str,
     email: str,
     access_token: str,
+    lab_start: int,
+    lab_end: int,
+    hw_start: int,
+    hw_end: int,
+    projects: List[str],
     limit: int = 150,
     offset: int = 0,
 ) -> List[requests.Response]:
-    lab_names = get_all_lab_names(0, 11)
-    hw_names = get_all_hw_names(1, 10)
-    project_names = C88C_PROJECT_NAMES
-    all_names = lab_names + hw_names + project_names
+    """Get backups for all assignments of one particular user"""
+    lab_names = get_all_lab_names(lab_start, lab_end)
+    hw_names = get_all_hw_names(hw_start, hw_end)
+    all_names = lab_names + hw_names + projects
 
     all_responses = []
 
@@ -111,6 +116,11 @@ def get_backups_for_all_users_all_assignments(
     emails_file: str,
     course_endpoint: str,
     access_token: str,
+    lab_start: int,
+    lab_end: int,
+    hw_start: int,
+    hw_end: int,
+    projects: List[str],
     limit: int = 150,
     offset: int = 0,
 ) -> Dict[str, Dict]:
@@ -122,6 +132,11 @@ def get_backups_for_all_users_all_assignments(
             course_endpoint,
             email,
             access_token,
+            lab_start,
+            lab_end,
+            hw_start,
+            hw_end,
+            projects,
             limit,
             offset,
         )

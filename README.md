@@ -7,7 +7,7 @@
 3. Activate the virtual environment: `source env/bin/activate`
 4. Install dependencies: `pip install -r requirements.txt`
 5. Create a `.env` file (follow the `.env-template`):
-    - Update the `.env` file with your [OkPy access token](https://okpy.github.io/documentation/ok-api.html#ok-server-api-authentication). You must have staff permissions for the course you want to query.
+    - Update the `.env` file with your [OkPy access token](https://okpy.github.io/documentation/ok-api.html#ok-server-api-authentication). You must have staff permissions for the course you want to query and you must periodically re-request your token.
 
 ## OkPy Backups CLI
 
