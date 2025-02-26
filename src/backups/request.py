@@ -1,22 +1,12 @@
 """
-A script to retrieve OkPy backups by student.
-Requires you to have a .env file (see .env-template)
-and to install the dependencies in requirements.txt.
-
-This was tested and works with Python 3.11.5.
-
-To run the script, run python3 get_backups.py
+Contains logic for making HTTP requests
+to the OkPy server to retrieve student backups
 """
 
 import json
 import requests
 from dotenv import dotenv_values
 from typing import List, Dict
-from time import time
-
-
-BASE_URL = "https://okpy.org/api/v3"
-C88C_PROJECT_NAMES = ["maps", "ants"]
 
 
 def get_backups(
@@ -142,24 +132,3 @@ def get_backups_for_all_users_all_assignments(
         email_to_responses[email] = responses
     
     return email_to_responses
-
-
-if __name__ == "__main__":
-    config = dotenv_values(".env")
-    emails_file = "emails.txt"
-    output_file = "output.json"
-
-    start = time()
-    email_to_responses = get_backups_for_all_users_all_assignments(
-        emails_file,
-        config["COURSE_OKPY_ENDPOINT"],
-        config["OKPY_TOKEN"],
-        limit=5,
-    )
-
-    with open(output_file, 'w') as f:
-        json.dump(email_to_responses, f, indent=2)
-    
-    end = time()
-
-    print(f"Dumped backups in {output_file} in {end - start} seconds")
