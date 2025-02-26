@@ -11,12 +11,27 @@
 
 ## OkPy Backups CLI
 
-<!-- TODO update this once done writing the CLI -->
-
 ```sh
 cd src/backups
-python3 main.py --help
+
+# Extract student emails from Gradescope .csv roster
+python3 main.py emails
+
+# Make HTTP requests to OkPy server to create .json dump of
+# student emails to the backups for all of their assignments
+python3 main.py request
+
+# Given the .json dump, store the file contents of the backups
+# locally and also write the backup metadata to a sqlite database
+python3 main.py store
 ```
+
+Run `--help` with any of the commands for more information.
+
+Create a configuration file to save yourself the effort of typing a bunch of CLI arguments.
+An example can be found in [src/backups/backup_config.json](src/backups/backup_config.json).
+All fields are required (e.g. they must either be provided in the config or via the CLI).
+CLI arguments will override anything in the config.
 
 ## Continuous Integration
 

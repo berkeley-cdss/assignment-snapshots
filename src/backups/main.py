@@ -217,6 +217,13 @@ def store(
     ] = True,
     verbose: bool = False,
 ):
+    """
+    Given a .json DUMP file with the results from the `request` command,
+    store the contents of the files in {PREFIX}/COURSE_ENDPOINT and
+    store the metadata for each backup in {PREFIX}/DATABASE.
+
+    If any arguments are not specified, this command will use the values in the CONFIG .json file.
+    """
     # TODO add prompt when overwriting db or actual files
     config_dict = read_config(config)
 
