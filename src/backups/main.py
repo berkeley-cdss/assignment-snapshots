@@ -163,7 +163,7 @@ def store(
         projects = projects.split(",")
 
     # only dump .json file if user specifies a dump file path
-    if dump is not None:
+    if dump is None:
         dump = config_dict["data"].get("dump")
     assert dump.endswith(".json"), "dump must be the path to a .json file"
 
