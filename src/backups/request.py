@@ -94,13 +94,13 @@ def get_backups_for_all_assignments(
             )
 
         all_responses.append(response)
-    
+
     return all_responses
 
 
 def read_all_emails(emails_file: str) -> List[str]:
     """Reads file containing email addresses, one on each line"""
-    with open(emails_file, 'r') as f:
+    with open(emails_file, "r") as f:
         emails = []
         for line in f.readlines():
             emails.append(line.strip())
@@ -115,7 +115,7 @@ def get_backups_for_all_users_all_assignments(
     offset: int = 0,
 ) -> Dict[str, Dict]:
     emails = read_all_emails(emails_file)
-    email_to_responses = {} # key: email, value: list of all responses
+    email_to_responses = {}  # key: email, value: list of all responses
 
     for email in emails:
         responses = get_backups_for_all_assignments(
@@ -130,5 +130,5 @@ def get_backups_for_all_users_all_assignments(
         for i, res in enumerate(responses):
             responses[i] = res.json()
         email_to_responses[email] = responses
-    
+
     return email_to_responses
