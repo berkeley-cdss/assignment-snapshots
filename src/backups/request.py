@@ -75,13 +75,13 @@ def get_backups_for_all_assignments(
     projects: List[str],
     limit: int = 150,
     offset: int = 0,
-) -> List[requests.Response]:
+) -> dict:
     """Get backups for all assignments of one particular user"""
     lab_names = get_all_lab_names(lab_start, lab_end)
     hw_names = get_all_hw_names(hw_start, hw_end)
     all_names = lab_names + hw_names + projects
 
-    all_responses = []
+    all_responses = {}
 
     for assignment_name in all_names:
         assignment_endpoint = f"{course_endpoint}/{assignment_name}"
@@ -98,7 +98,7 @@ def get_backups_for_all_assignments(
                 f"Response for user {email}, assignment {assignment_name} did not have OK status code: {response}"
             )
 
-        all_responses.append(response)
+        all_responses[assignment_name] = response.json()
 
     return all_responses
 
@@ -141,9 +141,6 @@ def get_backups_for_all_users_all_assignments(
             offset,
         )
 
-        # Convert into json dict (instead of storing as Response object, which isn't serializable)
-        for i, res in enumerate(responses):
-            responses[i] = res.json()
         email_to_responses[email] = responses
 
     return email_to_responses
