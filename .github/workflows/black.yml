@@ -1,9 +1,9 @@
-name: Format with black
+name: black
 
 on: [push, pull_request]
 
 jobs:
-  format:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
