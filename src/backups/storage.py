@@ -2,16 +2,13 @@
 Contains logic for persistent storage of assignment backups
 """
 
-import json
 import os
-import shutil
 import sqlite3
 from typing import List
 
 # TODO type hints
 
-# TODO persistent data storage; see data model
-
+PREFIX = "../../data/private"
 
 DROP_TABLE_CMD = "DROP TABLE IF EXISTS backups_metadata"
 
@@ -44,7 +41,7 @@ class Backup:
 def setup_db(database: str) -> sqlite3.Cursor:
     assert database.endswith(".db")
 
-    con = sqlite3.connect(database)  # TODO autocommit=True?
+    con = sqlite3.connect(database)
     cur = con.cursor()
 
     cur.execute(DROP_TABLE_CMD)
@@ -66,25 +63,24 @@ def insert_record(cur: sqlite3.Cursor, backup: Backup, location: str):
     cur.execute(INSERT_CMD, data)
 
 
-def write_backup_locally(prefix, backup: Backup) -> str:
+def write_backup_locally(backup: Backup) -> str:
     # TODO also store autograder output and unlocking test backups?
     for file_name, file_contents in backup.backup_contents.items():
-        location = f"{prefix}/{backup.course}/{backup.assignment}/{backup.student_email}/{backup.backup_id}/{file_name}"
+        location = f"{PREFIX}/{backup.course}/{backup.assignment}/{backup.student_email}/{backup.backup_id}/{file_name}"
         os.makedirs(os.path.dirname(location), exist_ok=True)
         with open(location, "w") as f:
             f.write(file_contents)
     return location
 
 
-def store_backup(cur: sqlite3.Cursor, prefix: str, backup: Backup):
-    location = write_backup_locally(prefix, backup)
+def store_backup(cur: sqlite3.Cursor, backup: Backup):
+    location = write_backup_locally(backup)
     insert_record(cur, backup, location)
 
 
 def store_all_backups(cur: sqlite3.Cursor, backups: List[Backup]):
-    prefix = "../../data/private"  # TODO make this configurable in CLI
     for backup in backups:
-        store_backup(cur, prefix, backup)
+        store_backup(cur, backup)
 
 
 def responses_to_backups(emails_to_responses: dict, course: str) -> List[Backup]:
@@ -107,21 +103,3 @@ def responses_to_backups(emails_to_responses: dict, course: str) -> List[Backup]
                         )
                         all_backups.append(backup)
     return all_backups
-
-
-# TODO move logic to main.py once tested
-if __name__ == "__main__":
-    with open("../../data/private/output.json", "r") as f:
-        emails_to_responses = json.load(f)
-    cur = setup_db("test.db")
-    prefix = "../../data/private"
-    course = "cal/cs88/sp25"
-    shutil.rmtree(
-        f"{prefix}/{course}", ignore_errors=True
-    )  # TODO clear directory each time
-    backups = responses_to_backups(emails_to_responses, course)
-    store_all_backups(cur, backups)
-    cur.execute("SELECT COUNT(*) FROM backups_metadata")
-    print("rows in backups_metadata:", cur.fetchone())
-    cur.execute("SELECT * FROM backups_metadata LIMIT 10")
-    print("first 10 rows:", cur.fetchall())

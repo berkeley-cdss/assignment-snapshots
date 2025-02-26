@@ -11,12 +11,14 @@ To run the script, run python3 main.py
 
 from dotenv import dotenv_values
 import json
+import shutil
 from time import time
 import typer
 from typing_extensions import Annotated
 
 from emails import process_roster
 from request import get_backups_for_all_users_all_assignments
+from storage import setup_db, PREFIX, responses_to_backups, store_all_backups
 
 DEFAULT_CONFIG_FILE = "backup_config.json"
 
@@ -59,7 +61,7 @@ def emails(
 
 
 @app.command()
-def store(
+def request(
     emails: Annotated[
         str, typer.Option(help=".txt file containing student emails, one per line")
     ] = None,
@@ -96,12 +98,6 @@ def store(
             help="Comma-separated list of project OkPy endpoints, e.g. 'maps,ants'"
         ),
     ] = None,
-    database: Annotated[
-        str,
-        typer.Option(
-            help="Name of sqlite database .db file where backups will be stored"
-        ),
-    ] = None,
     config: Annotated[
         str, typer.Option(help="Configuration .json file")
     ] = DEFAULT_CONFIG_FILE,
@@ -118,10 +114,10 @@ def store(
 ):
     """
     Makes HTTP requests to the OkPy server to retrieve the backups
-    for users with emails specified in the EMAILS file.
-    Then the backups are stored in the DATABASE file.
+    for users with emails specified in the EMAILS file and writes
+    the result to the DUMP .json file.
 
-    If any arguments are not specified, this command will use the values in the .json CONFIG file.
+    If any arguments are not specified, this command will use the values in the CONFIG .json file.
     """
     config_dict = read_config(config)
 
@@ -162,14 +158,9 @@ def store(
     else:
         projects = projects.split(",")
 
-    # only dump .json file if user specifies a dump file path
     if dump is None:
-        dump = config_dict["data"].get("dump")
+        dump = config_dict["data"]["dump"]
     assert dump.endswith(".json"), "dump must be the path to a .json file"
-
-    if database is None:
-        database = config_dict["data"]["database"]
-    assert database.endswith(".db"), "database must be a sqlite .db file"
 
     # make HTTP requests to okpy server to get backups for everyone and all assignments
     env_vars = dotenv_values("../../.env")
@@ -186,22 +177,91 @@ def store(
         hw_start,
         hw_end,
         projects,
-        limit=5,
+        limit=limit,
+        offset=offset,
     )
 
-    if dump is not None:
-        with open(dump, "w") as f:
-            json.dump(email_to_responses, f, indent=2)
+    with open(dump, "w") as f:
+        json.dump(email_to_responses, f, indent=2)
+
+    if verbose:
+        print(f"Dumped backups for {len(email_to_responses)} students in {dump}")
 
     if timeit:
         end = time()
         print(f"Finished requesting backups from OkPy server in {end - start} seconds")
 
+
+@app.command()
+def store(
+    course_endpoint: Annotated[
+        str, typer.Option(help="OkPy course endpoint, e.g. 'cal/cs88/sp25'")
+    ] = None,
+    dump: Annotated[
+        str,
+        typer.Option(
+            help=".json file that will contain a dump of email addresses to backups"
+        ),
+    ] = None,
+    database: Annotated[
+        str,
+        typer.Option(
+            help="Name of sqlite database .db file where backups will be stored"
+        ),
+    ] = None,
+    config: Annotated[
+        str, typer.Option(help="Configuration .json file")
+    ] = DEFAULT_CONFIG_FILE,
+    timeit: Annotated[
+        bool, typer.Option(help="Whether to time how long it takes this command to run")
+    ] = True,
+    verbose: bool = False,
+):
+    # TODO add prompt when overwriting db or actual files
+    config_dict = read_config(config)
+
+    if course_endpoint is None:
+        course_endpoint = config_dict["okpy_api"]["course_endpoint"]
+
+    if dump is None:
+        dump = config_dict["data"]["dump"]
+    assert dump.endswith(".json"), "dump must be the path to a .json file"
+
+    if database is None:
+        database = config_dict["data"]["database"]
+    assert database.endswith(".db"), "database must be a sqlite .db file"
+
     # take HTTP response data and persist it in the database
     if timeit:
         start = time()
 
-    # TODO logic for storage
+    cur = setup_db(database)
+    if verbose:
+        print(f"Setup database {database}")
+
+    storage_dir = f"{PREFIX}/{course_endpoint}"
+    shutil.rmtree(storage_dir, ignore_errors=True)
+    if verbose:
+        print(f"Removed storage directory {storage_dir}")
+
+    with open(dump, "r") as f:
+        emails_to_responses = json.load(f)
+    backups = responses_to_backups(emails_to_responses, course_endpoint)
+    if verbose:
+        print(f"Processed {len(backups)} backups from {dump}")
+
+    store_all_backups(cur, backups)
+    cur.execute("SELECT COUNT(*) FROM backups_metadata")
+    num_rows = cur.fetchone()[0]
+    if verbose:
+        print(
+            f"Wrote backup file contents to {storage_dir} and inserted {num_rows} rows into backups_metadata table"
+        )
+        cur.execute("SELECT * FROM backups_metadata LIMIT 10")
+        rows = cur.fetchall()
+        print("First 10 rows:")
+        for r in rows:
+            print(r)
 
     if timeit:
         end = time()
