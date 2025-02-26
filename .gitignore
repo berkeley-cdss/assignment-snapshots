@@ -1,7 +1,8 @@
 .env
 env/
 
-# Student data
-emails.txt
-output.txt
-output.json
+# Sensitive data
+data/private/
+
+__pycache__/
+*.pyc

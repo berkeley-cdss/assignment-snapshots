@@ -1,0 +1,20 @@
+{
+    "okpy_api": {
+        "course_endpoint": "cal/cs88/sp25",
+        "limit": 150,
+        "offset": 0
+    },
+    "course": {
+        "lab_start": 0,
+        "lab_end": 11,
+        "hw_start": 1,
+        "hw_end": 10,
+        "projects": ["maps", "ants"]
+    },
+    "data": {
+        "in_roster": "../../data/private/data_c88c_sp25_gradescope_roster.csv",
+        "out_roster": "../../data/private/data_c88c_sp25_emails.txt",
+        "dump": "../../data/private/data_c88c_sp25_dump.json",
+        "database": "../../data/private/data_c88c_sp25_backups.db"
+    }
+}
