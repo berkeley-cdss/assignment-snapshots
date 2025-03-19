@@ -16,5 +16,6 @@
         "out_roster": "../../data/private/data_c88c_sp25_emails.txt",
         "dump": "../../data/private/data_c88c_sp25_dump.json",
         "database": "../../data/private/data_c88c_sp25_backups.db"
-    }
+    },
+    "deidentify": true
 }

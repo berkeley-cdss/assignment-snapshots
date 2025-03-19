@@ -2,6 +2,7 @@
 Contains logic for persistent storage of assignment backups
 """
 
+import hashlib
 import os
 import sqlite3
 
@@ -127,8 +128,17 @@ def insert_record(cur: sqlite3.Cursor, backup: Backup):
     cur.execute(INSERT_BACKUP_METADATA_CMD, data)
 
 
+def sha256(s: str) -> str:
+    """Returns first 8 characters in SHA256 hash of `s`."""
+    return hashlib.sha256(s.encode()).hexdigest()[:8]
+
+
 def responses_to_backups(
-    emails_to_responses: dict, course: str, path_prefix: str, cur: sqlite3.Cursor
+    emails_to_responses: dict,
+    course: str,
+    path_prefix: str,
+    cur: sqlite3.Cursor,
+    deidentify: bool,
 ) -> int:
     num_backups = 0
     for student_email, assignment_response_dict in emails_to_responses.items():
@@ -138,7 +148,7 @@ def responses_to_backups(
                 backup = create_backup_and_write_messages(
                     course,
                     assignment,
-                    student_email,
+                    sha256(student_email) if deidentify else student_email,
                     backup_dict,
                     path_prefix,
                 )

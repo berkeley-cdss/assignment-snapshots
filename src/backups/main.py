@@ -209,6 +209,9 @@ def store(
             help="Name of sqlite database .db file where backups will be stored"
         ),
     ] = None,
+    deidentify: Annotated[
+        bool, typer.Option(help="Whether to deidentify student emails")
+    ] = False,
     config: Annotated[
         str, typer.Option(help="Configuration .json file")
     ] = DEFAULT_CONFIG_FILE,
@@ -238,6 +241,10 @@ def store(
         database = config_dict["data"]["database"]
     assert database.endswith(".db"), "database must be a sqlite .db file"
 
+    deidentify = config_dict.get("deidentify", deidentify)
+    if verbose and deidentify:
+        print("Deidentifying student emails")
+
     # take HTTP response data and persist it in the database
     if timeit:
         start = time()
@@ -255,7 +262,7 @@ def store(
         emails_to_responses = json.load(f)
 
     num_backups = responses_to_backups(
-        emails_to_responses, course_endpoint, PREFIX, cur
+        emails_to_responses, course_endpoint, PREFIX, cur, deidentify
     )
     if verbose:
         print(f"Processed {num_backups} backups from {dump}")
@@ -278,12 +285,6 @@ def store(
     if timeit:
         end = time()
         print(f"Finished storing backups in {database} in {end - start} seconds")
-
-
-@app.command()
-def deidentify():
-    """Not implemented yet"""
-    pass
 
 
 @app.command()
