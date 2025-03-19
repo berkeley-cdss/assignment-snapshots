@@ -253,15 +253,18 @@ def store(
 
     with open(dump, "r") as f:
         emails_to_responses = json.load(f)
+
     num_backups = responses_to_backups(
         emails_to_responses, course_endpoint, PREFIX, cur
     )
     if verbose:
         print(f"Processed {num_backups} backups from {dump}")
 
-    # store_all_backups(cur, backups)
     cur.execute("SELECT COUNT(*) FROM backup_metadata")
     num_rows = cur.fetchone()[0]
+    assert (
+        num_backups == num_rows
+    ), "num_backups should match num_rows in backup_metadata table"
     if verbose:
         print(
             f"Wrote backup file contents to {storage_dir} and inserted {num_rows} rows into backup_metadata table"
