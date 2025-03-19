@@ -18,7 +18,7 @@ from typing_extensions import Annotated
 
 from emails import process_roster
 from request import get_backups_for_all_users_all_assignments
-from storage import setup_db, PREFIX, responses_to_backups, store_all_backups
+from storage import setup_db, PREFIX, responses_to_backups
 
 DEFAULT_CONFIG_FILE = "backup_config.json"
 
@@ -253,18 +253,20 @@ def store(
 
     with open(dump, "r") as f:
         emails_to_responses = json.load(f)
-    backups = responses_to_backups(emails_to_responses, course_endpoint)
+    num_backups = responses_to_backups(
+        emails_to_responses, course_endpoint, PREFIX, cur
+    )
     if verbose:
-        print(f"Processed {len(backups)} backups from {dump}")
+        print(f"Processed {num_backups} backups from {dump}")
 
-    store_all_backups(cur, backups)
-    cur.execute("SELECT COUNT(*) FROM backups_metadata")
+    # store_all_backups(cur, backups)
+    cur.execute("SELECT COUNT(*) FROM backup_metadata")
     num_rows = cur.fetchone()[0]
     if verbose:
         print(
-            f"Wrote backup file contents to {storage_dir} and inserted {num_rows} rows into backups_metadata table"
+            f"Wrote backup file contents to {storage_dir} and inserted {num_rows} rows into backup_metadata table"
         )
-        cur.execute("SELECT * FROM backups_metadata LIMIT 10")
+        cur.execute("SELECT * FROM backup_metadata LIMIT 10")
         rows = cur.fetchall()
         print("First 10 rows:")
         for r in rows:
