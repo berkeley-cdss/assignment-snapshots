@@ -143,15 +143,16 @@ def responses_to_backups(
     num_backups = 0
     for student_email, assignment_response_dict in emails_to_responses.items():
         for assignment, response in assignment_response_dict.items():
-            curr_backups = response["data"]["backups"]
-            for backup_dict in curr_backups:
-                backup = create_backup_and_write_messages(
-                    course,
-                    assignment,
-                    sha256(student_email) if deidentify else student_email,
-                    backup_dict,
-                    path_prefix,
-                )
-                insert_record(cur, backup)
-                num_backups += 1
+            if response["code"] == 200:  # skip backups that had an error
+                curr_backups = response["data"]["backups"]
+                for backup_dict in curr_backups:
+                    backup = create_backup_and_write_messages(
+                        course,
+                        assignment,
+                        sha256(student_email) if deidentify else student_email,
+                        backup_dict,
+                        path_prefix,
+                    )
+                    insert_record(cur, backup)
+                    num_backups += 1
     return num_backups

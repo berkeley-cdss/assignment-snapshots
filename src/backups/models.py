@@ -72,7 +72,7 @@ class FileContentsMessage(OkPyMessage):
             with open(
                 f"{FileContentsMessage.location(directory)}/{src_file_name}", "w"
             ) as f:
-                f.write(src_file_contents)
+                f.write(str(src_file_contents))
 
 
 class AnalyticsMessage(OkPyMessage):
