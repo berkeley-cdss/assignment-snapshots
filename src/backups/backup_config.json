@@ -5,11 +5,11 @@
         "offset": 0
     },
     "course": {
-        "lab_start": 0,
-        "lab_end": 11,
-        "hw_start": 1,
-        "hw_end": 10,
-        "projects": ["maps", "ants"]
+        "lab_start": 1,
+        "lab_end": 1,
+        "hw_start": 2,
+        "hw_end": 2,
+        "projects": ["maps"]
     },
     "data": {
         "in_roster": "../../data/private/data_c88c_sp25_gradescope_roster.csv",
