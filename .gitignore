@@ -1,5 +1,8 @@
 .env
 env/
+node_modules/
+request-output.txt
+store-output.txt
 
 # Sensitive data
 data/private/
