@@ -1,12 +1,12 @@
-import React from 'react';
+import React from "react";
 
-import { Grid, Typography } from '@mui/material';
+import { Grid, Typography } from "@mui/material";
 
 function NavBar({ studentName, studentEmail, studentId, assignmentName }) {
-  // TODO fix spacing
   return (
     <Typography align="left">Assignment: {assignmentName}</Typography>
 
+    // TODO fix spacing of student information - this is because toolbar doesn't extend full width in layout
     // <Grid container spacing={2} alignItems="center">
     //   <Grid size={{ xs: 4 }}>
     //     <Typography align="left">Assignment: {assignmentName}</Typography>

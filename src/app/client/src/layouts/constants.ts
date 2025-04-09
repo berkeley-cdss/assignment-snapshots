@@ -198,7 +198,7 @@ def restaurant_mean_score(restaurant):
     # BEGIN SOLUTION "Question 2"
     return mean(restaurant_scores(restaurant))
     # END SOLUTION
-`
+`;
 
 export const recommend = `"""Maps: A Yelp-powered Restaurant Recommendation Program"""
 # <include topics/header_c88c.py>
@@ -470,7 +470,7 @@ def main(*args):
     else:
         centroids = [restaurant_location(r) for r in restaurants]
     draw_map(centroids, restaurants, ratings)
-`
+`;
 
 export const autograder_output = `Running OkPy...
 OkPy complete...
@@ -520,4 +520,4 @@ Problem 0 Utils
     Passed: 1
     Failed: 0
 [ooooooooook] 100.0% passed
-`
+`;
