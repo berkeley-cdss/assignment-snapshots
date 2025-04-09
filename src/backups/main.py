@@ -18,7 +18,7 @@ from typing_extensions import Annotated
 
 from emails import process_roster
 from request import get_backups_for_all_users_all_assignments
-from storage import setup_db, PREFIX, responses_to_backups, store_all_backups
+from storage import setup_db, PREFIX, responses_to_backups
 
 DEFAULT_CONFIG_FILE = "backup_config.json"
 
@@ -209,6 +209,9 @@ def store(
             help="Name of sqlite database .db file where backups will be stored"
         ),
     ] = None,
+    deidentify: Annotated[
+        bool, typer.Option(help="Whether to deidentify student emails")
+    ] = False,
     config: Annotated[
         str, typer.Option(help="Configuration .json file")
     ] = DEFAULT_CONFIG_FILE,
@@ -238,6 +241,10 @@ def store(
         database = config_dict["data"]["database"]
     assert database.endswith(".db"), "database must be a sqlite .db file"
 
+    deidentify = config_dict.get("deidentify", deidentify)
+    if verbose and deidentify:
+        print("Deidentifying student emails")
+
     # take HTTP response data and persist it in the database
     if timeit:
         start = time()
@@ -253,18 +260,23 @@ def store(
 
     with open(dump, "r") as f:
         emails_to_responses = json.load(f)
-    backups = responses_to_backups(emails_to_responses, course_endpoint)
-    if verbose:
-        print(f"Processed {len(backups)} backups from {dump}")
 
-    store_all_backups(cur, backups)
-    cur.execute("SELECT COUNT(*) FROM backups_metadata")
+    num_backups = responses_to_backups(
+        emails_to_responses, course_endpoint, PREFIX, cur, deidentify
+    )
+    if verbose:
+        print(f"Processed {num_backups} backups from {dump}")
+
+    cur.execute("SELECT COUNT(*) FROM backup_metadata")
     num_rows = cur.fetchone()[0]
+    assert (
+        num_backups == num_rows
+    ), "num_backups should match num_rows in backup_metadata table"
     if verbose:
         print(
-            f"Wrote backup file contents to {storage_dir} and inserted {num_rows} rows into backups_metadata table"
+            f"Wrote backup file contents to {storage_dir} and inserted {num_rows} rows into backup_metadata table"
         )
-        cur.execute("SELECT * FROM backups_metadata LIMIT 10")
+        cur.execute("SELECT * FROM backup_metadata LIMIT 10")
         rows = cur.fetchall()
         print("First 10 rows:")
         for r in rows:
@@ -273,12 +285,6 @@ def store(
     if timeit:
         end = time()
         print(f"Finished storing backups in {database} in {end - start} seconds")
-
-
-@app.command()
-def deidentify():
-    """Not implemented yet"""
-    pass
 
 
 @app.command()

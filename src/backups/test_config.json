@@ -16,5 +16,6 @@
         "out_roster": "../../data/private/emails.txt",
         "dump": "../../data/private/output.json",
         "database": "../../data/private/test_db.db"
-    }
+    },
+    "deidentify": true
 }
