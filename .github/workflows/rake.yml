@@ -11,6 +11,7 @@ jobs:
       with:
         working-directory: src/app/server
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-    - run: |
+    - name: rake
+      run: |
         cd src/app/server
         bundle exec rake

@@ -1,0 +1,17 @@
+name: rubocop
+
+on: [push]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          working-directory: src/app/server
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+      - name: rubocop
+        run: |
+          cd src/app/server
+          rubocop -f github
