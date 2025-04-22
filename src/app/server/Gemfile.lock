@@ -348,6 +348,7 @@ DEPENDENCIES
   kamal
   puma (>= 5.0)
   rails (~> 8.0.2)
+  rubocop (~> 1.75)
   rubocop-rails-omakase
   solid_cable
   solid_cache

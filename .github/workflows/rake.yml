@@ -1,0 +1,19 @@
+name: rake
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      backend-directory: src/app/server
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ruby/setup-ruby@v1
+      with:
+        working-directory: ${{env.backend-directory}}
+        bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+    - name: rake
+      run: |
+        cd ${{env.backend-directory}}
+        bundle exec rake
