@@ -11,9 +11,9 @@ import Graphs from "../components/Graphs";
 import NavBar from "../components/NavBar";
 import Timeline from "../components/Timeline";
 import {
-  utils,
-  abstractions,
-  recommend,
+  data_processor,
+  web_scraper,
+  game_logic,
   autograder_output,
 } from "./constants.ts";
 import { FormControl, InputLabel } from "@mui/material";
@@ -47,17 +47,17 @@ const ContentWrapper = styled(Box)({
 // TODO add dropdown to be able to switch to different files in this submission
 
 function AssignmentLayout() {
-  const [file, setFile] = React.useState("utils.py");
-  const [code, setCode] = React.useState(utils);
+  const [file, setFile] = React.useState("data_processor.py");
+  const [code, setCode] = React.useState(data_processor);
 
   const handleChange = (event: SelectChangeEvent) => {
     setFile(event.target.value as string);
-    if (event.target.value === "utils.py") {
-      setCode(utils);
-    } else if (event.target.value === "abstractions.py") {
-      setCode(abstractions);
+    if (event.target.value === "data_processor.py") {
+      setCode(data_processor);
+    } else if (event.target.value === "web_scraper.py") {
+      setCode(web_scraper);
     } else {
-      setCode(recommend);
+      setCode(game_logic);
     }
   };
 
@@ -100,9 +100,9 @@ function AssignmentLayout() {
                 label="File"
                 onChange={handleChange}
               >
-                <MenuItem value="utils.py">utils.py</MenuItem>
-                <MenuItem value="abstractions.py">abstractions.py</MenuItem>
-                <MenuItem value="recommend.py">recommend.py</MenuItem>
+                <MenuItem value="data_processor.py">data_processor.py</MenuItem>
+                <MenuItem value="web_scraper.py">web_scraper.py</MenuItem>
+                <MenuItem value="game_logic.py">game_logic.py</MenuItem>
               </Select>
             </FormControl>
           </div>
