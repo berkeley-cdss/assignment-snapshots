@@ -4,8 +4,8 @@ import { Paper, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 const FixedSizeDisplayBox = styled(Paper)(({ theme }) => ({
-  width: "300px", // Set your desired fixed width
-  height: "300px", // Set your desired fixed height
+  width: "300px",
+  height: "300px",
   overflow: "auto", // Enable both horizontal and vertical scrolling
   padding: theme.spacing(1), // Add some padding for better readability
 }));

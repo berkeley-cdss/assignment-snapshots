@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 import { DiffView } from "@git-diff-view/react";
 import { generateDiffFile } from "@git-diff-view/file";
@@ -18,7 +18,7 @@ function DiffViewer() {
       content: "print('Hello Gary')",
       fileLang: "python",
     },
-  }
+  };
   const file = generateDiffFile(
     data?.oldFile?.fileName || "",
     data?.oldFile?.content || "",
@@ -27,7 +27,7 @@ function DiffViewer() {
     data?.oldFile?.fileLang || "",
     data?.newFile?.fileLang || ""
   );
-  file.initTheme('light');
+  file.initTheme("light");
   file.init();
   file.buildSplitDiffLines();
   file.buildUnifiedDiffLines();
