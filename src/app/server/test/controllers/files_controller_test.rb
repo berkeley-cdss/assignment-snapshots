@@ -1,9 +1,9 @@
 require "test_helper"
 
 class FilesControllerTest < ActionDispatch::IntegrationTest
-  route_prefix = '/files/a/b/c/d'
-  known_files = ["data_processor.py", "web_scraper.py", "game_logic.py", "autograder_output.txt"]
-  file_contents = [Constants::DATA_PROCESSOR, Constants::WEB_SCRAPER, Constants::GAME_LOGIC, Constants::AUTOGRADER_OUTPUT]
+  route_prefix = "/files/a/b/c/d"
+  known_files = [ "data_processor.py", "web_scraper.py", "game_logic.py", "autograder_output.txt" ]
+  file_contents = [ Constants::DATA_PROCESSOR, Constants::WEB_SCRAPER, Constants::GAME_LOGIC, Constants::AUTOGRADER_OUTPUT ]
 
   test "should respond with 404 Not Found if file name unknown" do
     get "#{route_prefix}/unknown.txt"
