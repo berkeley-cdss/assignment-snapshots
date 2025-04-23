@@ -1,4 +1,4 @@
-require_relative 'constants'
+require_relative "constants"
 
 class FilesController < ApplicationController
   def show
@@ -13,9 +13,9 @@ class FilesController < ApplicationController
     elsif params[:file_name] == "autograder_output.txt"
       contents = Constants::AUTOGRADER_OUTPUT
     else
-      render json: {"error": "File not found"}, status: :not_found
+      render json: { "error": "File not found" }, status: :not_found
       return
     end
-    render json: {"okpy_endpoint": params[:okpy_endpoint], "assignment": params[:assignment], "student_id": params[:student_id], "backup_id": params[:backup_id], "file_name": params[:file_name], "file_contents": contents}
+    render json: { "okpy_endpoint": params[:okpy_endpoint], "assignment": params[:assignment], "student_id": params[:student_id], "backup_id": params[:backup_id], "file_name": params[:file_name], "file_contents": contents }
   end
 end
