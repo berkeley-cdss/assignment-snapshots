@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Grid, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 
 function NavBar({ studentName, studentEmail, studentId, assignmentName }) {
   return (
