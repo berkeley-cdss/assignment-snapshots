@@ -40,17 +40,20 @@ const ContentWrapper = styled(Box)({
 // TODO don't hardcode values and instead fetch from server
 // TODO add dropdown to be able to switch to different files in this submission
 
+// TODO picked a random person below
+const FILE_PATH_PREFIX = "cal-cs88-sp25/maps/0a2cf5f9/2O8r4J";
+
 function AssignmentLayout() {
-  const initialFile = "data_processor.py";
+  const initialFile = "utils.py";
   const [file, setFile] = React.useState(initialFile);
   const [code, setCode] = React.useState("");
   const [autograderOutput, setAutograderOutput] = React.useState("");
 
   // TODO create fetch file helper function - move out of this file?
-  
+
   // Fetch autograder output
   React.useEffect(() => {
-    fetch(`/files/a/b/c/d/autograder_output.txt`, {
+    fetch(`/files/${FILE_PATH_PREFIX}/autograder_output.txt`, {
       method: 'GET',
     })
     .then(response => {
@@ -70,7 +73,7 @@ function AssignmentLayout() {
 
   // Fetch the initial file
   React.useEffect(() => {
-    fetch(`/files/a/b/c/d/${initialFile}`, {
+    fetch(`/files/${FILE_PATH_PREFIX}/${initialFile}`, {
       method: 'GET',
     })
     .then(response => {
@@ -92,7 +95,7 @@ function AssignmentLayout() {
   const handleChange = (event: SelectChangeEvent) => {
     setFile(event.target.value as string);
 
-    fetch(`/files/a/b/c/d/${event.target.value as string}`, {
+    fetch(`/files/${FILE_PATH_PREFIX}/${event.target.value as string}`, {
       method: 'GET',
     })
     .then(response => {
@@ -149,9 +152,9 @@ function AssignmentLayout() {
                 label="File"
                 onChange={handleChange}
               >
-                <MenuItem value="data_processor.py">data_processor.py</MenuItem>
-                <MenuItem value="web_scraper.py">web_scraper.py</MenuItem>
-                <MenuItem value="game_logic.py">game_logic.py</MenuItem>
+                <MenuItem value="utils.py">utils.py</MenuItem>
+                <MenuItem value="abstractions.py">abstractions.py</MenuItem>
+                <MenuItem value="recommend.py">recommend.py</MenuItem>
               </Select>
             </FormControl>
           </div>
