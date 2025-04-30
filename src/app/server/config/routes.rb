@@ -7,4 +7,6 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "posts#index"
+
+  get 'files/:bucket_name/:object_key', to: 'aws_files#show'
 end
