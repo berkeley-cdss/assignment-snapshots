@@ -1,9 +1,9 @@
-class S3FileController < ApplicationController
-  def show_file
+class AwsFilesController < ApplicationController
+  def show
     # TODO don't hardcode this
-    bucket_name = 'ucb-assignment-snapshots-905fa3f1b1b745cfb59eebe394249588'
+    bucket_name = 'ucb-assignment-snapshots-eae254943a2c4f51bef67654e99560dd' # us-west-2 bucket
     object_key = 'autograder_output.txt'
-    @file_content = S3File.new.read_s3_file(bucket_name, object_key)
+    @file_content = AwsFile.new.read_s3_file(bucket_name, object_key)
 
     if @file_content
       render plain: @file_content
