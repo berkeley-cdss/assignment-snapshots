@@ -10,12 +10,6 @@ import FileViewer from "../components/FileViewer";
 import Graphs from "../components/Graphs";
 import NavBar from "../components/NavBar";
 import Timeline from "../components/Timeline";
-import {
-  data_processor,
-  web_scraper,
-  game_logic,
-  autograder_output,
-} from "./constants.ts";
 import { FormControl, InputLabel } from "@mui/material";
 
 const leftSidebarWidth = 240;
@@ -46,19 +40,77 @@ const ContentWrapper = styled(Box)({
 // TODO don't hardcode values and instead fetch from server
 // TODO add dropdown to be able to switch to different files in this submission
 
-function AssignmentLayout() {
-  const [file, setFile] = React.useState("data_processor.py");
-  const [code, setCode] = React.useState(data_processor);
+// TODO picked a random person below
+const FILE_PATH_PREFIX = "cal-cs88-sp25/maps/0a2cf5f9/2O8r4J";
 
+function AssignmentLayout() {
+  const initialFile = "utils.py";
+  const [file, setFile] = React.useState(initialFile);
+  const [code, setCode] = React.useState("");
+  const [autograderOutput, setAutograderOutput] = React.useState("");
+
+  // TODO create fetch file helper function - move out of this file?
+
+  // Fetch autograder output
+  React.useEffect(() => {
+    fetch(`/files/${FILE_PATH_PREFIX}/autograder_output.txt`, {
+      method: 'GET',
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(responseData => {
+      console.log(responseData);
+      setAutograderOutput(responseData["file_contents"]);
+    })
+    .catch(error => {
+      throw new Error(`HTTP error! Error: ${error}`);
+    });
+  }, []);
+
+  // Fetch the initial file
+  React.useEffect(() => {
+    fetch(`/files/${FILE_PATH_PREFIX}/${initialFile}`, {
+      method: 'GET',
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(responseData => {
+      console.log(responseData);
+      setCode(responseData["file_contents"]);
+    })
+    .catch(error => {
+      throw new Error(`HTTP error! Error: ${error}`);
+    });
+  }, []);
+
+  // Fetch new file when selected
   const handleChange = (event: SelectChangeEvent) => {
     setFile(event.target.value as string);
-    if (event.target.value === "data_processor.py") {
-      setCode(data_processor);
-    } else if (event.target.value === "web_scraper.py") {
-      setCode(web_scraper);
-    } else {
-      setCode(game_logic);
-    }
+
+    fetch(`/files/${FILE_PATH_PREFIX}/${event.target.value as string}`, {
+      method: 'GET',
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(responseData => {
+      console.log(responseData);
+      setCode(responseData["file_contents"]);
+    })
+    .catch(error => {
+      throw new Error(`HTTP error! Error: ${error}`);
+    });
   };
 
   return (
@@ -100,9 +152,9 @@ function AssignmentLayout() {
                 label="File"
                 onChange={handleChange}
               >
-                <MenuItem value="data_processor.py">data_processor.py</MenuItem>
-                <MenuItem value="web_scraper.py">web_scraper.py</MenuItem>
-                <MenuItem value="game_logic.py">game_logic.py</MenuItem>
+                <MenuItem value="utils.py">utils.py</MenuItem>
+                <MenuItem value="abstractions.py">abstractions.py</MenuItem>
+                <MenuItem value="recommend.py">recommend.py</MenuItem>
               </Select>
             </FormControl>
           </div>
@@ -111,7 +163,7 @@ function AssignmentLayout() {
         </MainContent>
         <RightSidebar sx={{ display: { xs: "none", sm: "block" } }}>
           {/* Right Sidebar Content Area */}
-          <AutograderOutput text={autograder_output} />
+          <AutograderOutput text={autograderOutput} />
           <Graphs />
         </RightSidebar>
       </ContentWrapper>
