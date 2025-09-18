@@ -1,21 +1,46 @@
-require_relative "constants"
+require "aws-sdk-s3"
+
+S3_BUCKET_NAME = "ucb-assignment-snapshots-eae254943a2c4f51bef67654e99560dd"
+S3_BUCKET_REGION = "us-west-2"
 
 class FilesController < ApplicationController
-  def show
-    # TODO create File model? or call AWS S3 SDK directly?
+  def get_object_key(params)
+    # NOTE: we assume the okpy endpoint is passed in with - as the separator since / is reserved
+    okpy_endpoint_parsed = params[:okpy_endpoint].gsub("-", "/")
+    "#{okpy_endpoint_parsed}/#{params[:assignment]}/#{params[:student_id]}/#{params[:backup_id]}/#{params[:file_name]}"
+  end
 
-    if params[:file_name] == "data_processor.py"
-      contents = Constants::DATA_PROCESSOR
-    elsif params[:file_name] == "web_scraper.py"
-      contents = Constants::WEB_SCRAPER
-    elsif params[:file_name] == "game_logic.py"
-      contents = Constants::GAME_LOGIC
-    elsif params[:file_name] == "autograder_output.txt"
-      contents = Constants::AUTOGRADER_OUTPUT
-    else
-      render json: { "error": "File not found" }, status: :not_found
-      return
+  def show
+    # uses default credentials for local dev - see src/app/server/README.md to configure using AWS CLI
+    s3 = Aws::S3::Client.new(region: S3_BUCKET_REGION)
+
+    file_contents = nil
+    error = nil
+    status = :internal_server_error
+
+    object_key = get_object_key(params)
+
+    begin
+      resp = s3.get_object(bucket: S3_BUCKET_NAME, key: object_key)
+      file_contents = resp.body.read.force_encoding("UTF-8") # Assuming UTF-8 encoding
+      status = :ok
+    rescue Aws::S3::Errors::NoSuchBucket => e
+      error = "Error: Bucket not found: #{bucket_name}"
+      status = :not_found
+    rescue Aws::S3::Errors::NoSuchKey => e
+      error = "Error: File #{object_key} not found in S3 - #{e.message}"
+      status = :not_found
+    rescue Aws::S3::Errors::ServiceError => e
+      error = "Error accessing S3: #{e.message}"
+    rescue StandardError => e
+      error = "Unknown error occurred: #{e.message}"
     end
-    render json: { "okpy_endpoint": params[:okpy_endpoint], "assignment": params[:assignment], "student_id": params[:student_id], "backup_id": params[:backup_id], "file_name": params[:file_name], "file_contents": contents }
+
+    if file_contents
+      render json: { "file_contents": file_contents }, status: status
+    else
+      Rails.logger.error(error)
+      render json: { "error": error }, status: status
+    end
   end
 end
