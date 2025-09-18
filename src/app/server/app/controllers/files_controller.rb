@@ -3,7 +3,6 @@ require 'aws-sdk-s3'
 S3_BUCKET_NAME = 'ucb-assignment-snapshots-eae254943a2c4f51bef67654e99560dd'
 S3_BUCKET_REGION = 'us-west-2'
 
-# TODO update rake tests for this controller
 class FilesController < ApplicationController
   def get_object_key(params)
     # NOTE: we assume the okpy endpoint is passed in with - as the separator since / is reserved
@@ -21,7 +20,6 @@ class FilesController < ApplicationController
 
     object_key = get_object_key(params)
 
-    # TODO make error handling more robust?
     begin
       resp = s3.get_object(bucket: S3_BUCKET_NAME, key: object_key)
       file_contents = resp.body.read.force_encoding('UTF-8') # Assuming UTF-8 encoding
