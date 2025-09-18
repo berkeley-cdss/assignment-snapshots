@@ -48,4 +48,6 @@ group :development, :test do
   gem "rubocop-rails-omakase", require: false
 
   gem "rubocop", "~> 1.75", require: false
+
+  gem "mocha"
 end
