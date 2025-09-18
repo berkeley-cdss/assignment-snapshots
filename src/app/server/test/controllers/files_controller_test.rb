@@ -1,8 +1,8 @@
 require "ostruct"
-require 'stringio'
+require "stringio"
 require "test_helper"
 
-require_relative '../../app/controllers/files_controller'
+require_relative "../../app/controllers/files_controller"
 
 class FilesControllerTest < ActionDispatch::IntegrationTest
   raw_okpy_endpoint = "cal-cs88-sp25"
@@ -11,15 +11,15 @@ class FilesControllerTest < ActionDispatch::IntegrationTest
   backup_id = "def456"
   route_prefix = "/files/#{raw_okpy_endpoint}/#{assignment}/#{student_id}/#{backup_id}"
   unknown_file = "unknown.txt"
-  known_files = ["utils.py", "abstractions.py", "recommend.py", "autograder_output.txt"]
-  file_contents = ["foo", "bar", "baz", "qux"]
+  known_files = [ "utils.py", "abstractions.py", "recommend.py", "autograder_output.txt" ]
+  file_contents = [ "foo", "bar", "baz", "qux" ]
 
   test "should respond with 404 Not Found if file name unknown" do
     # Mock AWS S3 client
     Aws::S3::Client.any_instance
       .stubs(:get_object)
       .with(bucket: S3_BUCKET_NAME, key: "cal/cs88/sp25/#{assignment}/#{student_id}/#{backup_id}/#{unknown_file}")
-      .raises(Aws::S3::Errors::NoSuchKey.new(nil, 'The specified key does not exist.'))
+      .raises(Aws::S3::Errors::NoSuchKey.new(nil, "The specified key does not exist."))
 
     get "#{route_prefix}/#{unknown_file}"
     assert_response :missing
