@@ -35,6 +35,6 @@ sso_start_url = https://ucberkeley.awsapps.com/start/#
 sso_region = us-west-2
 sso_registration_scopes = sso:account:access
 ```
-4. Login in your browser using your CalNet ID.
+4. Login using the terminal command `aws sso login`. It should prompt you to login through your browser using your CalNet ID.
 5. If the login is a success, you should see that your `~/.aws/config` file has been updated with new `profile` and `sso-session` sections.
 6. Run `aws sts get-caller-identity` and verify that the currently logged in user is the one you just configured. If it is not, you will need to modify your AWS configuration (for example, by deleting existing profiles from your `~/.aws/config` file and deleting unnecessary credentials from your `~/.aws/credentials` file, if it exists).
