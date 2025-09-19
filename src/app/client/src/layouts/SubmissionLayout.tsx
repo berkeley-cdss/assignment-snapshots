@@ -5,31 +5,33 @@ import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import { MenuItem, Select, SelectChangeEvent } from "@mui/material";
 
-import AutograderOutput from "../components/AutograderOutput";
-import FileViewer from "../components/FileViewer";
-import Graphs from "../components/Graphs";
-import NavBar from "../components/NavBar";
-import Timeline from "../components/Timeline";
+import AutograderOutput from "../components/submission/AutograderOutput";
+import FileViewer from "../components/submission/FileViewer";
+import Graphs from "../components/submission/Graphs";
+import NavBar from "../components/submission/NavBar";
+import Timeline from "../components/submission/Timeline";
 import { FormControl, InputLabel } from "@mui/material";
 
-const leftSidebarWidth = 240;
-const rightSidebarWidth = 300;
+// TODO minWidth: 0 prevent main content from stretching out to sidebars, but this seems rather hacky?
 
 const LeftSidebar = styled("aside")(({ theme }) => ({
-  width: leftSidebarWidth,
+  flex: "1.5 0 0",
   borderRight: `1px solid ${theme.palette.divider}`,
   padding: theme.spacing(2),
+  minWidth: 0,
 }));
 
 const MainContent = styled("main")(({ theme }) => ({
-  flexGrow: 1,
+  flex: "5 0 0",
   padding: theme.spacing(3),
+  minWidth: 0,
 }));
 
 const RightSidebar = styled("aside")(({ theme }) => ({
-  width: rightSidebarWidth,
+  flex: "2 0 0",
   borderLeft: `1px solid ${theme.palette.divider}`,
   padding: theme.spacing(2),
+  minWidth: 0,
 }));
 
 const ContentWrapper = styled(Box)({
@@ -43,7 +45,7 @@ const ContentWrapper = styled(Box)({
 // TODO picked a random person below
 const FILE_PATH_PREFIX = "cal-cs88-sp25/maps/0a2cf5f9/2O8r4J";
 
-function AssignmentLayout() {
+function SubmissionLayout() {
   const initialFile = "utils.py";
   const [file, setFile] = React.useState(initialFile);
   const [code, setCode] = React.useState("");
@@ -115,9 +117,9 @@ function AssignmentLayout() {
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      <AppBar position="static">
+      {/* TODO display student stuff somehow */}
+      {/* <AppBar position="static">
         <Toolbar>
-          {/* Top Navigation Area */}
           <NavBar
             studentName="Rebecca Dang"
             studentEmail="rdang@berkeley.edu"
@@ -126,13 +128,14 @@ function AssignmentLayout() {
           />
         </Toolbar>
       </AppBar>
+      */}
       <ContentWrapper>
         <LeftSidebar>
           {/* Left Sidebar Content Area */}
           <Timeline />
         </LeftSidebar>
         {/* TODO make width more responsive */}
-        <MainContent style={{ width: "300px" }}>
+        <MainContent>
           {/* Main Content Area */}
           <div
             style={{
@@ -171,4 +174,4 @@ function AssignmentLayout() {
   );
 }
 
-export default AssignmentLayout;
+export default SubmissionLayout;
