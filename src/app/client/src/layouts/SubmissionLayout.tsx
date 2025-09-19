@@ -56,41 +56,41 @@ function SubmissionLayout() {
   // Fetch autograder output
   React.useEffect(() => {
     fetch(`/files/${FILE_PATH_PREFIX}/autograder_output.txt`, {
-      method: 'GET',
+      method: "GET",
     })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then(responseData => {
-      console.log(responseData);
-      setAutograderOutput(responseData["file_contents"]);
-    })
-    .catch(error => {
-      throw new Error(`HTTP error! Error: ${error}`);
-    });
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((responseData) => {
+        console.log(responseData);
+        setAutograderOutput(responseData["file_contents"]);
+      })
+      .catch((error) => {
+        throw new Error(`HTTP error! Error: ${error}`);
+      });
   }, []);
 
   // Fetch the initial file
   React.useEffect(() => {
     fetch(`/files/${FILE_PATH_PREFIX}/${initialFile}`, {
-      method: 'GET',
+      method: "GET",
     })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then(responseData => {
-      console.log(responseData);
-      setCode(responseData["file_contents"]);
-    })
-    .catch(error => {
-      throw new Error(`HTTP error! Error: ${error}`);
-    });
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((responseData) => {
+        console.log(responseData);
+        setCode(responseData["file_contents"]);
+      })
+      .catch((error) => {
+        throw new Error(`HTTP error! Error: ${error}`);
+      });
   }, []);
 
   // Fetch new file when selected
@@ -98,21 +98,21 @@ function SubmissionLayout() {
     setFile(event.target.value as string);
 
     fetch(`/files/${FILE_PATH_PREFIX}/${event.target.value as string}`, {
-      method: 'GET',
+      method: "GET",
     })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then(responseData => {
-      console.log(responseData);
-      setCode(responseData["file_contents"]);
-    })
-    .catch(error => {
-      throw new Error(`HTTP error! Error: ${error}`);
-    });
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((responseData) => {
+        console.log(responseData);
+        setCode(responseData["file_contents"]);
+      })
+      .catch((error) => {
+        throw new Error(`HTTP error! Error: ${error}`);
+      });
   };
 
   return (
