@@ -5,15 +5,15 @@ on: [push]
 jobs:
   lint:
     env:
-      backend-directory: src/app/server
+      app-directory: src/snapshots-app
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
-          working-directory: ${{env.backend-directory}}
+          working-directory: ${{env.app-directory}}
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
       - name: rubocop
         run: |
-          cd ${{env.backend-directory}}
+          cd ${{env.app-directory}}
           bundle exec rubocop -f github
