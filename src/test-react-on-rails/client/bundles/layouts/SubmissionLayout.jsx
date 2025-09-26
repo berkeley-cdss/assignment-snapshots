@@ -55,7 +55,7 @@ function SubmissionLayout() {
 
   // Fetch autograder output
   React.useEffect(() => {
-    fetch(`/files/${FILE_PATH_PREFIX}/autograder_output.txt`, {
+    fetch(`/api/files/${FILE_PATH_PREFIX}/autograder_output.txt`, {
       method: "GET",
     })
       .then((response) => {
@@ -75,7 +75,7 @@ function SubmissionLayout() {
 
   // Fetch the initial file
   React.useEffect(() => {
-    fetch(`/files/${FILE_PATH_PREFIX}/${initialFile}`, {
+    fetch(`/api/files/${FILE_PATH_PREFIX}/${initialFile}`, {
       method: "GET",
     })
       .then((response) => {
@@ -97,7 +97,7 @@ function SubmissionLayout() {
   const handleChange = (event) => {
     setFile(event.target.value);
 
-    fetch(`/files/${FILE_PATH_PREFIX}/${event.target.value}`, {
+    fetch(`/api/files/${FILE_PATH_PREFIX}/${event.target.value}`, {
       method: "GET",
     })
       .then((response) => {
