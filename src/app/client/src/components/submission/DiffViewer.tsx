@@ -25,7 +25,7 @@ function DiffViewer() {
     data?.newFile?.fileName || "",
     data?.newFile?.content || "",
     data?.oldFile?.fileLang || "",
-    data?.newFile?.fileLang || ""
+    data?.newFile?.fileLang || "",
   );
   file.initTheme("light");
   file.init();

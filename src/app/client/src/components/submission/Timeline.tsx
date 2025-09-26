@@ -17,7 +17,7 @@ function Timeline() {
 
   const handleClick0 = () => {
     setVariant0((prevVariant) =>
-      prevVariant === "contained" ? "outlined" : "contained"
+      prevVariant === "contained" ? "outlined" : "contained",
     );
     setVariant1("outlined");
     setVariant2("outlined");
@@ -26,7 +26,7 @@ function Timeline() {
   const handleClick1 = () => {
     setVariant0("outlined");
     setVariant1((prevVariant) =>
-      prevVariant === "contained" ? "outlined" : "contained"
+      prevVariant === "contained" ? "outlined" : "contained",
     );
     setVariant2("outlined");
   };
@@ -35,7 +35,7 @@ function Timeline() {
     setVariant0("outlined");
     setVariant1("outlined");
     setVariant2((prevVariant) =>
-      prevVariant === "contained" ? "outlined" : "contained"
+      prevVariant === "contained" ? "outlined" : "contained",
     );
   };
 
