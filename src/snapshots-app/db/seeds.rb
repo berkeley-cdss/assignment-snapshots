@@ -14,42 +14,42 @@ Course.delete_all
 Assignment.delete_all
 
 user = {
-  :first_name => "Rebecca",
-  :last_name => "Dang",
-  :email => "rdang@berkeley.edu",
+  first_name: "Rebecca",
+  last_name: "Dang",
+  email: "rdang@berkeley.edu"
 }
 
 courses = [
   {
-    :course => "CS 61A",
-    :name => "Structure and Interpretation of Computer Programs",
-    :term => "Fall 2025"
+    course: "CS 61A",
+    name: "Structure and Interpretation of Computer Programs",
+    term: "Fall 2025"
   },
   {
-    :course => "DATA C88C",
-    :name => "Computational Structures in Data Science",
-    :term => "Spring 2025"
+    course: "DATA C88C",
+    name: "Computational Structures in Data Science",
+    term: "Spring 2025"
   },
   {
-    :course => "CS 61B",
-    :name => "Data Structures",
-    :term => "Fall 2023"
-  },
+    course: "CS 61B",
+    name: "Data Structures",
+    term: "Fall 2023"
+  }
 ]
 
 assignments = [
   {
-    :name => "Lab 7",
-    :due_date => "2025-11-30",
+    name: "Lab 7",
+    due_date: "2025-11-30"
   },
   {
-    :name => "Ants",
-    :due_date => "2025-11-25",
+    name: "Ants",
+    due_date: "2025-11-25"
   },
   {
-    :name => "Maps",
-    :due_date => "2025-09-30",
-  },
+    name: "Maps",
+    due_date: "2025-09-30"
+  }
 ]
 
 courses.each do |course|
