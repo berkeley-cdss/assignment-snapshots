@@ -115,21 +115,27 @@ function CoursesTable({ coursesData }) {
 }
 
 function Courses() {
-  const coursesData = [
-    {
-      id: 1,
-      course: "CS 61A",
-      name: "Structure and Interpretation of Computer Programs",
-      term: "Fall 2025",
-    },
-    {
-      id: 2,
-      course: "DATA C88C",
-      name: "Computational Structures in Data Science",
-      term: "Spring 2025",
-    },
-    { id: 3, course: "CS 61B", name: "Data Structures", term: "Fall 2023" },
-  ];
+  const [coursesData, setCoursesData] = useState([]);
+  const userId = "user-id-12345"; // TODO replace me when implementing authentication
+  React.useEffect(() => {
+    fetch(`/api/courses/${userId}`, {
+      method: "GET",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((responseData) => {
+        console.log(responseData);
+        setCoursesData(responseData["courses"]);
+      })
+      .catch((error) => {
+        throw new Error(`HTTP error! Error: ${error}`);
+      });
+  }, []);
+
 
   return (
     <div style={{ paddingLeft: "1rem", paddingRight: "1rem" }}>
