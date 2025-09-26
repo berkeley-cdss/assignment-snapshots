@@ -43,6 +43,10 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  gem "rubocop", "~> 1.75", require: false
+
+  gem "mocha"
 end
 
 group :development do
@@ -59,3 +63,5 @@ end
 gem "react_on_rails", "= 14.2"
 
 gem "shakapacker", "= 8.3"
+
+gem "aws-sdk-s3"
