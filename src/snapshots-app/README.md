@@ -1,30 +1,5 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
-
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
-
-See also: https://www.shakacode.com/react-on-rails/docs/guides/tutorial/
-
 ## Requirements
 
 * NodeJS v22
@@ -49,6 +24,28 @@ npm install
 ```
 
 Visit [http://localhost:3000](http://localhost:3000) and see your React On Rails app running!
+
+To quit the server press `Ctrl + C`. You may need to do this twice (not sure why).
+
+## Common Commands
+
+```sh
+# Run tests
+bin/rake
+
+# Run brakeman (scan for common Rails vulnerabilities)
+bin/brakeman
+
+# Run Ruby linter and autocorrect violations
+rubocop --autocorrect
+
+# Run Prettier (formats HTML/CSS/JS files) and autocorrect violations
+prettier . --write
+```
+
+## Directory Structure
+
+This is a [React on Rails](https://www.shakacode.com/react-on-rails/docs/) app. The Rails part (backend) is under the `app/` directory and the React frontend is under the `client/` directory.
 
 ## AWS S3 Configuration and Authentication
 
