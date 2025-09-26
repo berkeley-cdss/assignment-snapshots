@@ -1,0 +1,25 @@
+name: brakeman
+
+on: [push]
+
+jobs:
+  scan_ruby:
+    env:
+      app-directory: src/snapshots-app
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          working-directory: ${{env.app-directory}}
+          ruby-version: .ruby-version
+          bundler-cache: true
+
+      - name: Scan for common Rails security vulnerabilities using static analysis
+        run: |
+          cd ${{env.app-directory}}
+          bin/brakeman --no-pager
