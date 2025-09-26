@@ -22,3 +22,30 @@ Things you may want to cover:
 * Deployment instructions
 
 * ...
+
+See also: https://www.shakacode.com/react-on-rails/docs/guides/tutorial/
+
+## Requirements
+
+* NodeJS v22
+* Ruby v3.3.0
+
+## Installation
+
+```sh
+# install ruby on rails dependencies
+bundle install
+
+# install node js dependencies
+npm install
+```
+
+## Startup
+
+```sh
+./bin/dev # For HMR (hot module reloading)
+# or
+./bin/dev static # Without HMR, statically creating the bundles
+```
+
+Visit [http://localhost:3000](http://localhost:3000) and see your React On Rails app running!
