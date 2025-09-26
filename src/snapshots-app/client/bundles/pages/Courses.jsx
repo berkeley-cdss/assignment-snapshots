@@ -116,9 +116,9 @@ function CoursesTable({ coursesData }) {
 
 function Courses() {
   const [coursesData, setCoursesData] = useState([]);
-  const userId = "user-id-12345"; // TODO replace me when implementing authentication
+  const userEmail = "rdang@berkeley.edu"; // TODO replace me when implementing authentication
   React.useEffect(() => {
-    fetch(`/api/courses/${userId}`, {
+    fetch(`/api/courses?email=${encodeURIComponent(userEmail)}`, {
       method: "GET",
     })
       .then((response) => {
@@ -135,7 +135,6 @@ function Courses() {
         throw new Error(`HTTP error! Error: ${error}`);
       });
   }, []);
-
 
   return (
     <div style={{ paddingLeft: "1rem", paddingRight: "1rem" }}>
