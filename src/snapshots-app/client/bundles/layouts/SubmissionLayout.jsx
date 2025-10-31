@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { styled } from "@mui/material/styles";
 import Toolbar from "@mui/material/Toolbar";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import { MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import { useAtom } from "jotai";
 
 import AutograderOutput from "../components/submission/AutograderOutput";
 import FileViewer from "../components/submission/FileViewer";
@@ -11,6 +12,7 @@ import Graphs from "../components/submission/Graphs";
 import NavBar from "../components/submission/NavBar";
 import Timeline from "../components/submission/Timeline";
 import { FormControl, InputLabel } from "@mui/material";
+import { selectedCourseAtom, selectedAssignmentAtom, selectedStudentAtom, backupsAtom, selectedBackupAtom } from "../state/atoms";
 
 // TODO minWidth: 0 prevent main content from stretching out to sidebars, but this seems rather hacky?
 
@@ -43,19 +45,32 @@ const ContentWrapper = styled(Box)({
 // TODO add dropdown to be able to switch to different files in this submission
 
 // TODO picked a random person below
-const FILE_PATH_PREFIX = "cal-cs88-sp25/maps/0a2cf5f9/2O8r4J";
+// const FILE_PATH_PREFIX = "cal-cs88-sp25/maps/0a2cf5f9/2O8r4J";
+
+// TODO how to generalize this
+const assignmentToFiles = {
+  "maps": ["utils.py", "abstractions.py", "recommend.py"],
+  "lab00": ["lab00.py"],
+};
 
 function SubmissionLayout() {
-  const initialFile = "utils.py";
-  const [file, setFile] = React.useState(initialFile);
+  const [selectedCourse, setSelectedCourse] = useAtom(selectedCourseAtom);
+  const [selectedAssignment, setSelectedAssignment] = useAtom(selectedAssignmentAtom);
+  const [selectedStudent, setSelectedStudent] = useAtom(selectedStudentAtom);
+  const [backups, setBackups] = useAtom(backupsAtom); // TODO: pass backups to timeline
+  const [selectedBackup, setSelectedBackup] = useAtom(selectedBackupAtom);
+
+  console.log("selected assignment", selectedAssignment);
+
+  const files = useMemo(() => assignmentToFiles[selectedAssignment.okpy_endpoint], [selectedAssignment]);
+
+  const [file, setFile] = React.useState(files[0]);
   const [code, setCode] = React.useState("");
   const [autograderOutput, setAutograderOutput] = React.useState("");
 
-  // TODO create fetch file helper function - move out of this file?
-
-  // Fetch autograder output
+  // Fetch backups
   React.useEffect(() => {
-    fetch(`/api/files/${FILE_PATH_PREFIX}/autograder_output.txt`, {
+    fetch(`/api/backups/${selectedCourse.id}/${selectedAssignment.id}/${selectedStudent.id}`, {
       method: "GET",
     })
       .then((response) => {
@@ -65,17 +80,43 @@ function SubmissionLayout() {
         return response.json();
       })
       .then((responseData) => {
-        console.log(responseData);
+        setBackups(responseData["backups"]);
+      })
+      .catch((error) => {
+        throw new Error(`HTTP error! Error: ${error}`);
+      });
+  }, [selectedCourse, selectedAssignment, selectedStudent, setBackups]);
+
+  const filePathPrefix = useMemo(() => {
+    if (backups.length > 0) {
+      const transformedOkpyEndpoint = selectedCourse.okpy_endpoint.replaceAll('/', '-');
+      const backupId = backups[selectedBackup].backup_id; // TODO fix error - backups has not been fetched yet since useEffect happens after
+      return `${transformedOkpyEndpoint}/${selectedAssignment.okpy_endpoint}/${selectedStudent.email}/${backupId}`
+    }
+  }, [selectedCourse, selectedAssignment, selectedStudent, backups, selectedBackup]);
+
+  // Fetch autograder output
+  React.useEffect(() => {
+    fetch(`/api/files/${filePathPrefix}/autograder_output.txt`, {
+      method: "GET",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((responseData) => {
         setAutograderOutput(responseData["file_contents"]);
       })
       .catch((error) => {
         throw new Error(`HTTP error! Error: ${error}`);
       });
-  }, []);
+  }, [filePathPrefix]);
 
   // Fetch the initial file
   React.useEffect(() => {
-    fetch(`/api/files/${FILE_PATH_PREFIX}/${initialFile}`, {
+    fetch(`/api/files/${filePathPrefix}/${file}`, {
       method: "GET",
     })
       .then((response) => {
@@ -85,34 +126,33 @@ function SubmissionLayout() {
         return response.json();
       })
       .then((responseData) => {
-        console.log(responseData);
         setCode(responseData["file_contents"]);
       })
       .catch((error) => {
         throw new Error(`HTTP error! Error: ${error}`);
       });
-  }, []);
+  }, [filePathPrefix, file]);
 
   // Fetch new file when selected
   const handleChange = (event) => {
     setFile(event.target.value);
 
-    fetch(`/api/files/${FILE_PATH_PREFIX}/${event.target.value}`, {
-      method: "GET",
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((responseData) => {
-        console.log(responseData);
-        setCode(responseData["file_contents"]);
-      })
-      .catch((error) => {
-        throw new Error(`HTTP error! Error: ${error}`);
-      });
+    // fetch(`/api/files/${filePathPrefix}/${event.target.value}`, {
+    //   method: "GET",
+    // })
+    //   .then((response) => {
+    //     if (!response.ok) {
+    //       throw new Error(`HTTP error! Status: ${response.status}`);
+    //     }
+    //     return response.json();
+    //   })
+    //   .then((responseData) => {
+    //     console.log(responseData);
+    //     setCode(responseData["file_contents"]);
+    //   })
+    //   .catch((error) => {
+    //     throw new Error(`HTTP error! Error: ${error}`);
+    //   });
   };
 
   return (
@@ -155,9 +195,7 @@ function SubmissionLayout() {
                 label="File"
                 onChange={handleChange}
               >
-                <MenuItem value="utils.py">utils.py</MenuItem>
-                <MenuItem value="abstractions.py">abstractions.py</MenuItem>
-                <MenuItem value="recommend.py">recommend.py</MenuItem>
+                {files.map((file) => <MenuItem value={file}>{file}</MenuItem>)}
               </Select>
             </FormControl>
           </div>

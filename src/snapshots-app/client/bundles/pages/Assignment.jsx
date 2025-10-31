@@ -7,12 +7,13 @@ import { DataGrid } from "@mui/x-data-grid";
 import { styled } from "@mui/material/styles";
 import { useAtom } from "jotai";
 
-import { selectedCourseAtom, selectedAssignmentAtom } from "../state/atoms";
+import { selectedCourseAtom, selectedAssignmentAtom, selectedStudentAtom } from "../state/atoms";
 
 // TODO: rename paths and components to be consistent
 function StudentsTable({ courseId, assignmentId, studentsData }) {
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
+  const [selectedStudent, setSelectedStudent] = useAtom(selectedStudentAtom);
 
   const filteredStudents = studentsData.filter(
     (s) =>
@@ -36,11 +37,13 @@ function StudentsTable({ courseId, assignmentId, studentsData }) {
             cursor: "pointer",
             textDecoration: "underline",
           }}
-          onClick={() =>
+          onClick={() => {
+            setSelectedStudent(params.row);
+            console.log("selected student", params.row)
             navigate(
               `/courses/${courseId}/assignments/${assignmentId}/students/${params.row.id}`,
             )
-          }
+          }}
         >
           {params.value}
         </span>
@@ -133,7 +136,7 @@ function Assignment() {
       <h1>{selectedAssignment.name}</h1>
       <StudentsTable
         courseId={selectedCourse.id}
-        assignmentId={selectedAssignment}
+        assignmentId={selectedAssignment.id}
         studentsData={studentsData}
       />
     </div>

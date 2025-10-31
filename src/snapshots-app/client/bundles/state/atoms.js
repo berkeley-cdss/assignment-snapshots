@@ -8,5 +8,8 @@ export const selectedCourseAtom = atom(null);
 // json object representing assignment info
 export const selectedAssignmentAtom = atom(null);
 
+// json object representing (student) user info
+export const selectedStudentAtom = atom(null);
+
 export const backupsAtom = atom([]);
-export const selectedBackupAtom = atom(null);
+export const selectedBackupAtom = atom(-1);
