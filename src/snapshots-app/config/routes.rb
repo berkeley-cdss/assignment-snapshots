@@ -1,7 +1,4 @@
 Rails.application.routes.draw do
-  namespace :api do
-    get "backups/show"
-  end
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
@@ -19,6 +16,7 @@ Rails.application.routes.draw do
     get "courses", to: "courses#show"
     get "assignments/:course_id", to: "assignments#show"
     get "submissions/:course_id/:assignment_id", to: "submissions#show"
+    get "backups/:course_id/:assignment_id/:user_id", to: "backups#show"
   end
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
