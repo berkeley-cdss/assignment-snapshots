@@ -33,7 +33,7 @@ class Api::BackupsController < ApplicationController
         assignment: backup.assignment,
         student_id: backup.student_email,
         file_contents_location: backup.file_contents_location,
-        autograder_output_location: backup.autograder_output_location,
+        autograder_output_location: backup.autograder_output_location
       }
     end
     render json: { "course_id": course_id, "assignment_id": assignment_id, "user_id": user_id, "backups": backups }, status: :ok
