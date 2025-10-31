@@ -9,6 +9,6 @@ class CreateLintErrors < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    add_index :lint_errors, [:file_contents_location, :line_number, :message, :code], unique: true
+    add_index :lint_errors, [ :file_contents_location, :line_number, :message, :code ], unique: true
   end
 end
