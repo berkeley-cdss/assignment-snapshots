@@ -12,9 +12,9 @@
 
 ActiveRecord::Schema[8.0].define(version: 2025_10_31_062234) do
   create_table "assignments", force: :cascade do |t|
-    t.string "name"
-    t.date "due_date"
-    t.string "okpy_endpoint"
+    t.string "name", null: false
+    t.date "due_date", null: false
+    t.string "okpy_endpoint", null: false
     t.integer "course_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -22,20 +22,39 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_31_062234) do
     t.index ["name", "course_id"], name: "index_assignments_on_name_and_course_id", unique: true
   end
 
-  create_table "backup_metadata", force: :cascade do |t|
+  create_table "backup_metadata", primary_key: "backup_id", id: :string, force: :cascade do |t|
+    t.string "created", null: false
+    t.string "course", null: false
+    t.string "assignment", null: false
+    t.string "student_email", null: false
+    t.boolean "is_late", null: false
+    t.boolean "submitted", null: false
+    t.string "autograder_output_location"
+    t.string "grading_location"
+    t.string "file_contents_location"
+    t.string "analytics_location"
+    t.string "scoring_location"
+    t.string "unlock_location"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["analytics_location"], name: "index_backup_metadata_on_analytics_location", unique: true
+    t.index ["autograder_output_location"], name: "index_backup_metadata_on_autograder_output_location", unique: true
+    t.index ["file_contents_location"], name: "index_backup_metadata_on_file_contents_location", unique: true
+    t.index ["grading_location"], name: "index_backup_metadata_on_grading_location", unique: true
+    t.index ["scoring_location"], name: "index_backup_metadata_on_scoring_location", unique: true
+    t.index ["unlock_location"], name: "index_backup_metadata_on_unlock_location", unique: true
   end
 
   create_table "courses", force: :cascade do |t|
-    t.string "dept"
-    t.string "code"
-    t.string "name"
-    t.integer "term"
-    t.integer "year"
-    t.string "okpy_endpoint"
+    t.string "dept", null: false
+    t.string "code", null: false
+    t.string "name", null: false
+    t.integer "term", null: false
+    t.integer "year", null: false
+    t.string "okpy_endpoint", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["dept", "code", "name", "term", "year"], name: "index_courses_on_dept_and_code_and_name_and_term_and_year", unique: true
     t.index ["okpy_endpoint"], name: "index_courses_on_okpy_endpoint", unique: true
   end
 
@@ -50,6 +69,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_31_062234) do
   end
 
   create_table "okpy_messages", force: :cascade do |t|
+    t.string "type", null: false
+    t.string "description", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -65,11 +86,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_31_062234) do
   end
 
   create_table "users", force: :cascade do |t|
-    t.string "first_name"
-    t.string "last_name"
-    t.string "email"
-    t.string "email_hash"
-    t.integer "student_id"
+    t.string "first_name", null: false
+    t.string "last_name", null: false
+    t.string "email", null: false
+    t.string "email_hash", null: false
+    t.integer "student_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
