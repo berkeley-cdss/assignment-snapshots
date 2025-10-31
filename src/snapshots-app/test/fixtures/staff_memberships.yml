@@ -4,10 +4,10 @@
 # model remove the "{}" from the fixture names and add the columns immediately
 # below each fixture, per the syntax in the comments below
 #
-one:
-  user_id: 1
+bob_cs61a:
+  user_id: 2
   course_id: 1
 
-two:
-  user_id: 2
+alice_datac88c:
+  user_id: 1
   course_id: 2
