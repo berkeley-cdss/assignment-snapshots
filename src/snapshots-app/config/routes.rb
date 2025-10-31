@@ -1,7 +1,4 @@
 Rails.application.routes.draw do
-  namespace :api do
-    get "courses/show"
-  end
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
@@ -13,9 +10,10 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   root "login#index"
 
-  # TODO define API routes in separate namespace
+  # Define API routes in separate namespace
   namespace :api, defaults: { format: :json } do
     get "files/:okpy_endpoint/:assignment/:student_id/:backup_id/:file_name", to: "files#show", constraints: { file_name: /.+\..+/ }
+    get "courses", to: "courses#show"
   end
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
