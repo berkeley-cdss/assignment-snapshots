@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_31_062234) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_31_140301) do
   create_table "assignments", force: :cascade do |t|
     t.string "name", null: false
     t.date "due_date", null: false
@@ -66,6 +66,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_31_062234) do
     t.index ["course_id"], name: "index_enrollments_on_course_id"
     t.index ["user_id", "course_id"], name: "index_enrollments_on_user_id_and_course_id", unique: true
     t.index ["user_id"], name: "index_enrollments_on_user_id"
+  end
+
+  create_table "lint_errors", force: :cascade do |t|
+    t.string "file_contents_location", null: false
+    t.integer "line_number", null: false
+    t.string "message", null: false
+    t.string "code", null: false
+    t.string "url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["file_contents_location", "line_number", "message", "code"], name: "idx_on_file_contents_location_line_number_message_c_d34ed563d8", unique: true
   end
 
   create_table "okpy_messages", force: :cascade do |t|
