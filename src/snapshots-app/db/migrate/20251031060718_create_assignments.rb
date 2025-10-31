@@ -1,9 +1,9 @@
 class CreateAssignments < ActiveRecord::Migration[8.0]
   def change
     create_table :assignments do |t|
-      t.string :name
-      t.date :due_date
-      t.string :okpy_endpoint
+      t.string :name, null: false
+      t.date :due_date, null: false
+      t.string :okpy_endpoint, null: false
 
       # Creates column course_id
       t.references :course, null: false, foreign_key: true
