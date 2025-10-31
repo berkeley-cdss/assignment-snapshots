@@ -3,9 +3,33 @@
 # This model initially had no columns defined. If you add columns to the
 # model remove the "{}" from the fixture names and add the columns immediately
 # below each fixture, per the syntax in the comments below
-#
-one: {}
-# column: value
-#
-two: {}
-# column: value
+
+autograder_output:
+  id: 1
+  type: autograder_output
+  description: OkPy autograder output string
+
+grading:
+  id: 2
+  type: grading
+  description: For each test, a count of how many were locked/passed/failed
+
+file_contents:
+  id: 3
+  type: file_contents
+  description: Source file names and their contents
+
+analytics:
+  id: 4
+  type: analytics
+  description: Count of how many attempts student made on a problem and boolean of whether it was solved
+
+scoring:
+  id: 5
+  type: scoring
+  description: Total score for that OkPy run
+
+unlock:
+  id: 6
+  type: unlock
+  description: Unlocking test output

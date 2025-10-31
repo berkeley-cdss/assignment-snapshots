@@ -3,9 +3,31 @@
 # This model initially had no columns defined. If you add columns to the
 # model remove the "{}" from the fixture names and add the columns immediately
 # below each fixture, per the syntax in the comments below
-#
-one: {}
-# column: value
-#
-two: {}
-# column: value
+
+alice_ants_1:
+  backup_id: abc123
+  created: '2025-01-23T20:00:24'
+  course: cal/cs61a/fa25
+  assignment: ants
+  student_email: a.jones@berkeley.edu
+  is_late: false
+  submitted: false
+
+alice_ants_2:
+  backup_id: def456
+  created: '2025-01-24T20:00:24'
+  course: cal/cs61a/fa25
+  assignment: ants
+  student_email: a.jones@berkeley.edu
+  is_late: false
+  submitted: false
+
+bob_maps:
+  backup_id: aaa111
+  created: '2025-01-23T20:00:24'
+  course: cal/cs88/fa25
+  assignment: maps
+  student_email: b.dylan@berkeley.edu
+  is_late: false
+  submitted: false
+
