@@ -10,6 +10,7 @@
 
 # Delete all existing data
 User.delete_all
+Student.delete_all
 Course.delete_all
 Assignment.delete_all
 
@@ -18,6 +19,31 @@ user = {
   last_name: "Dang",
   email: "rdang@berkeley.edu"
 }
+
+# everything except email_hash is fake
+students = [
+  {
+    first_name: "Alice",
+    last_name: "Jones",
+    student_id: 1,
+    email: "ajones@berkeley.edu",
+    email_hash: "010d927c",
+  },
+  {
+    first_name: "Bob",
+    last_name: "Smith",
+    student_id: 2,
+    email: "bsmith@berkeley.edu",
+    email_hash: "9614c0e2",
+  },
+  {
+    first_name: "Charlie",
+    last_name: "Brown",
+    student_id: 3,
+    email: "cbrown@berkeley.edu",
+    email_hash: "fabec26a",
+  },
+]
 
 courses = [
   {
@@ -39,16 +65,12 @@ courses = [
 
 assignments = [
   {
-    name: "Lab 7",
-    due_date: "2025-11-30"
-  },
-  {
-    name: "Ants",
-    due_date: "2025-11-25"
+    name: "Lab 0",
+    due_date: "2025-01-20"
   },
   {
     name: "Maps",
-    due_date: "2025-09-30"
+    due_date: "2025-02-15"
   }
 ]
 
@@ -58,6 +80,19 @@ courses.each do |course|
     name: course[:name],
     term: course[:term],
   )
+
+  if course[:course] == "DATA C88C"
+    students.each do |student|
+      Student.create!(
+        first_name: student[:first_name],
+        last_name: student[:last_name],
+        student_id: student[:student_id],
+        email: student[:email],
+        email_hash: student[:email_hash],
+        course_id: course_record.id,
+      )
+    end
+  end
 
   # TODO use postgres to have array of course ids instead?
   User.create!(
