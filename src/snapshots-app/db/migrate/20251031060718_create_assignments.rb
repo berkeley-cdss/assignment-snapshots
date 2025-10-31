@@ -8,5 +8,6 @@ class CreateAssignments < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
+    add_index :assignments, [:name, :course_id], unique: true
   end
 end
