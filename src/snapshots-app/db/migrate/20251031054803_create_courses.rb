@@ -11,6 +11,6 @@ class CreateCourses < ActiveRecord::Migration[8.0]
       t.timestamps
     end
     add_index :courses, :okpy_endpoint, unique: true
-    add_index :courses, [:dept, :code, :name, :term, :year], unique: true
+    add_index :courses, [ :dept, :code, :name, :term, :year ], unique: true
   end
 end
