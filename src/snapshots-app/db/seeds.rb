@@ -8,10 +8,11 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 
-# Delete existing data
-User.delete_all
-Course.delete_all
+# Delete existing data (order matters for foreign key constraints)
+Assignment.delete_all
 StaffMembership.delete_all
+Course.delete_all
+User.delete_all
 
 user = {
   first_name: "Rebecca",
@@ -32,6 +33,21 @@ courses = [
   }
 ]
 
+assignments = [
+  {
+    name: "Maps",
+    due_date: "2025-03-18 23:59:00",
+    okpy_endpoint: "maps"
+    # course: data c88c
+  },
+  {
+    name: "Lab 0",
+    due_date: "2025-01-31 23:59:00",
+    okpy_endpoint: "lab00"
+    # course: data c88c
+  }
+]
+
 user_record = User.create!(first_name: user[:first_name], last_name: user[:last_name], email: user[:email], email_hash: user[:email_hash], student_id: user[:student_id])
 
 # loop over courses and create them
@@ -40,4 +56,8 @@ courses.each do |course|
 
   # create staff membership for user in course
   StaffMembership.create!(user_id: user_record.id, course_id: course_record.id)
+
+  assignments.each do |assignment|
+    Assignment.create!(name: assignment[:name], due_date: assignment[:due_date], okpy_endpoint: assignment[:okpy_endpoint], course_id: course_record.id)
+  end
 end

@@ -13,7 +13,7 @@
 ActiveRecord::Schema[8.0].define(version: 2025_10_31_140301) do
   create_table "assignments", force: :cascade do |t|
     t.string "name", null: false
-    t.date "due_date", null: false
+    t.datetime "due_date", null: false
     t.string "okpy_endpoint", null: false
     t.integer "course_id", null: false
     t.datetime "created_at", null: false
