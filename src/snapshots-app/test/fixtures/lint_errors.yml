@@ -3,14 +3,21 @@
 # TODO: make file_contents_location values more realistic (should include backup id and student email hash)
 
 recommend_unused_import:
-  file_contents_location: cal/cs88/fa25/maps/recommend.py
+  file_contents_location: cal/cs88/fa25/maps/student_id/backup_id/recommend.py
   line_number: 3
   message: Unused import
   code: E100
   url: https://example.com
 
+recommend_whitespace:
+  file_contents_location: cal/cs88/fa25/maps/student_id/backup_id/recommend.py
+  line_number: 30
+  message: Missing whitespace between operators
+  code: E200
+  url: https://example.com
+
 lab00_whitespace:
-  file_contents_location: cal/cs61a/fa25/lab00/lab00.py
+  file_contents_location: cal/cs61a/fa25/lab00/student_id/backup_id/lab00.py
   line_number: 5
   message: Missing whitespace between operators
   code: E200
