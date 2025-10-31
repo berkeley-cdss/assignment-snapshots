@@ -1,0 +1,2 @@
+class OkpyMessage < ApplicationRecord
+end
