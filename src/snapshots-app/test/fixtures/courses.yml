@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  id: 1
+  dept: MyString
+  code: MyString
+  name: MyString
+  term: 1
+  year: 1
+  okpy_endpoint: MyString 1
+
+two:
+  id: 2
+  dept: MyString
+  code: MyString
+  name: MyString
+  term: 1
+  year: 1
+  okpy_endpoint: MyString 2
