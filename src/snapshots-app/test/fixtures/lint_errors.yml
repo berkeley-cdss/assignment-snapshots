@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  file_contents_location: MyString
+  line_number: 1
+  message: MyString
+  code: MyString
+  url: MyString
+
+two:
+  file_contents_location: MyString
+  line_number: 1
+  message: MyString
+  code: MyString
+  url: MyString
