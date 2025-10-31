@@ -1,10 +1,13 @@
 import React from "react";
 
-import { useParams, useNavigate } from "react-router";
-import { useState } from "react";
+import { useNavigate } from "react-router";
+import { useState, useEffect } from "react";
 import { TextField, Box } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { styled } from "@mui/material/styles";
+import { useAtom } from "jotai";
+
+import { selectedCourseAtom, selectedAssignmentAtom } from "../state/atoms";
 
 // TODO: rename paths and components to be consistent
 function StudentsTable({ courseId, assignmentId, studentsData }) {
@@ -13,16 +16,17 @@ function StudentsTable({ courseId, assignmentId, studentsData }) {
 
   const filteredStudents = studentsData.filter(
     (s) =>
-      s.name.toLowerCase().includes(search.toLowerCase()) ||
+      s.first_name.toLowerCase().includes(search.toLowerCase()) ||
+      s.last_name.toLowerCase().includes(search.toLowerCase()) ||
       s.email.toLowerCase().includes(search.toLowerCase()) ||
-      s.studentId.toString().includes(search.toLowerCase()),
+      s.student_id.toString().includes(search.toLowerCase())
   );
 
-  // TODO: replace with API call
   const columns = [
     {
       field: "name",
       headerName: "Student Name",
+      valueGetter: (value, row) => `${row.first_name} ${row.last_name}`,
       flex: 2,
       headerClassName: "column-header",
       renderCell: (params) => (
@@ -49,7 +53,7 @@ function StudentsTable({ courseId, assignmentId, studentsData }) {
       headerClassName: "column-header",
     },
     {
-      field: "studentId",
+      field: "student_id",
       headerName: "Student ID",
       flex: 1,
       headerClassName: "column-header",
@@ -102,41 +106,34 @@ function StudentsTable({ courseId, assignmentId, studentsData }) {
 }
 
 function Assignment() {
-  const params = useParams();
-  const courseId = parseInt(params.courseId);
-  const assignmentId = parseInt(params.assignmentId);
-  const studentsData = [
-    {
-      id: 1,
-      name: "Alice Jones",
-      email: "ajones@berkeley.edu",
-      studentId: 12345,
-    },
-    {
-      id: 2,
-      name: "Bob Smith",
-      email: "bsmith@berkeley.edu",
-      studentId: 67890,
-    },
-    {
-      id: 3,
-      name: "Charlie Brown",
-      email: "cbrown@berkeley.edu",
-      studentId: 24680,
-    },
-  ];
-  const assignmentIdMap = {
-    1: "Lab 7",
-    2: "Ants",
-    3: "Maps",
-  };
+  const [selectedCourse, setSelectedCourse] = useAtom(selectedCourseAtom);
+  const [selectedAssignment, setSelectedAssignment] = useAtom(selectedAssignmentAtom);
+  const [studentsData, setStudentsData] = useState([]);
+
+  useEffect(() => {
+    fetch(`/api/submissions/${selectedCourse.id}/${selectedAssignment.id}`, {
+      method: "GET",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((responseData) => {
+        setStudentsData(responseData["submissions"]);
+      })
+      .catch((error) => {
+        throw new Error(`HTTP error! Error: ${error}`);
+      });
+  }, [selectedCourse, selectedAssignment]);
 
   return (
     <div style={{ paddingLeft: "1rem", paddingRight: "1rem" }}>
-      <h1>{assignmentIdMap[assignmentId]}</h1>
+      <h1>{selectedAssignment.name}</h1>
       <StudentsTable
-        courseId={courseId}
-        assignmentId={assignmentId}
+        courseId={selectedCourse.id}
+        assignmentId={selectedAssignment}
         studentsData={studentsData}
       />
     </div>

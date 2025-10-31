@@ -55,9 +55,20 @@ class Api::LintErrorsControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal 2, lint_errors_data.size # Should find the two errors for Alice's backup
 
-    # Check that the response contains the expected attributes from the fixtures
-    assert_lint_error_structure(lint_errors_data.find { |e| e["id"] == @error_one.id }, @error_one)
-    assert_lint_error_structure(lint_errors_data.find { |e| e["id"] == @error_two.id }, @error_two)
+    # Check that both fixtures appear in the response, order-independent
+    found_one = lint_errors_data.find do |e|
+      e["file_contents_location"] == @error_one.file_contents_location &&
+      e["message"] == @error_one.message
+    end
+    assert_not_nil found_one, "Expected @error_one to be present in response"
+    assert_lint_error_structure(found_one, @error_one)
+
+    found_two = lint_errors_data.find do |e|
+      e["file_contents_location"] == @error_two.file_contents_location &&
+      e["message"] == @error_two.message
+    end
+    assert_not_nil found_two, "Expected @error_two to be present in response"
+    assert_lint_error_structure(found_two, @error_two)
 
     # Works for CS 61A Lab 00
     get lint_errors_url(@lab00_cs61a_params)

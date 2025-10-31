@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useParams, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { useState, useEffect } from "react";
 import { TextField, Box } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";

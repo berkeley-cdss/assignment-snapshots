@@ -35,8 +35,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_31_140301) do
     t.string "analytics_location"
     t.string "scoring_location"
     t.string "unlock_location"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
     t.index ["analytics_location"], name: "index_backup_metadata_on_analytics_location", unique: true
     t.index ["autograder_output_location"], name: "index_backup_metadata_on_autograder_output_location", unique: true
     t.index ["file_contents_location"], name: "index_backup_metadata_on_file_contents_location", unique: true
@@ -68,22 +66,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_31_140301) do
     t.index ["user_id"], name: "index_enrollments_on_user_id"
   end
 
-  create_table "lint_errors", force: :cascade do |t|
+  create_table "lint_errors", id: false, force: :cascade do |t|
     t.string "file_contents_location", null: false
     t.integer "line_number", null: false
     t.string "message", null: false
     t.string "code", null: false
     t.string "url"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["file_contents_location", "line_number", "message", "code"], name: "idx_on_file_contents_location_line_number_message_c_d34ed563d8", unique: true
   end
 
   create_table "okpy_messages", force: :cascade do |t|
     t.string "type", null: false
     t.string "description", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
   end
 
   create_table "staff_memberships", force: :cascade do |t|

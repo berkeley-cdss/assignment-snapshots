@@ -4,8 +4,6 @@ class CreateOkpyMessages < ActiveRecord::Migration[8.0]
       t.integer :id, primary_key: true
       t.string :type, null: false
       t.string :description, null: false
-
-      t.timestamps
     end
   end
 end

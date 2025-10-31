@@ -15,8 +15,6 @@ class CreateBackupMetadata < ActiveRecord::Migration[8.0]
       t.string :analytics_location
       t.string :scoring_location
       t.string :unlock_location
-
-      t.timestamps
     end
     add_index :backup_metadata, :autograder_output_location, unique: true
     add_index :backup_metadata, :grading_location, unique: true
