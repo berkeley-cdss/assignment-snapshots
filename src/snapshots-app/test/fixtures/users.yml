@@ -1,17 +1,17 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
+alice:
   id: 1
-  first_name: MyString
-  last_name: MyString
-  email: MyString 1
-  email_hash: MyString 1
+  first_name: Alice
+  last_name: Jones
+  email: a.jones@berkeley.edu
+  email_hash: abc123
   student_id: 1
 
-two:
+bob:
   id: 2
-  first_name: MyString
-  last_name: MyString
-  email: MyString 2
-  email_hash: MyString 2
+  first_name: Bob
+  last_name: Dylan
+  email: b.dylan@berkeley.edu
+  email_hash: def456
   student_id: 2

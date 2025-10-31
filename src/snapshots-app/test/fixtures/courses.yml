@@ -1,19 +1,19 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
+cs61a:
   id: 1
-  dept: MyString
-  code: MyString
-  name: MyString
-  term: 1
-  year: 1
-  okpy_endpoint: MyString 1
+  dept: CS
+  code: 61A
+  name: Structure and Interpretation of Programs
+  term: 3 # fall
+  year: 2025
+  okpy_endpoint: cal/cs61a/fa25
 
-two:
+datac88c:
   id: 2
-  dept: MyString
-  code: MyString
-  name: MyString
-  term: 1
-  year: 1
-  okpy_endpoint: MyString 2
+  dept: DATA
+  code: C88C
+  name: Computational Structures in Data Science
+  term: 3 # fall
+  year: 2025
+  okpy_endpoint: cal/cs88/fa25
