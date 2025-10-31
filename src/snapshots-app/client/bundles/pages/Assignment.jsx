@@ -125,6 +125,26 @@ function Assignment() {
       studentId: 24680,
     },
   ];
+
+  React.useEffect(() => {
+    fetch(`/api/courses?email=${encodeURIComponent(userEmail)}`, {
+      method: "GET",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((responseData) => {
+        console.log(responseData);
+        setCoursesData(responseData["courses"]);
+      })
+      .catch((error) => {
+        throw new Error(`HTTP error! Error: ${error}`);
+      });
+  }, []);
+
   const assignmentIdMap = {
     1: "Lab 7",
     2: "Ants",

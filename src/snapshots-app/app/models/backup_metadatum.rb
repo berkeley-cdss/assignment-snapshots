@@ -1,0 +1,2 @@
+class BackupMetadatum < ApplicationRecord
+end

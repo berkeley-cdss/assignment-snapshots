@@ -12,13 +12,13 @@ function AssignmentsTable({ courseId, assignmentsData }) {
   const navigate = useNavigate();
 
   const filteredAssignments = assignmentsData.filter((a) =>
-    a.assignment.toLowerCase().includes(search.toLowerCase()),
+    a.name.toLowerCase().includes(search.toLowerCase()),
   );
 
   // TODO: replace with API call
   const columns = [
     {
-      field: "assignment",
+      field: "name",
       headerName: "Assignment",
       flex: 2,
       headerClassName: "column-header",
@@ -38,7 +38,7 @@ function AssignmentsTable({ courseId, assignmentsData }) {
       ),
     },
     {
-      field: "dueDate",
+      field: "due_date",
       headerName: "Due Date",
       flex: 1,
       headerClassName: "column-header",
@@ -88,7 +88,7 @@ function AssignmentsTable({ courseId, assignmentsData }) {
               },
             },
             sorting: {
-              sortModel: [{ field: "dueDate", sort: "desc" }],
+              sortModel: [{ field: "due_date", sort: "desc" }],
             },
           }}
           disableRowSelectionOnClick
@@ -101,11 +101,29 @@ function AssignmentsTable({ courseId, assignmentsData }) {
 function Course() {
   const params = useParams();
   const courseId = parseInt(params.courseId);
-  const assignmentsData = [
-    { id: 1, assignment: "Lab 7", dueDate: "2025-12-01" },
-    { id: 2, assignment: "Ants", dueDate: "2025-11-26" },
-    { id: 3, assignment: "Maps", dueDate: "2025-10-01" },
-  ];
+
+  const [assignmentsData, setAssignmentsData] = useState([]);
+  const userId = "user-id-12345"; // TODO replace me when implementing authentication
+  React.useEffect(() => {
+    fetch(`/api/assignments/${userId}/${courseId}`, {
+      method: "GET",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((responseData) => {
+        console.log(responseData);
+        setAssignmentsData(responseData["assignments"]);
+      })
+      .catch((error) => {
+        throw new Error(`HTTP error! Error: ${error}`);
+      });
+  }, []);
+
+  // TODO retrieve programmatically
   const courseIdMap = {
     1: "CS 61A Fall 2025",
     2: "DATA C88C Spring 2025",
