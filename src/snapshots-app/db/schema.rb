@@ -72,7 +72,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_31_140301) do
     t.string "message", null: false
     t.string "code", null: false
     t.string "url"
-    t.index ["file_contents_location", "line_number", "message", "code"], name: "idx_on_file_contents_location_line_number_message_c_d34ed563d8", unique: true
   end
 
   create_table "okpy_messages", force: :cascade do |t|
