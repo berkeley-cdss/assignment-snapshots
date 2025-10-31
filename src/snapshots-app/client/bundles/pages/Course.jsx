@@ -1,24 +1,26 @@
 import React from "react";
 
 import { useParams, useNavigate } from "react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TextField, Box } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { styled } from "@mui/material/styles";
+import { useAtom } from "jotai";
+
+import { selectedCourseAtom, selectedAssignmentAtom } from "../state/atoms";
 
 // TODO: rename paths and components to be consistent
-function AssignmentsTable({ courseId, assignmentsData }) {
+function AssignmentsTable({ courseId, assignmentsData, setSelectedAssignment }) {
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
 
   const filteredAssignments = assignmentsData.filter((a) =>
-    a.assignment.toLowerCase().includes(search.toLowerCase()),
+    a.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  // TODO: replace with API call
   const columns = [
     {
-      field: "assignment",
+      field: "name",
       headerName: "Assignment",
       flex: 2,
       headerClassName: "column-header",
@@ -29,16 +31,17 @@ function AssignmentsTable({ courseId, assignmentsData }) {
             cursor: "pointer",
             textDecoration: "underline",
           }}
-          onClick={() =>
+          onClick={() => {
+            setSelectedAssignment(params.row);
             navigate(`/courses/${courseId}/assignments/${params.row.id}`)
-          }
+          }}
         >
           {params.value}
         </span>
       ),
     },
     {
-      field: "dueDate",
+      field: "due_date",
       headerName: "Due Date",
       flex: 1,
       headerClassName: "column-header",
@@ -99,23 +102,32 @@ function AssignmentsTable({ courseId, assignmentsData }) {
 }
 
 function Course() {
-  const params = useParams();
-  const courseId = parseInt(params.courseId);
-  const assignmentsData = [
-    { id: 1, assignment: "Lab 7", dueDate: "2025-12-01" },
-    { id: 2, assignment: "Ants", dueDate: "2025-11-26" },
-    { id: 3, assignment: "Maps", dueDate: "2025-10-01" },
-  ];
-  const courseIdMap = {
-    1: "CS 61A Fall 2025",
-    2: "DATA C88C Spring 2025",
-    3: "CS 61B Fall 2023",
-  };
+  const [selectedCourse, setSelectedCourse] = useAtom(selectedCourseAtom);
+  const [selectedAssignment, setSelectedAssignment] = useAtom(selectedAssignmentAtom);
+  const [assignmentsData, setAssignmentsData] = useState([]);
+
+  useEffect(() => {
+    fetch(`/api/assignments/${selectedCourse.id}`, {
+      method: "GET",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((responseData) => {
+        setAssignmentsData(responseData["assignments"]);
+      })
+      .catch((error) => {
+        throw new Error(`HTTP error! Error: ${error}`);
+      });
+  }, [selectedCourse]);
 
   return (
     <div style={{ paddingLeft: "1rem", paddingRight: "1rem" }}>
-      <h1>{courseIdMap[courseId]}</h1>
-      <AssignmentsTable courseId={courseId} assignmentsData={assignmentsData} />
+      <h1>{selectedCourse.dept} {selectedCourse.code} {selectedCourse.term.charAt(0).toUpperCase() + selectedCourse.term.slice(1)} {selectedCourse.year}</h1>
+      <AssignmentsTable courseId={selectedCourse.id} assignmentsData={assignmentsData} setSelectedAssignment={setSelectedAssignment} />
     </div>
   );
 }

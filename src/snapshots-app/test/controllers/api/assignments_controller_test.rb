@@ -34,11 +34,11 @@ class Api::AssignmentsControllerTest < ActionDispatch::IntegrationTest
       case assignment["id"]
       when @ants_cs61a.id
         assert_equal @ants_cs61a.name, assignment["name"]
-        assert_equal @ants_cs61a.due_date.to_s, assignment["due_date"]
+        assert_equal @ants_cs61a.due_date.utc.iso8601(3), assignment["due_date"]
         assert_equal @ants_cs61a.okpy_endpoint, assignment["okpy_endpoint"]
       when @lab00_cs61a.id
         assert_equal @lab00_cs61a.name, assignment["name"]
-        assert_equal @lab00_cs61a.due_date.to_s, assignment["due_date"]
+        assert_equal @lab00_cs61a.due_date.utc.iso8601(3), assignment["due_date"]
         assert_equal @lab00_cs61a.okpy_endpoint, assignment["okpy_endpoint"]
       else
         flunk "Unexpected assignment ID #{assignment['id']} found in response"
@@ -62,7 +62,7 @@ class Api::AssignmentsControllerTest < ActionDispatch::IntegrationTest
     assignment = assignments_data[0]
     assert_equal @maps_datac88c.id, assignment["id"]
     assert_equal @maps_datac88c.name, assignment["name"]
-    assert_equal @maps_datac88c.due_date.to_s, assignment["due_date"]
+    assert_equal @maps_datac88c.due_date.utc.iso8601(3), assignment["due_date"]
     assert_equal @maps_datac88c.okpy_endpoint, assignment["okpy_endpoint"]
   end
 

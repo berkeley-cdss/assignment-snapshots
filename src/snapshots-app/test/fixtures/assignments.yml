@@ -2,18 +2,18 @@
 
 ants_cs61a:
   name: Ants
-  due_date: 2025-10-30
+  due_date: '2025-10-30 00:00:00 Z'
   course_id: 1
   okpy_endpoint: ants
 
 lab00_cs61a:
   name: Lab 0
-  due_date: 2025-08-20
+  due_date: '2025-08-20 00:00:00 Z'
   course_id: 1
   okpy_endpoint: lab00
 
 maps_datac88c:
   name: Maps
-  due_date: 2025-10-30
+  due_date: '2025-10-30 00:00:00 Z'
   course_id: 2
   okpy_endpoint: maps
