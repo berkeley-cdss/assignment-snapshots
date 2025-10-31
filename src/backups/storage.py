@@ -89,11 +89,11 @@ def create_backup_and_write_messages(
     )
 
 
-def setup_db(database: str) -> sqlite3.Cursor:
+def setup_db(database: str) -> sqlite3.Connection:
     assert database.endswith(".db")
 
-    con = sqlite3.connect(database)
-    cur = con.cursor()
+    conn = sqlite3.connect(database)
+    cur = conn.cursor()
 
     cur.execute(DROP_BACKUP_METADATA_TABLE_CMD)
     cur.execute(DROP_OKPY_MESSAGES_TABLE_CMD)
@@ -101,13 +101,17 @@ def setup_db(database: str) -> sqlite3.Cursor:
     cur.execute(CREATE_BACKUP_METADATA_TABLE_CMD)
     cur.execute(CREATE_OKPY_MESSAGES_TABLE_CMD)
 
+    conn.commit()
+
     for row_data in OKPY_MESSAGES_VALUES:
         cur.execute(INSERT_OKPY_MESSAGES_TABLE_CMD, row_data)
 
-    return cur
+    conn.commit()
+
+    return conn
 
 
-def insert_record(cur: sqlite3.Cursor, backup: Backup):
+def insert_record(conn: sqlite3.Connection, backup: Backup):
     # TODO do executemany instead?
     # https://docs.python.org/3/library/sqlite3.html#how-to-use-placeholders-to-bind-values-in-sql-queries
     data = {
@@ -125,7 +129,9 @@ def insert_record(cur: sqlite3.Cursor, backup: Backup):
         "scoring_location": backup.scoring_location,
         "unlock_location": backup.unlock_location,
     }
+    cur = conn.cursor()
     cur.execute(INSERT_BACKUP_METADATA_CMD, data)
+    conn.commit()
 
 
 def sha256(s: str) -> str:
@@ -137,7 +143,7 @@ def responses_to_backups(
     emails_to_responses: dict,
     course: str,
     path_prefix: str,
-    cur: sqlite3.Cursor,
+    conn: sqlite3.Connection,
     deidentify: bool,
 ) -> int:
     num_backups = 0
@@ -153,6 +159,6 @@ def responses_to_backups(
                         backup_dict,
                         path_prefix,
                     )
-                    insert_record(cur, backup)
+                    insert_record(conn, backup)
                     num_backups += 1
     return num_backups

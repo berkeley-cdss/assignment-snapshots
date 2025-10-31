@@ -249,7 +249,7 @@ def store(
     if timeit:
         start = time()
 
-    cur = setup_db(database)
+    conn = setup_db(database)
     if verbose:
         print(f"Setup database {database}")
 
@@ -262,11 +262,12 @@ def store(
         emails_to_responses = json.load(f)
 
     num_backups = responses_to_backups(
-        emails_to_responses, course_endpoint, PREFIX, cur, deidentify
+        emails_to_responses, course_endpoint, PREFIX, conn, deidentify
     )
     if verbose:
         print(f"Processed {num_backups} backups from {dump}")
 
+    cur = conn.cursor()
     cur.execute("SELECT COUNT(*) FROM backup_metadata")
     num_rows = cur.fetchone()[0]
     assert (
