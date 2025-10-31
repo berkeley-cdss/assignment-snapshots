@@ -3,9 +3,9 @@ class CreateAssignments < ActiveRecord::Migration[8.0]
     create_table :assignments do |t|
       t.string :name
       t.date :due_date
-      t.integer :course_id
       t.string :okpy_endpoint
 
+      # Creates column course_id
       t.references :course, null: false, foreign_key: true
 
       t.timestamps

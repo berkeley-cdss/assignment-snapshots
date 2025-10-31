@@ -10,7 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_31_054803) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_31_060718) do
+  create_table "assignments", force: :cascade do |t|
+    t.string "name"
+    t.date "due_date"
+    t.string "okpy_endpoint"
+    t.integer "course_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["course_id"], name: "index_assignments_on_course_id"
+    t.index ["name", "course_id"], name: "index_assignments_on_name_and_course_id", unique: true
+  end
+
   create_table "backup_metadata", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -32,4 +43,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_31_054803) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
+
+  add_foreign_key "assignments", "courses"
 end
