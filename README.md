@@ -33,6 +33,32 @@ An example can be found in [src/backups/backup_config.json](src/backups/backup_c
 All fields are required (e.g. they must either be provided in the config or via the CLI).
 CLI arguments will override anything in the config.
 
+## Dumping database from OkPy Backups CLI into Rails database
+
+1. Create a `.sql` file dump of the OkPy Backups database (after you have run the `request` and `store` commands):
+```sh
+# Replace $OUTPUT_DB_NAME and $OUTPUT_DUMP_NAME with values of your choice
+sqlite3 data/private/$OUTPUT_DB_NAME.db .dump > data/private/$OUTPUT_DUMP_NAME.sql
+```
+2. Add the dump data into your Rails (development) database:
+```sh
+# Replace $OUTPUT_DUMP_NAME with value from step 1
+sqlite3 src/snapshots-app/storage/development.sqlite3 < data/private/$OUTPUT_DUMP_NAME.sql
+```
+3. Generate models for the tables:
+```sh
+rails generate model BackupMetadatum
+rails generate model OkpyMessage
+```
+4. Verify that your data has been loaded properly:
+```
+# Open the rails console
+$ rails c
+snapshots-app(dev)> BackupMetadatum.all # view data and check it looks correct, press q to exit long list
+snapshots-app(dev)> OkpyMessage.all # view data and check it looks correct
+snapshots-app(dev)> exit
+```
+
 ## Continuous Integration
 
 This repository uses [GitHub Actions](https://docs.github.com/en/actions) to run [black](https://black.readthedocs.io/en/stable/index.html) and [pylint](https://www.pylint.org/). See `.github/workflows`.
