@@ -15,7 +15,8 @@
         "in_roster": "../../data/private/data_c88c_sp25_gradescope_roster.csv",
         "out_roster": "../../data/private/emails.txt",
         "dump": "../../data/private/output.json",
-        "database": "../../data/private/test_db.db"
+        "database": "../../data/private/test_db.db",
+        "lint_json": "../../data/private/lint.json"
     },
     "deidentify": true
 }

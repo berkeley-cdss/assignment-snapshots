@@ -2,6 +2,8 @@ DROP_BACKUP_METADATA_TABLE_CMD = "DROP TABLE IF EXISTS backup_metadata"
 
 DROP_OKPY_MESSAGES_TABLE_CMD = "DROP TABLE IF EXISTS okpy_messages"
 
+DROP_LINT_ERRORS_TABLE_CMD = "DROP TABLE IF EXISTS lint_errors"
+
 CREATE_BACKUP_METADATA_TABLE_CMD = """
 CREATE TABLE backup_metadata (
     backup_id TEXT PRIMARY KEY,
@@ -103,3 +105,25 @@ OKPY_MESSAGES_VALUES = [
     },
     # NOTE: there is another okpy message called "email" but that just contains the student's email
 ]
+
+CREATE_LINT_ERRORS_TABLE_CMD = """
+CREATE TABLE lint_errors (
+	file_contents_location TEXT NOT NULL,
+	line_number INTEGER NOT NULL,
+	message TEXT NOT NULL,
+	code TEXT NOT NULL, -- lint error code
+	url TEXT, -- lint error URL for more information
+
+	UNIQUE (file_contents_location, line_number, message, code)
+);
+"""
+
+INSERT_LINT_ERROR_CMD = """
+INSERT INTO lint_errors VALUES (
+    :file_contents_location,
+    :line_number,
+    :message,
+    :code,
+    :url
+);
+"""

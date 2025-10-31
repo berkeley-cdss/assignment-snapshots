@@ -18,7 +18,13 @@ from typing_extensions import Annotated
 
 from emails import process_roster
 from request import get_backups_for_all_users_all_assignments
-from storage import setup_db, PREFIX, responses_to_backups
+from storage import (
+    setup_db,
+    setup_db_lint_errors,
+    PREFIX,
+    responses_to_backups,
+    store_lint_errors,
+)
 
 DEFAULT_CONFIG_FILE = "backup_config.json"
 
@@ -286,6 +292,60 @@ def store(
     if timeit:
         end = time()
         print(f"Finished storing backups in {database} in {end - start} seconds")
+
+
+@app.command()
+def lint(
+    database: Annotated[
+        str,
+        typer.Option(
+            help="Name of sqlite database .db file where backups will be stored"
+        ),
+    ] = None,
+    lint_json: Annotated[
+        str, typer.Option(help="Path to output of ruff check as .json")
+    ] = None,
+    config: Annotated[
+        str, typer.Option(help="Configuration .json file")
+    ] = DEFAULT_CONFIG_FILE,
+    timeit: Annotated[
+        bool, typer.Option(help="Whether to time how long it takes this command to run")
+    ] = True,
+    verbose: bool = False,
+):
+    """
+    Assuming the `request` and `store` commands have already been run,
+    and the user has already run `ruff check`, running this command
+    will produce the `lint_errors` table in the backups database.
+
+    If any arguments are not specified, this command will use the values in the CONFIG .json file.
+    """
+    # TODO add prompt when overwriting db or actual files
+    config_dict = read_config(config)
+
+    if database is None:
+        database = config_dict["data"]["database"]
+    assert database.endswith(".db"), "database must be a sqlite .db file"
+
+    if lint_json is None:
+        lint_json = config_dict["data"]["lint_json"]
+    assert lint_json.endswith(".json"), "lint_json must be a .json file"
+
+    if timeit:
+        start = time()
+
+    conn = setup_db_lint_errors(database)
+    if verbose:
+        print(f"Setup database {database}")
+
+    with open(lint_json, "r") as f:
+        lint_output = json.load(f)
+
+    store_lint_errors(lint_output, conn, verbose=verbose)
+
+    if timeit:
+        end = time()
+        print(f"Finished storing lint errors in {database} in {end - start} seconds")
 
 
 @app.command()
