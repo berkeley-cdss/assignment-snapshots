@@ -6,6 +6,8 @@ class CreateAssignments < ActiveRecord::Migration[8.0]
       t.integer :course_id
       t.string :okpy_endpoint
 
+      t.references :course, null: false, foreign_key: true
+
       t.timestamps
     end
     add_index :assignments, [:name, :course_id], unique: true
