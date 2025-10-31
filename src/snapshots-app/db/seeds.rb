@@ -71,7 +71,7 @@ students = [
     email: "9614c0e2",
     email_hash: "9614c0e2",
     student_id: 789
-  },
+  }
 ]
 
 user_record = User.create!(first_name: user[:first_name], last_name: user[:last_name], email: user[:email], email_hash: user[:email_hash], student_id: user[:student_id])
