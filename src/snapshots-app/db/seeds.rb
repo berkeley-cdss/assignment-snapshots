@@ -11,6 +11,7 @@
 # Delete existing data (order matters for foreign key constraints)
 Assignment.delete_all
 StaffMembership.delete_all
+Enrollment.delete_all
 Course.delete_all
 User.delete_all
 
@@ -48,6 +49,31 @@ assignments = [
   }
 ]
 
+# TODO figure out email vs email_hash
+students = [
+  {
+    first_name: "Alice",
+    last_name: "Jones",
+    email: "010d927c",
+    email_hash: "010d927c",
+    student_id: 123
+  },
+  {
+    first_name: "Bob",
+    last_name: "Dylan",
+    email: "fabec26a",
+    email_hash: "fabec26a",
+    student_id: 456
+  },
+  {
+    first_name: "Charlie",
+    last_name: "Brown",
+    email: "9614c0e2",
+    email_hash: "9614c0e2",
+    student_id: 789
+  },
+]
+
 user_record = User.create!(first_name: user[:first_name], last_name: user[:last_name], email: user[:email], email_hash: user[:email_hash], student_id: user[:student_id])
 
 # loop over courses and create them
@@ -56,6 +82,12 @@ courses.each do |course|
 
   # create staff membership for user in course
   StaffMembership.create!(user_id: user_record.id, course_id: course_record.id)
+
+  # create enrollments
+  students.each do |student|
+    student_record = User.create!(first_name: student[:first_name], last_name: student[:last_name], email: student[:email], email_hash: student[:email_hash], student_id: student[:student_id])
+    Enrollment.create!(user_id: student_record.id, course_id: course_record.id)
+  end
 
   assignments.each do |assignment|
     Assignment.create!(name: assignment[:name], due_date: assignment[:due_date], okpy_endpoint: assignment[:okpy_endpoint], course_id: course_record.id)
