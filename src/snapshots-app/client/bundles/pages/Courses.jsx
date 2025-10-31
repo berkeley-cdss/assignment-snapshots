@@ -1,47 +1,70 @@
 import React from "react";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TextField, Box } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { styled } from "@mui/material/styles";
 import { useNavigate } from "react-router";
+import { useAtom } from "jotai";
 
-function CoursesTable({ coursesData }) {
+import { userAtom, selectedCourseAtom } from "../state/atoms";
+
+function CoursesTable() {
+  const [user, setUser] = useAtom(userAtom);
+  const [selectedCourse, setSelectedCourse] = useAtom(selectedCourseAtom);
+  const [coursesData, setCoursesData] = useState([]);
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
 
+  useEffect(() => {
+    fetch(`/api/courses?email=${encodeURIComponent(user)}`, {
+      method: "GET",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((responseData) => {
+        setCoursesData(responseData["courses"]);
+      })
+      .catch((error) => {
+        throw new Error(`HTTP error! Error: ${error}`);
+      });
+  }, [user]);
+
+  const termStringToInt = (termString) => {
+    switch (termString) {
+      case "winter": return 0;
+      case "spring": return 1;
+      case "summer": return 2;
+      case "fall": return 3;
+      default: throw new Error("Unknown Term String: " + termString);
+    }
+  }
+
   const filteredCourses = coursesData.filter(
     (c) =>
-      c.course.toLowerCase().includes(search.toLowerCase()) ||
+      c.dept.toLowerCase().includes(search.toLowerCase()) ||
+      c.code.toLowerCase().includes(search.toLowerCase()) ||
       c.name.toLowerCase().includes(search.toLowerCase()) ||
-      c.term.toLowerCase().includes(search.toLowerCase()),
+      c.term.toLowerCase().includes(search.toLowerCase()) ||
+      c.year.toString().includes(search.toLowerCase())
   );
 
   function termComparator(a, b) {
-    const parseTerm = (term) => {
-      const [season, yearStr] = term.split(" ");
-      const year = parseInt(yearStr, 10);
-      const seasonOrder = {
-        Spring: 1,
-        Summer: 2,
-        Fall: 3,
-      };
-      return { year, seasonSortOrder: seasonOrder[season] ?? 99 };
-    };
-
-    const ta = parseTerm(a);
-    const tb = parseTerm(b);
-
-    if (ta.year !== tb.year) {
-      return ta.year - tb.year;
+    if (a.year !== b.year) {
+      return a.year - b.year;
     }
-    return ta.seasonSortOrder - tb.seasonSortOrder;
+    return termStringToInt(a.term) - termStringToInt(b.term);
   }
 
   const columns = [
     {
       field: "course",
       headerName: "Course",
+      valueGetter: (value, row) => `${row.dept} ${row.code}`,
       flex: 1,
       headerClassName: "column-header",
       renderCell: (params) => (
@@ -51,7 +74,10 @@ function CoursesTable({ coursesData }) {
             cursor: "pointer",
             textDecoration: "underline",
           }}
-          onClick={() => navigate(`/courses/${params.row.id}`)}
+          onClick={() => {
+            setSelectedCourse(params.row);
+            navigate(`/courses/${params.row.id}`);
+          }}
         >
           {params.value}
         </span>
@@ -66,6 +92,7 @@ function CoursesTable({ coursesData }) {
     {
       field: "term",
       headerName: "Term",
+      valueGetter: (value, row) => `${row.term.charAt(0).toUpperCase() + row.term.slice(1)} ${row.year}`,
       flex: 1,
       headerClassName: "column-header",
       sortComparator: termComparator,
@@ -115,26 +142,11 @@ function CoursesTable({ coursesData }) {
 }
 
 function Courses() {
-  const coursesData = [
-    {
-      id: 1,
-      course: "CS 61A",
-      name: "Structure and Interpretation of Computer Programs",
-      term: "Fall 2025",
-    },
-    {
-      id: 2,
-      course: "DATA C88C",
-      name: "Computational Structures in Data Science",
-      term: "Spring 2025",
-    },
-    { id: 3, course: "CS 61B", name: "Data Structures", term: "Fall 2023" },
-  ];
 
   return (
     <div style={{ paddingLeft: "1rem", paddingRight: "1rem" }}>
       <h1>Courses</h1>
-      <CoursesTable coursesData={coursesData} />
+      <CoursesTable />
     </div>
   );
 }
