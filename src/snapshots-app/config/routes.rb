@@ -17,6 +17,7 @@ Rails.application.routes.draw do
     get "assignments/:course_id", to: "assignments#show"
     get "submissions/:course_id/:assignment_id", to: "submissions#show"
     get "backups/:course_id/:assignment_id/:user_id", to: "backups#show"
+    get "lint_errors/:okpy_endpoint/:assignment/:student_id/:backup_id/:file_name", to: "lint_errors#show", constraints: { file_name: /.+\..+/ }
   end
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

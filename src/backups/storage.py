@@ -5,6 +5,7 @@ Contains logic for persistent storage of assignment backups
 import hashlib
 import os
 import sqlite3
+from typing import List
 
 from db import *
 from models import *
@@ -12,6 +13,9 @@ from models import *
 # TODO type hints
 
 PREFIX = "../../data/private"
+
+# TODO make this programmatically adjustable
+FILENAME_PREFIX = "/Users/rebeccadang/Desktop/Code/ucb/berkeley-cdss/assignment-snapshots/data/private/"
 
 
 def create_backup_and_write_messages(
@@ -111,6 +115,21 @@ def setup_db(database: str) -> sqlite3.Connection:
     return conn
 
 
+# TODO figure out a way to generalize this better
+def setup_db_lint_errors(database: str) -> sqlite3.Connection:
+    assert database.endswith(".db")
+
+    conn = sqlite3.connect(database)
+    cur = conn.cursor()
+
+    cur.execute(DROP_LINT_ERRORS_TABLE_CMD)
+    cur.execute(CREATE_LINT_ERRORS_TABLE_CMD)
+
+    conn.commit()
+
+    return conn
+
+
 def insert_record(conn: sqlite3.Connection, backup: Backup):
     # TODO do executemany instead?
     # https://docs.python.org/3/library/sqlite3.html#how-to-use-placeholders-to-bind-values-in-sql-queries
@@ -131,6 +150,21 @@ def insert_record(conn: sqlite3.Connection, backup: Backup):
     }
     cur = conn.cursor()
     cur.execute(INSERT_BACKUP_METADATA_CMD, data)
+    conn.commit()
+
+
+def insert_lint_error_record(conn: sqlite3.Connection, lint_error: LintError):
+    # TODO do executemany instead?
+    # https://docs.python.org/3/library/sqlite3.html#how-to-use-placeholders-to-bind-values-in-sql-queries
+    data = {
+        "file_contents_location": lint_error.file_contents_location,
+        "line_number": lint_error.line_number,
+        "message": lint_error.message,
+        "code": lint_error.code,
+        "url": lint_error.url,
+    }
+    cur = conn.cursor()
+    cur.execute(INSERT_LINT_ERROR_CMD, data)
     conn.commit()
 
 
@@ -162,3 +196,31 @@ def responses_to_backups(
                     insert_record(conn, backup)
                     num_backups += 1
     return num_backups
+
+
+def lint_output_to_lint_errors(lint_output: list) -> List[LintError]:
+    result = []
+    for error in lint_output:
+        lint_error = LintError(
+            error["filename"].removeprefix(FILENAME_PREFIX),
+            error["location"]["row"],
+            error["message"],
+            error["code"],
+            error["url"],
+        )
+        result.append(lint_error)
+    return result
+
+
+def store_lint_errors(
+    lint_output: list, conn: sqlite3.Connection, verbose: bool = False
+):
+    lint_errors = lint_output_to_lint_errors(lint_output)
+    if verbose:
+        print(f"Parsed {len(lint_errors)} lint errors")
+
+    for err in lint_errors:
+        insert_lint_error_record(conn, err)
+
+    if verbose:
+        print("Inserted all lint errors into db")

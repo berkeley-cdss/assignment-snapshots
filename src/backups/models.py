@@ -113,3 +113,19 @@ MESSAGE_KIND_TO_CLASS = {
     "scoring": ScoringMessage,
     "unlock": UnlockMessage,
 }
+
+
+class LintError:
+    def __init__(
+        self,
+        file_contents_location: str,
+        line_number: int,
+        message: str,
+        code: str,
+        url: str | None = None,
+    ):
+        self.file_contents_location = file_contents_location
+        self.line_number = line_number
+        self.message = message
+        self.code = code
+        self.url = url
