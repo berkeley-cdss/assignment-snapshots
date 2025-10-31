@@ -15,10 +15,10 @@ Pygments==2.19.1
 python-dotenv==1.0.1
 PyYAML==6.0.2
 pyzmq==26.2.1
-requests==2.32.3
+requests==2.32.4
 rich==13.9.4
 shellingham==1.5.4
 typer==0.15.1
 typing_extensions==4.12.2
-urllib3==2.3.0
+urllib3==2.5.0
 virtualenv==20.29.2
