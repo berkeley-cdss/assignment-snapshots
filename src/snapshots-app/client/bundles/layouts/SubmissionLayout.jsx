@@ -5,6 +5,7 @@ import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import { MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import { useAtom } from "jotai";
+import CircularProgress from '@mui/material/CircularProgress';
 
 import AutograderOutput from "../components/submission/AutograderOutput";
 import FileViewer from "../components/submission/FileViewer";
@@ -41,17 +42,9 @@ const ContentWrapper = styled(Box)({
   flexGrow: 1,
 });
 
-// TODO don't hardcode values and instead fetch from server
 // TODO add dropdown to be able to switch to different files in this submission
 
-// TODO picked a random person below
-// const FILE_PATH_PREFIX = "cal-cs88-sp25/maps/0a2cf5f9/2O8r4J";
 
-// TODO how to generalize this
-const assignmentToFiles = {
-  "maps": ["utils.py", "abstractions.py", "recommend.py"],
-  "lab00": ["lab00.py"],
-};
 
 function SubmissionLayout() {
   const [selectedCourse, setSelectedCourse] = useAtom(selectedCourseAtom);
@@ -60,11 +53,8 @@ function SubmissionLayout() {
   const [backups, setBackups] = useAtom(backupsAtom); // TODO: pass backups to timeline
   const [selectedBackup, setSelectedBackup] = useAtom(selectedBackupAtom);
 
-  console.log("selected assignment", selectedAssignment);
-
-  const files = useMemo(() => assignmentToFiles[selectedAssignment.okpy_endpoint], [selectedAssignment]);
-
-  const [file, setFile] = React.useState(files[0]);
+  const [files, setFiles] = React.useState([]);
+  const [file, setFile] = React.useState("");
   const [code, setCode] = React.useState("");
   const [autograderOutput, setAutograderOutput] = React.useState("");
 
@@ -80,95 +70,33 @@ function SubmissionLayout() {
         return response.json();
       })
       .then((responseData) => {
-        setBackups(responseData["backups"]);
+        const fetchedBackups = responseData["backups"];
+        setBackups(fetchedBackups);
+        // TODO: use derived atoms? file index?
+        setFiles(fetchedBackups[selectedBackup]["files"].map((file) => file.name));
+        setFile(fetchedBackups[selectedBackup]["files"][0].name);
+        setCode(fetchedBackups[selectedBackup]["files"][0].contents);
+        setAutograderOutput(fetchedBackups[selectedBackup]["autograder_output"]);
       })
       .catch((error) => {
         throw new Error(`HTTP error! Error: ${error}`);
       });
-  }, [selectedCourse, selectedAssignment, selectedStudent, setBackups]);
+  }, [selectedCourse, selectedAssignment, selectedStudent, setBackups, selectedBackup, setFiles, setFile, setCode, setAutograderOutput]);
 
-  const filePathPrefix = useMemo(() => {
-    if (backups.length > 0) {
-      const transformedOkpyEndpoint = selectedCourse.okpy_endpoint.replaceAll('/', '-');
-      const backupId = backups[selectedBackup].backup_id; // TODO fix error - backups has not been fetched yet since useEffect happens after
-      return `${transformedOkpyEndpoint}/${selectedAssignment.okpy_endpoint}/${selectedStudent.email}/${backupId}`
-    }
-  }, [selectedCourse, selectedAssignment, selectedStudent, backups, selectedBackup]);
-
-  // Fetch autograder output
-  React.useEffect(() => {
-    fetch(`/api/files/${filePathPrefix}/autograder_output.txt`, {
-      method: "GET",
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((responseData) => {
-        setAutograderOutput(responseData["file_contents"]);
-      })
-      .catch((error) => {
-        throw new Error(`HTTP error! Error: ${error}`);
-      });
-  }, [filePathPrefix]);
-
-  // Fetch the initial file
-  React.useEffect(() => {
-    fetch(`/api/files/${filePathPrefix}/${file}`, {
-      method: "GET",
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((responseData) => {
-        setCode(responseData["file_contents"]);
-      })
-      .catch((error) => {
-        throw new Error(`HTTP error! Error: ${error}`);
-      });
-  }, [filePathPrefix, file]);
 
   // Fetch new file when selected
   const handleChange = (event) => {
     setFile(event.target.value);
-
-    // fetch(`/api/files/${filePathPrefix}/${event.target.value}`, {
-    //   method: "GET",
-    // })
-    //   .then((response) => {
-    //     if (!response.ok) {
-    //       throw new Error(`HTTP error! Status: ${response.status}`);
-    //     }
-    //     return response.json();
-    //   })
-    //   .then((responseData) => {
-    //     console.log(responseData);
-    //     setCode(responseData["file_contents"]);
-    //   })
-    //   .catch((error) => {
-    //     throw new Error(`HTTP error! Error: ${error}`);
-    //   });
+    // TODO: use derived atoms? file index?
+    const fileObjects = backups[selectedBackup]["files"];
+    const selectedFileObj = fileObjects.find((fileObj) => fileObj.name === event.target.value);
+    setCode(selectedFileObj.contents);
   };
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      {/* TODO display student stuff somehow */}
-      {/* <AppBar position="static">
-        <Toolbar>
-          <NavBar
-            studentName="Rebecca Dang"
-            studentEmail="rdang@berkeley.edu"
-            studentId={3037279631}
-            assignmentName="Maps"
-          />
-        </Toolbar>
-      </AppBar>
-      */}
+      {backups.length === 0 ?
+        <CircularProgress /> :
       <ContentWrapper>
         <LeftSidebar>
           {/* Left Sidebar Content Area */}
@@ -208,6 +136,8 @@ function SubmissionLayout() {
           <Graphs />
         </RightSidebar>
       </ContentWrapper>
+      }
+
     </Box>
   );
 }

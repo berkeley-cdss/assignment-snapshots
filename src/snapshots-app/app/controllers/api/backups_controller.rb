@@ -1,5 +1,7 @@
 require "aws-sdk-s3"
 
+# TODO update tests, make it faster
+
 S3_BUCKET_NAME = "ucb-assignment-snapshots-eae254943a2c4f51bef67654e99560dd"
 S3_BUCKET_REGION = "us-west-2"
 
@@ -14,9 +16,12 @@ class Api::BackupsController < ApplicationController
   end
 
   def get_files(file_contents_location, assignment_file_names)
-    assignment_file_names.map do |file_name|
-      [file_name, get_s3_object("#{file_contents_location}/#{file_name}")]
-    end.to_h
+    assignment_file_names.sort.map do |file_name|
+      {
+        :name => file_name,
+        :contents => get_s3_object("#{file_contents_location}/#{file_name}")
+      }
+    end
   end
 
   def show
@@ -59,10 +64,10 @@ class Api::BackupsController < ApplicationController
           error = "#{e.message} S3 object key: #{e.context.params[:key]}"
           status = :not_found
         rescue Aws::S3::Errors::ServiceError => e
-          error = "Error accessing S3: #{e.message} #{e.context.params}"
+          error = "Error accessing S3: #{e.message} Request context params: #{e.context.params}"
           status = :internal_server_error
         rescue StandardError => e
-          error = "Unknown error occurred when fetching files from S3: #{e.message} #{e.context}"
+          error = "Unknown error occurred when fetching files from S3: #{e.message} Request context params: #{e.context.params}"
           status = :internal_server_error
         end
 

@@ -12,4 +12,4 @@ export const selectedAssignmentAtom = atom(null);
 export const selectedStudentAtom = atom(null);
 
 export const backupsAtom = atom([]);
-export const selectedBackupAtom = atom(-1);
+export const selectedBackupAtom = atom(0);
