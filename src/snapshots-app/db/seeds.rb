@@ -8,7 +8,8 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 
-# Delete existing data (order matters for foreign key constraints)
+# Delete existing data (order matters due to foreign key constraints)
+AssignmentFile.delete_all
 Assignment.delete_all
 StaffMembership.delete_all
 Enrollment.delete_all
@@ -38,13 +39,15 @@ assignments = [
   {
     name: "Maps",
     due_date: "2025-03-18 23:59:00",
-    okpy_endpoint: "maps"
+    okpy_endpoint: "maps",
+    files: ["utils.py", "abstractions.py", "recommend.py"]
     # course: data c88c
   },
   {
     name: "Lab 0",
     due_date: "2025-01-31 23:59:00",
-    okpy_endpoint: "lab00"
+    okpy_endpoint: "lab00",
+    files: ["lab00.py"]
     # course: data c88c
   }
 ]
@@ -89,7 +92,12 @@ courses.each do |course|
     Enrollment.create!(user_id: student_record.id, course_id: course_record.id)
   end
 
+  # create assignments and code files associated with each assignment
   assignments.each do |assignment|
-    Assignment.create!(name: assignment[:name], due_date: assignment[:due_date], okpy_endpoint: assignment[:okpy_endpoint], course_id: course_record.id)
+    assignment_record = Assignment.create!(name: assignment[:name], due_date: assignment[:due_date], okpy_endpoint: assignment[:okpy_endpoint], course_id: course_record.id)
+
+    assignment[:files].each do |file_name|
+      AssignmentFile.create!(assignment_id: assignment_record.id, file_name: file_name)
+    end
   end
 end

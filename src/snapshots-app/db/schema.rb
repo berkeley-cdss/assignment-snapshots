@@ -10,7 +10,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_31_140301) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_07_165227) do
+  create_table "assignment_files", force: :cascade do |t|
+    t.integer "assignment_id", null: false
+    t.string "file_name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["assignment_id"], name: "index_assignment_files_on_assignment_id"
+  end
+
   create_table "assignments", force: :cascade do |t|
     t.string "name", null: false
     t.datetime "due_date", null: false
@@ -102,6 +110,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_31_140301) do
     t.index ["student_id"], name: "index_users_on_student_id", unique: true
   end
 
+  add_foreign_key "assignment_files", "assignments"
   add_foreign_key "assignments", "courses"
   add_foreign_key "enrollments", "courses"
   add_foreign_key "enrollments", "users"
