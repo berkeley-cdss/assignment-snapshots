@@ -1,25 +1,25 @@
 import React from "react";
 
-import { useNavigate } from "react-router";
+import { useParams, Link } from "react-router";
 import { useState, useEffect } from "react";
 import { TextField, Box } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { styled } from "@mui/material/styles";
-import { useAtom } from "jotai";
+import { useAtomValue } from "jotai";
 
-import { selectedCourseAtom, selectedAssignmentAtom } from "../state/atoms";
+import { coursesAtom, assignmentsAtom } from "../state/atoms";
+import TableCellNavLink from "../components/common/TableCellNavLink";
 
 // TODO: rename paths and components to be consistent
 function StudentsTable({ courseId, assignmentId, studentsData }) {
   const [search, setSearch] = useState("");
-  const navigate = useNavigate();
 
   const filteredStudents = studentsData.filter(
     (s) =>
       s.first_name.toLowerCase().includes(search.toLowerCase()) ||
       s.last_name.toLowerCase().includes(search.toLowerCase()) ||
       s.email.toLowerCase().includes(search.toLowerCase()) ||
-      s.student_id.toString().includes(search.toLowerCase())
+      s.student_id.toString().includes(search.toLowerCase()),
   );
 
   const columns = [
@@ -30,20 +30,11 @@ function StudentsTable({ courseId, assignmentId, studentsData }) {
       flex: 2,
       headerClassName: "column-header",
       renderCell: (params) => (
-        <span
-          style={{
-            color: "#1976d2",
-            cursor: "pointer",
-            textDecoration: "underline",
-          }}
-          onClick={() =>
-            navigate(
-              `/courses/${courseId}/assignments/${assignmentId}/students/${params.row.id}`,
-            )
-          }
+        <TableCellNavLink
+          pathname={`/courses/${courseId}/assignments/${assignmentId}/students/${params.row.id}`}
         >
           {params.value}
-        </span>
+        </TableCellNavLink>
       ),
     },
     {
@@ -106,8 +97,17 @@ function StudentsTable({ courseId, assignmentId, studentsData }) {
 }
 
 function Assignment() {
-  const [selectedCourse, setSelectedCourse] = useAtom(selectedCourseAtom);
-  const [selectedAssignment, setSelectedAssignment] = useAtom(selectedAssignmentAtom);
+  const routeParams = useParams();
+
+  const courses = useAtomValue(coursesAtom);
+  const selectedCourse = courses.find(
+    (course) => course.id.toString() === routeParams.courseId,
+  );
+
+  const assignments = useAtomValue(assignmentsAtom);
+  const selectedAssignment = assignments.find(
+    (assignment) => assignment.id.toString() === routeParams.assignmentId,
+  );
   const [studentsData, setStudentsData] = useState([]);
 
   useEffect(() => {
@@ -133,7 +133,7 @@ function Assignment() {
       <h1>{selectedAssignment.name}</h1>
       <StudentsTable
         courseId={selectedCourse.id}
-        assignmentId={selectedAssignment}
+        assignmentId={selectedAssignment.id}
         studentsData={studentsData}
       />
     </div>
