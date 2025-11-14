@@ -121,12 +121,6 @@ function Course() {
 
   return (
     <div style={{ paddingLeft: "1rem", paddingRight: "1rem" }}>
-      <h1>
-        {selectedCourse.dept} {selectedCourse.code}{" "}
-        {selectedCourse.term.charAt(0).toUpperCase() +
-          selectedCourse.term.slice(1)}{" "}
-        {selectedCourse.year}
-      </h1>
       <AssignmentsTable
         courseId={selectedCourse.id}
         assignments={assignments}

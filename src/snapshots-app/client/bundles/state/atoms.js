@@ -4,11 +4,14 @@ import { atom } from 'jotai';
 
 export const userAtom = atom('rdang@berkeley.edu');
 
-// array of json object representing all courses the user teaches
+// array of json objects representing all courses the user teaches
 export const coursesAtom = atom([]);
 
-// array of json object representing all assignments for the selected course
+// array of json objects representing all assignments for the selected course
 export const assignmentsAtom = atom([]);
+
+// array of json objects representing all students who submitted for the selected assignment
+export const studentsAtom = atom([]);
 
 // json object representing course info
 // TODO delete this

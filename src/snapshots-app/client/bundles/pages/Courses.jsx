@@ -138,7 +138,6 @@ function CoursesTable() {
 function Courses() {
   return (
     <div style={{ paddingLeft: "1rem", paddingRight: "1rem" }}>
-      <h1>Courses</h1>
       <CoursesTable />
     </div>
   );

@@ -1,20 +1,20 @@
 import React from "react";
 
-import { useParams, Link } from "react-router";
+import { useParams } from "react-router";
 import { useState, useEffect } from "react";
 import { TextField, Box } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { styled } from "@mui/material/styles";
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 
-import { coursesAtom, assignmentsAtom } from "../state/atoms";
+import { coursesAtom, assignmentsAtom, studentsAtom } from "../state/atoms";
 import TableCellNavLink from "../components/common/TableCellNavLink";
 
 // TODO: rename paths and components to be consistent
-function StudentsTable({ courseId, assignmentId, studentsData }) {
+function StudentsTable({ courseId, assignmentId, students }) {
   const [search, setSearch] = useState("");
 
-  const filteredStudents = studentsData.filter(
+  const filteredStudents = students.filter(
     (s) =>
       s.first_name.toLowerCase().includes(search.toLowerCase()) ||
       s.last_name.toLowerCase().includes(search.toLowerCase()) ||
@@ -108,7 +108,8 @@ function Assignment() {
   const selectedAssignment = assignments.find(
     (assignment) => assignment.id.toString() === routeParams.assignmentId,
   );
-  const [studentsData, setStudentsData] = useState([]);
+
+  const [students, setStudents] = useAtom(studentsAtom);
 
   useEffect(() => {
     fetch(`/api/submissions/${selectedCourse.id}/${selectedAssignment.id}`, {
@@ -121,20 +122,19 @@ function Assignment() {
         return response.json();
       })
       .then((responseData) => {
-        setStudentsData(responseData["submissions"]);
+        setStudents(responseData["submissions"]);
       })
       .catch((error) => {
         throw new Error(`HTTP error! Error: ${error}`);
       });
-  }, [selectedCourse, selectedAssignment]);
+  }, [selectedCourse, selectedAssignment, setStudents]);
 
   return (
     <div style={{ paddingLeft: "1rem", paddingRight: "1rem" }}>
-      <h1>{selectedAssignment.name}</h1>
       <StudentsTable
         courseId={selectedCourse.id}
         assignmentId={selectedAssignment.id}
-        studentsData={studentsData}
+        students={students}
       />
     </div>
   );
