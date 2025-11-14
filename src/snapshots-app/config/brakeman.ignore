@@ -1,0 +1,28 @@
+{
+  "ignored_warnings": [
+    {
+      "warning_type": "Dynamic Render Path",
+      "warning_code": 15,
+      "fingerprint": "84f4b03c6b09bd1aa3ddf2079180825ca3a6a845725fbee1c3d74a59c4f61ebd",
+      "check_name": "Render",
+      "message": "Render path contains parameter value",
+      "file": "app/controllers/api/files_controller.rb",
+      "line": 27,
+      "link": "https://brakemanscanner.org/docs/warning_types/dynamic_render_path/",
+      "code": "render(action => Rails.cache.fetch(\"s3_file:#{params[:object_key]}\", :expires_in => 1.hour) do\n Rails.logger.info(\"Cache MISS for cache_key #{\"s3_file:#{params[:object_key]}\"}. Fetching from S3...\")\nfetch_file_from_s3(params[:object_key])\n end, {})",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Api::FilesController",
+        "method": "show"
+      },
+      "user_input": "params[:object_key]",
+      "confidence": "Weak",
+      "cwe_id": [
+        22
+      ],
+      "note": "Ignored because we are not rendering a Rails route using the S3 object key"
+    }
+  ],
+  "brakeman_version": "7.1.1"
+}
