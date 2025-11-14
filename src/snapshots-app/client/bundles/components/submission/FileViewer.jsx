@@ -42,12 +42,12 @@ function FileViewer({ code, language, lightMode, lintErrors }) {
           <CodeBlock
             code={code}
             language={language}
-            theme={themes.github} // TODO switch based on lightMode... why aren't themes working? themes.vsDark and themes.vsLight
+            theme={lightMode ? themes.github : themes.vsDark} // TODO switch based on lightMode... why aren't themes working? themes.vsDark and themes.vsLight
             lines={lines}
             style={{ display: "table" }}
           >
             {/* TODO need to manually change bg color too based on lightMode */}
-            <CodeBlock.Code style={{ backgroundColor: "white" }}>
+            <CodeBlock.Code style={{ backgroundColor: lightMode ? "white" : "#1e1e1e" }}>
               {({ isLineHighlighted, lineNumber }) => (
                 <div style={{ display: "table-row", backgroundColor: isLineHighlighted ? 'rgba(255, 0, 0, 0.2)' : 'transparent', overflowX: 'auto' }}>
                   <div style={{ display: "table-cell", paddingRight: 5 }}>
@@ -59,7 +59,7 @@ function FileViewer({ code, language, lightMode, lintErrors }) {
                     </Tooltip>
                     ) : null}
                   </div>
-                  <CodeBlock.LineNumber className="noselect" style={{ display: "table-cell", paddingRight: 10 }} />
+                  <CodeBlock.LineNumber className="noselect" style={{ display: "table-cell", color: lightMode ? "black" : "white", paddingRight: 10 }} />
                   <CodeBlock.LineContent style={{ display: "table-cell" }}>
                     <CodeBlock.Token />
                   </CodeBlock.LineContent>
