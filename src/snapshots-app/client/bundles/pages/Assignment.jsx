@@ -1,25 +1,25 @@
 import React from "react";
 
-import { useNavigate } from "react-router";
+import { useParams } from "react-router";
 import { useState, useEffect } from "react";
 import { TextField, Box } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { styled } from "@mui/material/styles";
-import { useAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 
-import { selectedCourseAtom, selectedAssignmentAtom } from "../state/atoms";
+import { coursesAtom, assignmentsAtom, studentsAtom } from "../state/atoms";
+import TableCellNavLink from "../components/common/TableCellNavLink";
 
 // TODO: rename paths and components to be consistent
-function StudentsTable({ courseId, assignmentId, studentsData }) {
+function StudentsTable({ courseId, assignmentId, students }) {
   const [search, setSearch] = useState("");
-  const navigate = useNavigate();
 
-  const filteredStudents = studentsData.filter(
+  const filteredStudents = students.filter(
     (s) =>
       s.first_name.toLowerCase().includes(search.toLowerCase()) ||
       s.last_name.toLowerCase().includes(search.toLowerCase()) ||
       s.email.toLowerCase().includes(search.toLowerCase()) ||
-      s.student_id.toString().includes(search.toLowerCase())
+      s.student_id.toString().includes(search.toLowerCase()),
   );
 
   const columns = [
@@ -30,20 +30,11 @@ function StudentsTable({ courseId, assignmentId, studentsData }) {
       flex: 2,
       headerClassName: "column-header",
       renderCell: (params) => (
-        <span
-          style={{
-            color: "#1976d2",
-            cursor: "pointer",
-            textDecoration: "underline",
-          }}
-          onClick={() =>
-            navigate(
-              `/courses/${courseId}/assignments/${assignmentId}/students/${params.row.id}`,
-            )
-          }
+        <TableCellNavLink
+          pathname={`/courses/${courseId}/assignments/${assignmentId}/students/${params.row.id}`}
         >
           {params.value}
-        </span>
+        </TableCellNavLink>
       ),
     },
     {
@@ -106,9 +97,19 @@ function StudentsTable({ courseId, assignmentId, studentsData }) {
 }
 
 function Assignment() {
-  const [selectedCourse, setSelectedCourse] = useAtom(selectedCourseAtom);
-  const [selectedAssignment, setSelectedAssignment] = useAtom(selectedAssignmentAtom);
-  const [studentsData, setStudentsData] = useState([]);
+  const routeParams = useParams();
+
+  const courses = useAtomValue(coursesAtom);
+  const selectedCourse = courses.find(
+    (course) => course.id.toString() === routeParams.courseId,
+  );
+
+  const assignments = useAtomValue(assignmentsAtom);
+  const selectedAssignment = assignments.find(
+    (assignment) => assignment.id.toString() === routeParams.assignmentId,
+  );
+
+  const [students, setStudents] = useAtom(studentsAtom);
 
   useEffect(() => {
     fetch(`/api/submissions/${selectedCourse.id}/${selectedAssignment.id}`, {
@@ -121,20 +122,19 @@ function Assignment() {
         return response.json();
       })
       .then((responseData) => {
-        setStudentsData(responseData["submissions"]);
+        setStudents(responseData["submissions"]);
       })
       .catch((error) => {
         throw new Error(`HTTP error! Error: ${error}`);
       });
-  }, [selectedCourse, selectedAssignment]);
+  }, [selectedCourse, selectedAssignment, setStudents]);
 
   return (
     <div style={{ paddingLeft: "1rem", paddingRight: "1rem" }}>
-      <h1>{selectedAssignment.name}</h1>
       <StudentsTable
         courseId={selectedCourse.id}
-        assignmentId={selectedAssignment}
-        studentsData={studentsData}
+        assignmentId={selectedAssignment.id}
+        students={students}
       />
     </div>
   );

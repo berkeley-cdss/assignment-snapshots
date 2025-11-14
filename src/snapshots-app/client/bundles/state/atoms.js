@@ -1,12 +1,17 @@
 import { atom } from 'jotai';
 
+// TODO how to fix problem of going to page directly by URL?
+
 export const userAtom = atom('rdang@berkeley.edu');
 
-// json object representing course info
-export const selectedCourseAtom = atom(null);
+// array of json objects representing all courses the user teaches
+export const coursesAtom = atom([]);
 
-// json object representing assignment info
-export const selectedAssignmentAtom = atom(null);
+// array of json objects representing all assignments for the selected course
+export const assignmentsAtom = atom([]);
+
+// array of json objects representing all students who submitted for the selected assignment
+export const studentsAtom = atom([]);
 
 export const backupsAtom = atom([]);
 export const selectedBackupAtom = atom(null);
