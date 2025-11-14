@@ -11,7 +11,7 @@ class Api::FilesControllerTest < ActionDispatch::IntegrationTest
 
   test "should respond with 404 Not Found if file name unknown" do
     object_key = "unknown/path/to/file.txt"
-    dummy_s3_context = OpenStruct.new(:params => {:key => object_key})
+    dummy_s3_context = OpenStruct.new(params: { key: object_key })
 
     # Mock AWS S3 client
     Aws::S3::Client.any_instance
