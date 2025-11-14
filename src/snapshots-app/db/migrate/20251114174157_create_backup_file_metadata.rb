@@ -4,8 +4,6 @@ class CreateBackupFileMetadata < ActiveRecord::Migration[8.0]
       t.string :file_contents_location, null: false
       t.string :file_name, null: false
       t.integer :num_lines
-
-      t.timestamps
     end
   end
 end
