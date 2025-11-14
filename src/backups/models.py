@@ -131,7 +131,7 @@ class LintError:
         self.url = url
 
 
-class NumLines:
+class BackupFileMetadata:
     def __init__(self, file_contents_location: str, file_name: str, num_lines: int):
         self.file_contents_location = file_contents_location
         self.file_name = file_name
