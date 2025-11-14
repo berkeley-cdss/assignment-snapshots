@@ -1,5 +1,3 @@
-require "aws-sdk-s3"
-
 # TODO update tests
 
 class Api::BackupsController < ApplicationController
