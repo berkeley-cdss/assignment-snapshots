@@ -10,7 +10,6 @@ import AutograderOutput from '../bundles/components/submission/AutograderOutputS
 import DiffViewer from '../bundles/components/submission/DiffViewerServer';
 import FileViewer from '../bundles/components/submission/FileViewerServer';
 import Graphs from '../bundles/components/submission/GraphsServer';
-import NavBar from '../bundles/components/submission/NavBarServer';
 import Timeline from '../bundles/components/submission/TimelineServer';
 
 import SubmissionLayout from '../bundles/layouts/SubmissionLayoutServer';
@@ -30,7 +29,6 @@ ReactOnRails.register({
   DiffViewer,
   FileViewer,
   Graphs,
-  NavBar,
   Timeline,
   SubmissionLayout,
   Login,
