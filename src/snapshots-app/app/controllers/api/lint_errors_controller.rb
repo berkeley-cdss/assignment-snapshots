@@ -1,12 +1,10 @@
 class Api::LintErrorsController < ApplicationController
-  def get_file_contents_location(params)
-    # NOTE: we assume the okpy endpoint is passed in with - as the separator since / is reserved
-    okpy_endpoint_parsed = params[:okpy_endpoint].gsub("-", "/")
-    "#{okpy_endpoint_parsed}/#{params[:assignment]}/#{params[:student_id]}/#{params[:backup_id]}/#{params[:file_name]}"
-  end
-
   def show
-    file_contents_location = get_file_contents_location(params)
+    file_contents_location = params[:file_contents_location]
+    if !file_contents_location.present?
+      render json: { "error": "file_contents_location parameter is required" }, status: :bad_request
+      return
+    end
 
     lint_errors = LintError.where(file_contents_location: file_contents_location)
 
