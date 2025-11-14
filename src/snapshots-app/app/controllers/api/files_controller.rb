@@ -6,6 +6,8 @@ S3_BUCKET_NAME = "ucb-assignment-snapshots-eae254943a2c4f51bef67654e99560dd"
 S3_BUCKET_REGION = "us-west-2"
 
 class Api::FilesController < ApplicationController
+  CACHE_TTL = 1.hour
+
   def show
     object_key = params[:object_key]
 
@@ -16,6 +18,18 @@ class Api::FilesController < ApplicationController
       return
     end
 
+    cache_key = "s3_file:#{object_key}"
+    cached_response = Rails.cache.fetch(cache_key, expires_in: CACHE_TTL) do
+      Rails.logger.info("Cache MISS for cache_key #{cache_key}. Fetching from S3...")
+      fetch_file_from_s3(object_key)
+    end
+
+    render cached_response
+  end
+
+  private
+
+  def fetch_file_from_s3(object_key)
     # uses default credentials for local dev - see src/app/server/README.md to configure using AWS CLI
     s3 = Aws::S3::Client.new(region: S3_BUCKET_REGION)
 
@@ -42,10 +56,10 @@ class Api::FilesController < ApplicationController
     end
 
     if file_contents
-      render json: { "object_key": object_key, "file_contents": file_contents }, status: status
+      { json: { "object_key": object_key, "file_contents": file_contents }, status: status }
     else
       Rails.logger.error(error)
-      render json: { "error": error }, status: status
+      { json: { "error": error }, status: status }
     end
   end
 end
