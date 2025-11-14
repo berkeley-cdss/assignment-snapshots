@@ -13,8 +13,5 @@ export const assignmentsAtom = atom([]);
 // array of json objects representing all students who submitted for the selected assignment
 export const studentsAtom = atom([]);
 
-// json object representing (student) user info
-export const selectedStudentAtom = atom(null);
-
+// array of json objects representing all backups for the selected submission
 export const backupsAtom = atom([]);
-export const selectedBackupAtom = atom(0);
