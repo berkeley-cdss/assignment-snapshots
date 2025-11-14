@@ -1,5 +1,9 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
+ants_ants:
+  assignment_id: 1
+  file_name: ants.py
+
 maps_utils:
   assignment_id: 3
   file_name: utils.py

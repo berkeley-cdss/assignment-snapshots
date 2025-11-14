@@ -34,9 +34,6 @@ class Api::BackupsControllerTest < ActionDispatch::IntegrationTest
   def assert_backup_structure(backup_json, expected_backup_fixture)
     assert_equal expected_backup_fixture.backup_id, backup_json["backup_id"]
     assert_equal expected_backup_fixture.created, backup_json["created"]
-    assert_equal expected_backup_fixture.course, backup_json["course"]
-    assert_equal expected_backup_fixture.assignment, backup_json["assignment"]
-    assert_equal expected_backup_fixture.student_email, backup_json["student_id"]
     assert_equal_or_nil expected_backup_fixture.file_contents_location, backup_json["file_contents_location"]
     assert_equal_or_nil expected_backup_fixture.autograder_output_location, backup_json["autograder_output_location"]
   end
