@@ -5,6 +5,9 @@ import Box from "@mui/material/Box";
 import { MenuItem, Select } from "@mui/material";
 import { useAtom } from "jotai";
 import CircularProgress from "@mui/material/CircularProgress";
+import Switch from "@mui/material/Switch";
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import { useParams } from "react-router";
 
 import AutograderOutput from "../components/submission/AutograderOutput";
@@ -50,6 +53,8 @@ function SubmissionLayout() {
 
   const [code, setCode] = React.useState("");
   const [autograderOutput, setAutograderOutput] = React.useState("");
+
+  const [lightMode, setLightMode] = React.useState(true);
 
   const routeParams = useParams();
 
@@ -156,7 +161,11 @@ function SubmissionLayout() {
         <ContentWrapper>
           <LeftSidebar>
             {/* Left Sidebar Content Area */}
-            <Timeline backups={backups} selectedBackup={selectedBackup} handleBackupSelect={handleBackupSelect} />
+            <Timeline
+              backups={backups}
+              selectedBackup={selectedBackup}
+              handleBackupSelect={handleBackupSelect}
+            />
           </LeftSidebar>
           {/* TODO make width more responsive */}
           <MainContent>
@@ -166,31 +175,46 @@ function SubmissionLayout() {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
+                marginBottom: "1rem",
               }}
             >
               <h2>File Viewer</h2>
-              <FormControl>
-                <InputLabel id="file-select-label">File</InputLabel>
-                <Select
-                  labelId="file-select-label"
-                  id="file-select"
-                  value={file}
-                  label="File"
-                  onChange={(event) => {
-                    setFile(event.target.value);
-                    setCode("");
-                  }}
-                >
-                  {files.map((file) => (
-                    <MenuItem value={file}>{file}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+                <FormGroup>
+                  <FormControlLabel control={<Switch
+                    labelId="light-mode-switch-label"
+                    checked={lightMode}
+                    onChange={(event) => setLightMode(event.target.checked)}
+                  />} label={lightMode ? "Light Mode" : "Dark Mode"}>
+                  </FormControlLabel>
+                </FormGroup>
+                <FormControl>
+                  <InputLabel id="file-select-label">File</InputLabel>
+                  <Select
+                    labelId="file-select-label"
+                    id="file-select"
+                    value={file}
+                    label="File"
+                    onChange={(event) => {
+                      setFile(event.target.value);
+                      setCode("");
+                    }}
+                  >
+                    {files.map((file) => (
+                      <MenuItem value={file}>{file}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
             </div>
             {code === "" ? (
               <CircularProgress />
             ) : (
-              <FileViewer code={code} language={getLanguage(file)} />
+              <FileViewer
+                code={code}
+                language={getLanguage(file)}
+                lightMode={lightMode}
+              />
             )}
 
             <Toolbar />

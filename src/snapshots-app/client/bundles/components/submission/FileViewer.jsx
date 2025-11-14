@@ -1,9 +1,9 @@
 import React from "react";
 
 import { Typography, Paper } from "@mui/material";
-import { CodeBlock, a11yDark } from "react-code-blocks"; // TODO make theme configurable? a11yDark, a11yLight
+import { CodeBlock, a11yLight, a11yDark } from "react-code-blocks"; // TODO make theme configurable? a11yDark, a11yLight
 
-function FileViewer({ code, language }) {
+function FileViewer({ code, language, lightMode }) {
   return (
     <Paper elevation={3} sx={{ padding: 2, borderRadius: 1 }}>
       <Typography
@@ -19,7 +19,7 @@ function FileViewer({ code, language }) {
           <CodeBlock
             text={code}
             language={language}
-            theme={a11yDark}
+            theme={lightMode ? a11yLight : a11yDark}
             showLineNumbers={true}
             wrapLongLines={false}
           />
