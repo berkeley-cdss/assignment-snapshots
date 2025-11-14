@@ -33,7 +33,7 @@ class Api::BackupFileMetadatumController < ApplicationController
       created_and_file_location = backup_metadata.filter_map do |backup|
         # Only backups with student code file contents and autograder output will be included in the timeline UI
         if backup.file_contents_location.present? and backup.autograder_output_location.present?
-          [backup.created, backup.file_contents_location]
+          [ backup.created, backup.file_contents_location ]
         else
           nil
         end
@@ -42,7 +42,7 @@ class Api::BackupFileMetadatumController < ApplicationController
       files_to_metadata = {}
 
       assignment_file_names.each do |file_name|
-        files_to_metadata[file_name] = {:created => [], :num_lines => []}
+        files_to_metadata[file_name] = { created: [], num_lines: [] }
       end
 
       created_and_file_location.each do |created, file_contents_location|
