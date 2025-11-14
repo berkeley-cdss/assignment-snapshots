@@ -9,6 +9,10 @@ import Switch from "@mui/material/Switch";
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { useParams } from "react-router";
+import Fab from '@mui/material/Fab';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import Snackbar from '@mui/material/Snackbar';
+import { useCopyToClipboard } from 'react-use';
 
 import AutograderOutput from "../components/submission/AutograderOutput";
 import FileViewer from "../components/submission/FileViewer";
@@ -57,6 +61,9 @@ function SubmissionLayout() {
   const [lightMode, setLightMode] = React.useState(true);
 
   const [lintErrors, setLintErrors] = React.useState([]);
+
+  const [isSnackbarOpen, setIsSnackbarOpen] = React.useState(false);
+  const [state, copyToClipboard] = useCopyToClipboard();
 
   const routeParams = useParams();
 
@@ -182,6 +189,23 @@ function SubmissionLayout() {
     }
   }
 
+  const copyCode = () => {
+    // Logic to copy `code`
+    copyToClipboard(code);
+    setIsSnackbarOpen(true);
+  };
+
+  const handleSnackbarClose = (
+    event,
+    reason,
+  ) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setIsSnackbarOpen(false);
+  };
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       {loadingBackups ? (
@@ -218,6 +242,9 @@ function SubmissionLayout() {
                   />} label={lightMode ? "Light Mode" : "Dark Mode"}>
                   </FormControlLabel>
                 </FormGroup>
+                <Fab color="primary" size="small" aria-label="copy code to clipboard" onClick={copyCode} >
+                        <ContentCopyIcon />
+                      </Fab>
                 <FormControl>
                   <InputLabel id="file-select-label">File</InputLabel>
                   <Select
@@ -261,6 +288,12 @@ function SubmissionLayout() {
           </RightSidebar>
         </ContentWrapper>
       )}
+      <Snackbar
+        open={isSnackbarOpen}
+        autoHideDuration={1000}
+        onClose={handleSnackbarClose}
+        message="Code copied to clipboard!"
+      />
     </Box>
   );
 }
