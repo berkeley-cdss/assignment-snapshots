@@ -5,9 +5,20 @@ import Box from "@mui/material/Box";
 import { MenuItem, Select } from "@mui/material";
 import { useAtom } from "jotai";
 import CircularProgress from "@mui/material/CircularProgress";
+import Switch from "@mui/material/Switch";
+import FormGroup from "@mui/material/FormGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
 import { useParams } from "react-router";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import Snackbar from "@mui/material/Snackbar";
+import { useCopyToClipboard } from "react-use";
+import IconButton from "@mui/material/IconButton";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import { Typography } from "@mui/material";
 
-import AutograderOutput from "../components/submission/AutograderOutput";
 import FileViewer from "../components/submission/FileViewer";
 import Graphs from "../components/submission/Graphs";
 import Timeline from "../components/submission/Timeline";
@@ -50,6 +61,15 @@ function SubmissionLayout() {
 
   const [code, setCode] = React.useState("");
   const [autograderOutput, setAutograderOutput] = React.useState("");
+
+  const [lightMode, setLightMode] = React.useState(true);
+
+  const [lintErrors, setLintErrors] = React.useState([]);
+
+  const [isSnackbarOpen, setIsSnackbarOpen] = React.useState(false);
+  const [state, copyToClipboard] = useCopyToClipboard();
+
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
 
   const routeParams = useParams();
 
@@ -131,6 +151,33 @@ function SubmissionLayout() {
       });
   }, [loadingBackups, backups, selectedBackup, file]);
 
+  // Fetch lint errors for currently selected backup and file
+  // if backups is done loading
+  React.useEffect(() => {
+    if (loadingBackups || backups.length === 0 || file === "") {
+      return;
+    }
+
+    const lintErrorsQueryParams = new URLSearchParams();
+    lintErrorsQueryParams.append(
+      "file_contents_location",
+      `${backups[selectedBackup].file_contents_location}/${file}`,
+    );
+
+    fetch(`/api/lint_errors?${lintErrorsQueryParams}`, {
+      method: "GET",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((responseData) => {
+        setLintErrors(responseData.lint_errors);
+      });
+  }, [loadingBackups, backups, selectedBackup, file]);
+
   function handleBackupSelect(selectedBackupIndex) {
     setSelectedBackup(selectedBackupIndex);
     // Set these values to empty so that circular progress shows while loading new contents
@@ -148,6 +195,20 @@ function SubmissionLayout() {
     }
   }
 
+  const copyCode = () => {
+    // Logic to copy `code`
+    copyToClipboard(code);
+    setIsSnackbarOpen(true);
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setIsSnackbarOpen(false);
+  };
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       {loadingBackups ? (
@@ -156,7 +217,11 @@ function SubmissionLayout() {
         <ContentWrapper>
           <LeftSidebar>
             {/* Left Sidebar Content Area */}
-            <Timeline backups={backups} selectedBackup={selectedBackup} handleBackupSelect={handleBackupSelect} />
+            <Timeline
+              backups={backups}
+              selectedBackup={selectedBackup}
+              handleBackupSelect={handleBackupSelect}
+            />
           </LeftSidebar>
           {/* TODO make width more responsive */}
           <MainContent>
@@ -166,46 +231,115 @@ function SubmissionLayout() {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
+                marginBottom: "1rem",
               }}
             >
               <h2>File Viewer</h2>
-              <FormControl>
-                <InputLabel id="file-select-label">File</InputLabel>
-                <Select
-                  labelId="file-select-label"
-                  id="file-select"
-                  value={file}
-                  label="File"
-                  onChange={(event) => {
-                    setFile(event.target.value);
-                    setCode("");
-                  }}
+              <div
+                style={{ display: "flex", gap: "1rem", alignItems: "center" }}
+              >
+                {/* TODO diff viewer? */}
+                <FormGroup>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        labelId="light-mode-switch-label"
+                        checked={lightMode}
+                        onChange={(event) => setLightMode(event.target.checked)}
+                      />
+                    }
+                    label={lightMode ? "Light Mode" : "Dark Mode"}
+                  ></FormControlLabel>
+                </FormGroup>
+                <IconButton
+                  color="primary"
+                  size="small"
+                  aria-label="copy code to clipboard"
+                  onClick={copyCode}
                 >
-                  {files.map((file) => (
-                    <MenuItem value={file}>{file}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+                  <ContentCopyIcon />
+                </IconButton>
+                <Button
+                  variant="contained"
+                  onClick={() => setIsDialogOpen(true)}
+                >
+                  View Autograder Output
+                </Button>
+                <FormControl>
+                  <InputLabel id="file-select-label">File</InputLabel>
+                  <Select
+                    labelId="file-select-label"
+                    id="file-select"
+                    value={file}
+                    label="File"
+                    onChange={(event) => {
+                      setFile(event.target.value);
+                      setCode("");
+                    }}
+                  >
+                    {files.map((file) => (
+                      <MenuItem value={file}>{file}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
             </div>
             {code === "" ? (
               <CircularProgress />
             ) : (
-              <FileViewer code={code} language={getLanguage(file)} />
+              <FileViewer
+                code={code}
+                language={getLanguage(file)}
+                lightMode={lightMode}
+                lintErrors={lintErrors}
+              />
             )}
 
             <Toolbar />
           </MainContent>
           <RightSidebar sx={{ display: { xs: "none", sm: "block" } }}>
             {/* Right Sidebar Content Area */}
-            {autograderOutput === "" ? (
-              <CircularProgress />
-            ) : (
-              <AutograderOutput text={autograderOutput} />
-            )}
             <Graphs />
           </RightSidebar>
         </ContentWrapper>
       )}
+
+      <Snackbar
+        open={isSnackbarOpen}
+        autoHideDuration={1000}
+        onClose={handleSnackbarClose}
+        message="Code copied to clipboard!"
+      />
+
+      <Dialog
+        open={isDialogOpen}
+        onClose={() => {
+          setIsDialogOpen(false);
+          console.log("autograder output", autograderOutput);
+        }}
+        aria-labelledby="autogdrader-output-dialog-title"
+        aria-describedby="autograder-output-dialog-description"
+      >
+        <DialogTitle id="autograder-output-dialog-title">
+          Autograder Output
+        </DialogTitle>
+        <DialogContent>
+          <Typography
+            id="autograder-output-dialog-description"
+            component="pre"
+            style={{
+              whiteSpace: "pre-wrap",
+              fontFamily: "Menlo",
+              fontSize: "0.8rem",
+            }}
+          >
+            {autograderOutput}
+          </Typography>
+          {/* <DialogContentText id="autograder-output-dialog-description" sx={{ fontFamily: "Menlo", fontSize: "0.8rem" }}>
+            {autograderOutput}
+          </DialogContentText> */}
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 }

@@ -6,35 +6,6 @@ class Api::LintErrorsControllerTest < ActionDispatch::IntegrationTest
     @error_one = lint_errors(:recommend_unused_import)
     @error_two = lint_errors(:recommend_whitespace)
     @error_three = lint_errors(:lab00_whitespace)
-
-    @maps_datac88c_params = {
-      okpy_endpoint: "cal-cs88-fa25",
-      assignment: "maps",
-      student_id: "student_id",
-      backup_id: "backup_id",
-      file_name: "recommend.py"
-    }
-
-    @lab00_cs61a_params = {
-      okpy_endpoint: "cal-cs61a-fa25",
-      assignment: "lab00",
-      student_id: "student_id",
-      backup_id: "backup_id",
-      file_name: "lab00.py"
-    }
-
-    # Parameters that match no existing lint errors (e.g., different student/backup)
-    @no_match_params = {
-      okpy_endpoint: "cal-cs88-fa25",
-      assignment: "maps",
-      student_id: "nonexistent_student",
-      backup_id: "nonexistent_backup",
-      file_name: "nonexistent.py"
-    }
-  end
-
-  def lint_errors_url(params)
-    "/api/lint_errors/#{params[:okpy_endpoint]}/#{params[:assignment]}/#{params[:student_id]}/#{params[:backup_id]}/#{params[:file_name]}"
   end
 
   def assert_lint_error_structure(error_json, expected_fixture)
@@ -47,7 +18,7 @@ class Api::LintErrorsControllerTest < ActionDispatch::IntegrationTest
 
   test "should return 200 OK and a list of lint errors when file contents location matches" do
     # Works for Data C88C Maps
-    get lint_errors_url(@maps_datac88c_params)
+    get "/api/lint_errors", params: { file_contents_location: "cal/cs88/fa25/maps/student_id/backup_id/recommend.py" }
     assert_response :ok
 
     response_json = JSON.parse(@response.body)
@@ -71,7 +42,7 @@ class Api::LintErrorsControllerTest < ActionDispatch::IntegrationTest
     assert_lint_error_structure(found_two, @error_two)
 
     # Works for CS 61A Lab 00
-    get lint_errors_url(@lab00_cs61a_params)
+    get "/api/lint_errors", params: { file_contents_location: "cal/cs61a/fa25/lab00/student_id/backup_id/lab00.py" }
     assert_response :ok
 
     response_json = JSON.parse(@response.body)
@@ -83,11 +54,20 @@ class Api::LintErrorsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should return 200 OK and an empty list when no lint errors are found" do
-    get lint_errors_url(@no_match_params)
+    get "/api/lint_errors", params: { file_contents_location: "cal/cs88/fa25/maps/nonexistent_student/nonexistent_backup/nonexistent.py" }
     assert_response :ok
 
     response_json = JSON.parse(@response.body)
 
     assert_equal [], response_json["lint_errors"]
+  end
+
+  test "should return 400 Bad Request when file_contents_location parameter is missing" do
+    get "/api/lint_errors"
+    assert_response :bad_request
+
+    response_json = JSON.parse(@response.body)
+
+    assert_equal "file_contents_location parameter is required", response_json["error"]
   end
 end

@@ -6,7 +6,6 @@ import BreadcrumbNav from '../bundles/components/common/BreadcrumbNav';
 import Header from '../bundles/components/common/Header';
 import Footer from '../bundles/components/common/Footer';
 
-import AutograderOutput from '../bundles/components/submission/AutograderOutput';
 import DiffViewer from '../bundles/components/submission/DiffViewer';
 import FileViewer from '../bundles/components/submission/FileViewer';
 import Graphs from '../bundles/components/submission/Graphs';
@@ -25,7 +24,6 @@ ReactOnRails.register({
   BreadcrumbNav,
   Header,
   Footer,
-  AutograderOutput,
   DiffViewer,
   FileViewer,
   Graphs,
