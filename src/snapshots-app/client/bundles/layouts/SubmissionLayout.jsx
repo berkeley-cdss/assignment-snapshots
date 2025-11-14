@@ -1,19 +1,18 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { styled } from "@mui/material/styles";
 import Toolbar from "@mui/material/Toolbar";
-import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
-import { MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import { MenuItem, Select } from "@mui/material";
 import { useAtom } from "jotai";
-import CircularProgress from '@mui/material/CircularProgress';
+import CircularProgress from "@mui/material/CircularProgress";
+import { useParams } from "react-router";
 
 import AutograderOutput from "../components/submission/AutograderOutput";
 import FileViewer from "../components/submission/FileViewer";
 import Graphs from "../components/submission/Graphs";
-import NavBar from "../components/submission/NavBar";
 import Timeline from "../components/submission/Timeline";
 import { FormControl, InputLabel } from "@mui/material";
-import { selectedCourseAtom, selectedAssignmentAtom, selectedStudentAtom, backupsAtom, selectedBackupAtom } from "../state/atoms";
+import { backupsAtom } from "../state/atoms";
 
 // TODO minWidth: 0 prevent main content from stretching out to sidebars, but this seems rather hacky?
 
@@ -42,25 +41,56 @@ const ContentWrapper = styled(Box)({
   flexGrow: 1,
 });
 
-// TODO add dropdown to be able to switch to different files in this submission
-
-
-
 function SubmissionLayout() {
-  const [selectedCourse, setSelectedCourse] = useAtom(selectedCourseAtom);
-  const [selectedAssignment, setSelectedAssignment] = useAtom(selectedAssignmentAtom);
-  const [selectedStudent, setSelectedStudent] = useAtom(selectedStudentAtom);
-  const [backups, setBackups] = useAtom(backupsAtom); // TODO: pass backups to timeline
-  const [selectedBackup, setSelectedBackup] = useAtom(selectedBackupAtom);
-
+  const [backups, setBackups] = useAtom(backupsAtom);
+  const [selectedBackup, setSelectedBackup] = React.useState(0);
   const [files, setFiles] = React.useState([]);
   const [file, setFile] = React.useState("");
+  const [loadingBackups, setLoadingBackups] = React.useState(false);
+
   const [code, setCode] = React.useState("");
   const [autograderOutput, setAutograderOutput] = React.useState("");
 
+  const routeParams = useParams();
+
   // Fetch backups
   React.useEffect(() => {
-    fetch(`/api/backups/${selectedCourse.id}/${selectedAssignment.id}/${selectedStudent.id}`, {
+    setLoadingBackups(true);
+    fetch(
+      `/api/backups/${routeParams.courseId}/${routeParams.assignmentId}/${routeParams.studentId}`,
+      {
+        method: "GET",
+      },
+    )
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((responseData) => {
+        setBackups(responseData.backups);
+        setSelectedBackup(0);
+        setFiles(responseData.assignment_file_names);
+        setFile(responseData.assignment_file_names[0]);
+        setLoadingBackups(false);
+      });
+  }, [routeParams, setBackups]);
+
+  // Fetch autograder output for current selected backup
+  // if backups is done loading
+  React.useEffect(() => {
+    if (loadingBackups || backups.length === 0) {
+      return;
+    }
+
+    const autograderQueryParams = new URLSearchParams();
+    autograderQueryParams.append(
+      "object_key",
+      backups[selectedBackup].autograder_output_location,
+    );
+
+    fetch(`/api/files?${autograderQueryParams}`, {
       method: "GET",
     })
       .then((response) => {
@@ -70,74 +100,112 @@ function SubmissionLayout() {
         return response.json();
       })
       .then((responseData) => {
-        const fetchedBackups = responseData["backups"];
-        setBackups(fetchedBackups);
-        // TODO: use derived atoms? file index?
-        setFiles(fetchedBackups[selectedBackup]["files"].map((file) => file.name));
-        setFile(fetchedBackups[selectedBackup]["files"][0].name);
-        setCode(fetchedBackups[selectedBackup]["files"][0].contents);
-        setAutograderOutput(fetchedBackups[selectedBackup]["autograder_output"]);
-      })
-      .catch((error) => {
-        throw new Error(`HTTP error! Error: ${error}`);
+        setAutograderOutput(responseData.file_contents);
       });
-  }, [selectedCourse, selectedAssignment, selectedStudent, setBackups, selectedBackup, setFiles, setFile, setCode, setAutograderOutput]);
+  }, [loadingBackups, backups, selectedBackup]);
 
+  // Fetch code file contents for currently selected backup and file
+  // if backups is done loading
+  React.useEffect(() => {
+    if (loadingBackups || backups.length === 0 || file === "") {
+      return;
+    }
 
-  // Fetch new file when selected
-  const handleChange = (event) => {
-    setFile(event.target.value);
-    // TODO: use derived atoms? file index?
-    const fileObjects = backups[selectedBackup]["files"];
-    const selectedFileObj = fileObjects.find((fileObj) => fileObj.name === event.target.value);
-    setCode(selectedFileObj.contents);
-  };
+    const codeQueryParams = new URLSearchParams();
+    codeQueryParams.append(
+      "object_key",
+      `${backups[selectedBackup].file_contents_location}/${file}`,
+    );
+
+    fetch(`/api/files?${codeQueryParams}`, {
+      method: "GET",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((responseData) => {
+        setCode(responseData.file_contents);
+      });
+  }, [loadingBackups, backups, selectedBackup, file]);
+
+  function handleBackupSelect(selectedBackupIndex) {
+    setSelectedBackup(selectedBackupIndex);
+    // Set these values to empty so that circular progress shows while loading new contents
+    setCode("");
+    setAutograderOutput("");
+  }
+
+  function getLanguage(file) {
+    const extension = file.split(".").pop();
+    switch (extension) {
+      case "py":
+        return "python";
+      default:
+        throw new Error(`Unsupported file extension: ${extension}`);
+    }
+  }
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      {backups.length === 0 ?
-        <CircularProgress /> :
-      <ContentWrapper>
-        <LeftSidebar>
-          {/* Left Sidebar Content Area */}
-          <Timeline />
-        </LeftSidebar>
-        {/* TODO make width more responsive */}
-        <MainContent>
-          {/* Main Content Area */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <h2>File Viewer</h2>
-            <FormControl>
-              <InputLabel id="demo-simple-select-label">File</InputLabel>
-              <Select
-                // TODO fix labelId and id
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={file}
-                label="File"
-                onChange={handleChange}
-              >
-                {files.map((file) => <MenuItem value={file}>{file}</MenuItem>)}
-              </Select>
-            </FormControl>
-          </div>
-          <FileViewer code={code} language="python" />
-          <Toolbar /> {/* Spacer to offset content below AppBar */}
-        </MainContent>
-        <RightSidebar sx={{ display: { xs: "none", sm: "block" } }}>
-          {/* Right Sidebar Content Area */}
-          <AutograderOutput text={autograderOutput} />
-          <Graphs />
-        </RightSidebar>
-      </ContentWrapper>
-      }
+      {loadingBackups ? (
+        <CircularProgress />
+      ) : (
+        <ContentWrapper>
+          <LeftSidebar>
+            {/* Left Sidebar Content Area */}
+            <Timeline backups={backups} selectedBackup={selectedBackup} handleBackupSelect={handleBackupSelect} />
+          </LeftSidebar>
+          {/* TODO make width more responsive */}
+          <MainContent>
+            {/* Main Content Area */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <h2>File Viewer</h2>
+              <FormControl>
+                <InputLabel id="file-select-label">File</InputLabel>
+                <Select
+                  labelId="file-select-label"
+                  id="file-select"
+                  value={file}
+                  label="File"
+                  onChange={(event) => {
+                    setFile(event.target.value);
+                    setCode("");
+                  }}
+                >
+                  {files.map((file) => (
+                    <MenuItem value={file}>{file}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
+            {code === "" ? (
+              <CircularProgress />
+            ) : (
+              <FileViewer code={code} language={getLanguage(file)} />
+            )}
 
+            <Toolbar />
+          </MainContent>
+          <RightSidebar sx={{ display: { xs: "none", sm: "block" } }}>
+            {/* Right Sidebar Content Area */}
+            {autograderOutput === "" ? (
+              <CircularProgress />
+            ) : (
+              <AutograderOutput text={autograderOutput} />
+            )}
+            <Graphs />
+          </RightSidebar>
+        </ContentWrapper>
+      )}
     </Box>
   );
 }
