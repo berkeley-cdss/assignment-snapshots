@@ -1,3 +1,5 @@
+# TODO update tests
+
 class Api::BackupsController < ApplicationController
   def show
     course_id = params[:course_id].to_i
@@ -24,18 +26,22 @@ class Api::BackupsController < ApplicationController
 
     # TODO error if student doesn't have any backups for this assignment and course
 
-    backup_metadata = BackupMetadatum.where(course: course.okpy_endpoint, assignment: assignment.okpy_endpoint, student_email: student.email)
-    backups = backup_metadata.map do |backup|
-      {
-        backup_id: backup.backup_id,
-        created: backup.created,
-        course: backup.course,
-        assignment: backup.assignment,
-        student_id: backup.student_email,
-        file_contents_location: backup.file_contents_location,
-        autograder_output_location: backup.autograder_output_location
-      }
+    assignment_file_names = AssignmentFile.where(assignment_id: assignment_id).map { |af| af.file_name }
+    backup_metadata = BackupMetadatum.where(course: course.okpy_endpoint, assignment: assignment.okpy_endpoint, student_email: student.email).order(:created)
+    backups = backup_metadata.filter_map do |backup|
+      # Only backups with student code file contents and autograder output will be included in the timeline UI
+      if backup.file_contents_location.present? and backup.autograder_output_location.present?
+        {
+          backup_id: backup.backup_id,
+          created: backup.created,
+          file_contents_location: backup.file_contents_location,
+          autograder_output_location: backup.autograder_output_location
+        }
+      else
+        nil
+      end
     end
-    render json: { "course_id": course_id, "assignment_id": assignment_id, "user_id": user_id, "backups": backups }, status: :ok
+
+    render json: { "course_id": course_id, "assignment_id": assignment_id, "user_id": user_id, "assignment_file_names": assignment_file_names, "backups": backups }, status: :ok
   end
 end

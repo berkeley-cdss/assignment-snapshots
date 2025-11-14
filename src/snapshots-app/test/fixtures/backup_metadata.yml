@@ -12,6 +12,8 @@ alice_ants_1:
   student_email: a.jones@berkeley.edu
   is_late: false
   submitted: false
+  file_contents_location: cal/cs61a/fa25/ants/abc123/abc123
+  autograder_output_location: cal/cs61a/fa25/ants/abc123/abc123/autograder_output.txt
 
 alice_ants_2:
   backup_id: def456
@@ -21,6 +23,8 @@ alice_ants_2:
   student_email: a.jones@berkeley.edu
   is_late: false
   submitted: false
+  file_contents_location: cal/cs61a/fa25/ants/abc123/def456
+  autograder_output_location: cal/cs61a/fa25/ants/abc123/def456/autograder_output.txt
 
 bob_maps:
   backup_id: aaa111
@@ -30,4 +34,5 @@ bob_maps:
   student_email: b.dylan@berkeley.edu
   is_late: false
   submitted: false
-
+  file_contents_location: cal/cs61a/fa25/ants/def456/aaa111
+  autograder_output_location: cal/cs61a/fa25/ants/def456/aaa111/autograder_output.txt

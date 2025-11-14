@@ -1,16 +1,18 @@
 import React from "react";
 import { styled } from "@mui/material/styles";
 import Toolbar from "@mui/material/Toolbar";
-import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
-import { MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import { MenuItem, Select } from "@mui/material";
+import { useAtom } from "jotai";
+import CircularProgress from "@mui/material/CircularProgress";
+import { useParams } from "react-router";
 
 import AutograderOutput from "../components/submission/AutograderOutput";
 import FileViewer from "../components/submission/FileViewer";
 import Graphs from "../components/submission/Graphs";
-import NavBar from "../components/submission/NavBar";
 import Timeline from "../components/submission/Timeline";
 import { FormControl, InputLabel } from "@mui/material";
+import { backupsAtom } from "../state/atoms";
 
 // TODO minWidth: 0 prevent main content from stretching out to sidebars, but this seems rather hacky?
 
@@ -39,25 +41,27 @@ const ContentWrapper = styled(Box)({
   flexGrow: 1,
 });
 
-// TODO don't hardcode values and instead fetch from server
-// TODO add dropdown to be able to switch to different files in this submission
-
-// TODO picked a random person below
-const FILE_PATH_PREFIX = "cal-cs88-sp25/maps/0a2cf5f9/2O8r4J";
-
 function SubmissionLayout() {
-  const initialFile = "utils.py";
-  const [file, setFile] = React.useState(initialFile);
+  const [backups, setBackups] = useAtom(backupsAtom);
+  const [selectedBackup, setSelectedBackup] = React.useState(0);
+  const [files, setFiles] = React.useState([]);
+  const [file, setFile] = React.useState("");
+  const [loadingBackups, setLoadingBackups] = React.useState(false);
+
   const [code, setCode] = React.useState("");
   const [autograderOutput, setAutograderOutput] = React.useState("");
 
-  // TODO create fetch file helper function - move out of this file?
+  const routeParams = useParams();
 
-  // Fetch autograder output
+  // Fetch backups
   React.useEffect(() => {
-    fetch(`/api/files/${FILE_PATH_PREFIX}/autograder_output.txt`, {
-      method: "GET",
-    })
+    setLoadingBackups(true);
+    fetch(
+      `/api/backups/${routeParams.courseId}/${routeParams.assignmentId}/${routeParams.studentId}`,
+      {
+        method: "GET",
+      },
+    )
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -65,17 +69,28 @@ function SubmissionLayout() {
         return response.json();
       })
       .then((responseData) => {
-        console.log(responseData);
-        setAutograderOutput(responseData["file_contents"]);
-      })
-      .catch((error) => {
-        throw new Error(`HTTP error! Error: ${error}`);
+        setBackups(responseData.backups);
+        setSelectedBackup(0);
+        setFiles(responseData.assignment_file_names);
+        setFile(responseData.assignment_file_names[0]);
+        setLoadingBackups(false);
       });
-  }, []);
+  }, [routeParams, setBackups]);
 
-  // Fetch the initial file
+  // Fetch autograder output for current selected backup
+  // if backups is done loading
   React.useEffect(() => {
-    fetch(`/api/files/${FILE_PATH_PREFIX}/${initialFile}`, {
+    if (loadingBackups || backups.length === 0) {
+      return;
+    }
+
+    const autograderQueryParams = new URLSearchParams();
+    autograderQueryParams.append(
+      "object_key",
+      backups[selectedBackup].autograder_output_location,
+    );
+
+    fetch(`/api/files?${autograderQueryParams}`, {
       method: "GET",
     })
       .then((response) => {
@@ -85,19 +100,24 @@ function SubmissionLayout() {
         return response.json();
       })
       .then((responseData) => {
-        console.log(responseData);
-        setCode(responseData["file_contents"]);
-      })
-      .catch((error) => {
-        throw new Error(`HTTP error! Error: ${error}`);
+        setAutograderOutput(responseData.file_contents);
       });
-  }, []);
+  }, [loadingBackups, backups, selectedBackup]);
 
-  // Fetch new file when selected
-  const handleChange = (event) => {
-    setFile(event.target.value);
+  // Fetch code file contents for currently selected backup and file
+  // if backups is done loading
+  React.useEffect(() => {
+    if (loadingBackups || backups.length === 0 || file === "") {
+      return;
+    }
 
-    fetch(`/api/files/${FILE_PATH_PREFIX}/${event.target.value}`, {
+    const codeQueryParams = new URLSearchParams();
+    codeQueryParams.append(
+      "object_key",
+      `${backups[selectedBackup].file_contents_location}/${file}`,
+    );
+
+    fetch(`/api/files?${codeQueryParams}`, {
       method: "GET",
     })
       .then((response) => {
@@ -107,69 +127,85 @@ function SubmissionLayout() {
         return response.json();
       })
       .then((responseData) => {
-        console.log(responseData);
-        setCode(responseData["file_contents"]);
-      })
-      .catch((error) => {
-        throw new Error(`HTTP error! Error: ${error}`);
+        setCode(responseData.file_contents);
       });
-  };
+  }, [loadingBackups, backups, selectedBackup, file]);
+
+  function handleBackupSelect(selectedBackupIndex) {
+    setSelectedBackup(selectedBackupIndex);
+    // Set these values to empty so that circular progress shows while loading new contents
+    setCode("");
+    setAutograderOutput("");
+  }
+
+  function getLanguage(file) {
+    const extension = file.split(".").pop();
+    switch (extension) {
+      case "py":
+        return "python";
+      default:
+        throw new Error(`Unsupported file extension: ${extension}`);
+    }
+  }
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      {/* TODO display student stuff somehow */}
-      {/* <AppBar position="static">
-        <Toolbar>
-          <NavBar
-            studentName="Rebecca Dang"
-            studentEmail="rdang@berkeley.edu"
-            studentId={3037279631}
-            assignmentName="Maps"
-          />
-        </Toolbar>
-      </AppBar>
-      */}
-      <ContentWrapper>
-        <LeftSidebar>
-          {/* Left Sidebar Content Area */}
-          <Timeline />
-        </LeftSidebar>
-        {/* TODO make width more responsive */}
-        <MainContent>
-          {/* Main Content Area */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <h2>File Viewer</h2>
-            <FormControl>
-              <InputLabel id="demo-simple-select-label">File</InputLabel>
-              <Select
-                // TODO fix labelId and id
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={file}
-                label="File"
-                onChange={handleChange}
-              >
-                <MenuItem value="utils.py">utils.py</MenuItem>
-                <MenuItem value="abstractions.py">abstractions.py</MenuItem>
-                <MenuItem value="recommend.py">recommend.py</MenuItem>
-              </Select>
-            </FormControl>
-          </div>
-          <FileViewer code={code} language="python" />
-          <Toolbar /> {/* Spacer to offset content below AppBar */}
-        </MainContent>
-        <RightSidebar sx={{ display: { xs: "none", sm: "block" } }}>
-          {/* Right Sidebar Content Area */}
-          <AutograderOutput text={autograderOutput} />
-          <Graphs />
-        </RightSidebar>
-      </ContentWrapper>
+      {loadingBackups ? (
+        <CircularProgress />
+      ) : (
+        <ContentWrapper>
+          <LeftSidebar>
+            {/* Left Sidebar Content Area */}
+            <Timeline backups={backups} selectedBackup={selectedBackup} handleBackupSelect={handleBackupSelect} />
+          </LeftSidebar>
+          {/* TODO make width more responsive */}
+          <MainContent>
+            {/* Main Content Area */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <h2>File Viewer</h2>
+              <FormControl>
+                <InputLabel id="file-select-label">File</InputLabel>
+                <Select
+                  labelId="file-select-label"
+                  id="file-select"
+                  value={file}
+                  label="File"
+                  onChange={(event) => {
+                    setFile(event.target.value);
+                    setCode("");
+                  }}
+                >
+                  {files.map((file) => (
+                    <MenuItem value={file}>{file}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
+            {code === "" ? (
+              <CircularProgress />
+            ) : (
+              <FileViewer code={code} language={getLanguage(file)} />
+            )}
+
+            <Toolbar />
+          </MainContent>
+          <RightSidebar sx={{ display: { xs: "none", sm: "block" } }}>
+            {/* Right Sidebar Content Area */}
+            {autograderOutput === "" ? (
+              <CircularProgress />
+            ) : (
+              <AutograderOutput text={autograderOutput} />
+            )}
+            <Graphs />
+          </RightSidebar>
+        </ContentWrapper>
+      )}
     </Box>
   );
 }

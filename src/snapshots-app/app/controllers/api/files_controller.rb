@@ -1,16 +1,35 @@
 require "aws-sdk-s3"
 
+# TODO: update tests
+
 S3_BUCKET_NAME = "ucb-assignment-snapshots-eae254943a2c4f51bef67654e99560dd"
 S3_BUCKET_REGION = "us-west-2"
 
 class Api::FilesController < ApplicationController
-  def get_object_key(params)
-    # NOTE: we assume the okpy endpoint is passed in with - as the separator since / is reserved
-    okpy_endpoint_parsed = params[:okpy_endpoint].gsub("-", "/")
-    "#{okpy_endpoint_parsed}/#{params[:assignment]}/#{params[:student_id]}/#{params[:backup_id]}/#{params[:file_name]}"
-  end
+  CACHE_TTL = 1.hour
 
   def show
+    object_key = params[:object_key]
+
+    if !object_key.present?
+      error = "Missing required query parameter: object_key"
+      Rails.logger.error(error)
+      render json: { "error": error }, status: :bad_request
+      return
+    end
+
+    cache_key = "s3_file:#{object_key}"
+    cached_response = Rails.cache.fetch(cache_key, expires_in: CACHE_TTL) do
+      Rails.logger.info("Cache MISS for cache_key #{cache_key}. Fetching from S3...")
+      fetch_file_from_s3(object_key)
+    end
+
+    render cached_response
+  end
+
+  private
+
+  def fetch_file_from_s3(object_key)
     # uses default credentials for local dev - see src/app/server/README.md to configure using AWS CLI
     s3 = Aws::S3::Client.new(region: S3_BUCKET_REGION)
 
@@ -18,29 +37,29 @@ class Api::FilesController < ApplicationController
     error = nil
     status = :internal_server_error
 
-    object_key = get_object_key(params)
-
     begin
+      Rails.logger.info("Fetching #{object_key} from S3")
       resp = s3.get_object(bucket: S3_BUCKET_NAME, key: object_key)
+      Rails.logger.info("Successfully fetched #{object_key} from S3")
       file_contents = resp.body.read.force_encoding("UTF-8") # Assuming UTF-8 encoding
       status = :ok
     rescue Aws::S3::Errors::NoSuchBucket => e
-      error = "Error: Bucket not found: #{bucket_name}"
+      error = "#{e.message} S3 bucket: #{e.context.params[:bucket]}"
       status = :not_found
     rescue Aws::S3::Errors::NoSuchKey => e
-      error = "Error: File #{object_key} not found in S3 - #{e.message}"
+      error = "#{e.message} S3 object key: #{e.context.params[:key]}"
       status = :not_found
     rescue Aws::S3::Errors::ServiceError => e
-      error = "Error accessing S3: #{e.message}"
+      error = "Error accessing S3: #{e.message} Request context params: #{e.context.params}"
     rescue StandardError => e
-      error = "Unknown error occurred: #{e.message}"
+      error = "Unknown error occurred when fetching files from S3: #{e.message} Request context params: #{e.context.params}"
     end
 
     if file_contents
-      render json: { "file_contents": file_contents }, status: status
+      { json: { "object_key": object_key, "file_contents": file_contents }, status: status }
     else
       Rails.logger.error(error)
-      render json: { "error": error }, status: status
+      { json: { "error": error }, status: status }
     end
   end
 end

@@ -1,5 +1,7 @@
 import React from "react";
 
+import { Link } from "@mui/material";
+
 function Footer() {
   return (
     <div
@@ -24,11 +26,11 @@ function Footer() {
       {/* TODO why does this go off to page to the right? */}
       <span style={{ flex: 1, textAlign: "right" }}>
         This app is a{" "}
-        <a href="https://github.com/berkeley-cdss">Seamless Learning</a>{" "}
+        <Link href="https://github.com/berkeley-cdss">Seamless Learning</Link>{" "}
         project. Edit it on{" "}
-        <a href="https://github.com/berkeley-cdss/assignment-snapshots">
+        <Link href="https://github.com/berkeley-cdss/assignment-snapshots">
           GitHub
-        </a>
+        </Link>
         .
       </span>
     </div>

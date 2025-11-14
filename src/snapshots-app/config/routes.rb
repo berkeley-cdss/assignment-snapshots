@@ -12,7 +12,7 @@ Rails.application.routes.draw do
 
   # Define API routes in separate namespace
   namespace :api, defaults: { format: :json } do
-    get "files/:okpy_endpoint/:assignment/:student_id/:backup_id/:file_name", to: "files#show", constraints: { file_name: /.+\..+/ }
+    get "files", to: "files#show"
     get "courses", to: "courses#show"
     get "assignments/:course_id", to: "assignments#show"
     get "submissions/:course_id/:assignment_id", to: "submissions#show"
