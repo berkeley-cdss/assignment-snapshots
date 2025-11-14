@@ -3,58 +3,82 @@ import React from "react";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
 import Typography from "@mui/material/Typography";
 import Link from "@mui/material/Link";
-import { useLocation, Link as RouterLink } from "react-router";
+import { Link as RouterLink, useMatch } from "react-router";
+import { useAtomValue } from "jotai";
 
-// Data for dynamic breadcrumb generation
-// TODO retrieve this dynamically? use react state management like redux or jotai?
-const courses = {
-  "1": "CS 61A Fall 2025",
-  "2": "DATA C88C Spring 2025",
-  "3": "CS 61B Fall 2023",
-};
+import { coursesAtom, assignmentsAtom, studentsAtom } from "../../state/atoms";
 
-const assignments = {
-  "1": "Lab 7",
-  "2": "Ants",
-  "3": "Maps",
-};
-
-const students = {
-  "1": "Alice Jones (ajones@berkeley.edu)",
-  "2": "Bob Smith (bsmith@berkeley.edu)",
-  "3": "Charlie Brown (cbrown@berkeley.edu)",
-};
-
-// TODO make this less hacky
-function getBreadcrumbName(path) {
-  if (path === "/courses") return "Courses";
-  if (path === "/courses/submission") return "Submission";
-
-  const parts = path.split("/").filter(Boolean);
-
-  if (parts.length >= 2 && parts[0] === "courses" && courses[parts[1]]) {
-    if (parts.length === 2) return courses[parts[1]];
-    if (
-      parts.length >= 4 &&
-      parts[2] === "assignments" &&
-      assignments[parts[3]]
-    ) {
-      if (parts.length === 4) return assignments[parts[3]];
-      if (parts.length === 6 && parts[4] === "students" && students[parts[5]]) {
-        return students[parts[5]];
-      }
-    }
-  }
-  return undefined;
-}
-
-function LinkRouter(props) {
+function BreadcrumbNavLink(props) {
   return <Link {...props} component={RouterLink} />;
 }
 
 function BreadcrumbNav() {
-  const location = useLocation();
-  const pathnames = location.pathname.split("/").filter((x) => x);
+  const matchesCoursesRoute = useMatch({ path: "/courses", end: false });
+  const matchesCourseRoute = useMatch({
+    path: "/courses/:courseId",
+    end: false,
+  });
+  const matchesAssignmentRoute = useMatch({
+    path: "/courses/:courseId/assignments/:assignmentId",
+    end: false,
+  });
+  const matchesStudentRoute = useMatch({
+    path: "/courses/:courseId/assignments/:assignmentId/students/:studentId",
+    end: false,
+  });
+
+  const courses = useAtomValue(coursesAtom);
+  const assignments = useAtomValue(assignmentsAtom);
+  const students = useAtomValue(studentsAtom);
+  const breadcrumbs = getBreadcrumbs();
+
+  function findById(objects, id) {
+    const temp = objects.find((item) => item.id.toString() === id);
+    return temp;
+  }
+
+  function getCourseHumanReadableName(course) {
+    const termCapitalized =
+      course.term.charAt(0).toUpperCase() + course.term.slice(1);
+    return `${course.dept} ${course.code} (${termCapitalized} ${course.year})`;
+  }
+
+  function getBreadcrumbs() {
+    const result = [{ name: "Login", path: "/" }];
+
+    if (matchesCoursesRoute) {
+      result.push({ name: "Courses", path: "/courses" });
+    }
+
+    if (matchesCourseRoute) {
+      const course = findById(courses, matchesCourseRoute.params.courseId);
+      result.push({
+        name: getCourseHumanReadableName(course),
+        path: `/courses/${matchesCourseRoute.params.courseId}`,
+      });
+    }
+
+    if (matchesAssignmentRoute) {
+      const assignment = findById(
+        assignments,
+        matchesAssignmentRoute.params.assignmentId,
+      );
+      result.push({
+        name: assignment.name,
+        path: `/courses/${matchesAssignmentRoute.params.courseId}/assignments/${matchesAssignmentRoute.params.assignmentId}`,
+      });
+    }
+
+    if (matchesStudentRoute) {
+      const student = findById(students, matchesStudentRoute.params.studentId);
+      result.push({
+        name: `${student.first_name} ${student.last_name} (${student.student_id})`,
+        path: `/courses/${matchesStudentRoute.params.courseId}/assignments/${matchesStudentRoute.params.assignmentId}/students/${matchesStudentRoute.params.studentId}`,
+      });
+    }
+
+    return result;
+  }
 
   return (
     <div
@@ -62,33 +86,26 @@ function BreadcrumbNav() {
         padding: "1rem",
         borderBottom: "1px solid lightGrey",
         backgroundColor: "white",
+        marginBottom: "1rem",
       }}
     >
       <Breadcrumbs separator="›" aria-label="breadcrumb">
-        {/* TODO remove login from breadcrumb nav */}
-        <LinkRouter underline="hover" color="inherit" to="/">
-          Login
-        </LinkRouter>
-        {pathnames.map((value, index) => {
-          // Remove assignments/students from breadcrumb nav because there's no /assignments or /students by itself
-          if (index !== 2 && index !== 4) {
-            const last = index === pathnames.length - 1;
-            const to = `/${pathnames.slice(0, index + 1).join("/")}`;
-            const name = getBreadcrumbName(to);
-
-            if (!name) return null;
-
-            return last ? (
-              <Typography key={to} sx={{ color: "text.primary" }}>
-                {name}
-              </Typography>
-            ) : (
-              <LinkRouter underline="hover" color="inherit" to={to} key={to}>
-                {name}
-              </LinkRouter>
-            );
-          }
-          return null;
+        {breadcrumbs.map((bc, index) => {
+          const last = index === breadcrumbs.length - 1;
+          return last ? (
+            <Typography key={index} sx={{ color: "text.primary" }}>
+              {bc.name}
+            </Typography>
+          ) : (
+            <BreadcrumbNavLink
+              underline="hover"
+              color="inherit"
+              to={bc.path}
+              key={index}
+            >
+              {bc.name}
+            </BreadcrumbNavLink>
+          );
         })}
       </Breadcrumbs>
     </div>
