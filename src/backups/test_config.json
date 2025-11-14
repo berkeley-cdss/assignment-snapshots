@@ -9,7 +9,11 @@
         "lab_end": 0,
         "hw_start": 0,
         "hw_end": 0,
-        "projects": ["maps"]
+        "projects": ["maps"],
+        "assignment_files": {
+            "maps": ["utils.py", "abstractions.py", "recommend.py"],
+            "lab00": ["lab00.py"]
+        }
     },
     "data": {
         "in_roster": "../../data/private/data_c88c_sp25_gradescope_roster.csv",
