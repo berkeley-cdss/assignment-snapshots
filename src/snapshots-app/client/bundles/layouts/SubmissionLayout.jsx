@@ -56,6 +56,8 @@ function SubmissionLayout() {
 
   const [lightMode, setLightMode] = React.useState(true);
 
+  const [lintErrors, setLintErrors] = React.useState([]);
+
   const routeParams = useParams();
 
   // Fetch backups
@@ -136,6 +138,33 @@ function SubmissionLayout() {
       });
   }, [loadingBackups, backups, selectedBackup, file]);
 
+  // Fetch lint errors for currently selected backup and file
+  // if backups is done loading
+  React.useEffect(() => {
+    if (loadingBackups || backups.length === 0 || file === "") {
+      return;
+    }
+
+    const lintErrorsQueryParams = new URLSearchParams();
+    lintErrorsQueryParams.append(
+      "file_contents_location",
+      `${backups[selectedBackup].file_contents_location}/${file}`,
+    );
+
+    fetch(`/api/lint_errors?${lintErrorsQueryParams}`, {
+      method: "GET",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((responseData) => {
+        setLintErrors(responseData.lint_errors);
+      });
+  }, [loadingBackups, backups, selectedBackup, file]);
+
   function handleBackupSelect(selectedBackupIndex) {
     setSelectedBackup(selectedBackupIndex);
     // Set these values to empty so that circular progress shows while loading new contents
@@ -180,6 +209,7 @@ function SubmissionLayout() {
             >
               <h2>File Viewer</h2>
               <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+                {/* TODO diff viewer? */}
                 <FormGroup>
                   <FormControlLabel control={<Switch
                     labelId="light-mode-switch-label"
@@ -214,6 +244,7 @@ function SubmissionLayout() {
                 code={code}
                 language={getLanguage(file)}
                 lightMode={lightMode}
+                lintErrors={lintErrors}
               />
             )}
 
