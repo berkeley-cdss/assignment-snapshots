@@ -21,9 +21,11 @@ from request import get_backups_for_all_users_all_assignments
 from storage import (
     setup_db,
     setup_db_lint_errors,
+    setup_db_num_lines,
     PREFIX,
     responses_to_backups,
     store_lint_errors,
+    store_num_lines,
 )
 
 DEFAULT_CONFIG_FILE = "backup_config.json"
@@ -346,6 +348,49 @@ def lint(
     if timeit:
         end = time()
         print(f"Finished storing lint errors in {database} in {end - start} seconds")
+
+
+@app.command()
+def num_lines(
+    database: Annotated[
+        str,
+        typer.Option(
+            help="Name of sqlite database .db file where backups will be stored"
+        ),
+    ] = None,
+    config: Annotated[
+        str, typer.Option(help="Configuration .json file")
+    ] = DEFAULT_CONFIG_FILE,
+    timeit: Annotated[
+        bool, typer.Option(help="Whether to time how long it takes this command to run")
+    ] = True,
+    verbose: bool = False,
+):
+    """
+    Assuming the `request` and `store` commands have already been run,
+    running this command will produce the `num_lines` table in the backups database.
+
+    If any arguments are not specified, this command will use the values in the CONFIG .json file.
+    """
+    # TODO add prompt when overwriting db or actual files
+    config_dict = read_config(config)
+
+    if database is None:
+        database = config_dict["data"]["database"]
+    assert database.endswith(".db"), "database must be a sqlite .db file"
+
+    if timeit:
+        start = time()
+
+    conn = setup_db_num_lines(database)
+    if verbose:
+        print(f"Setup database {database}")
+
+    store_num_lines(conn, config_dict["course"]["assignment_files"], verbose=verbose)
+
+    if timeit:
+        end = time()
+        print(f"Finished computing num lines in {database} in {end - start} seconds")
 
 
 @app.command()

@@ -5,7 +5,7 @@ Contains logic for persistent storage of assignment backups
 import hashlib
 import os
 import sqlite3
-from typing import List
+from typing import List, Dict
 
 from db import *
 from models import *
@@ -130,6 +130,21 @@ def setup_db_lint_errors(database: str) -> sqlite3.Connection:
     return conn
 
 
+# TODO figure out a way to generalize this better
+def setup_db_num_lines(database: str) -> sqlite3.Connection:
+    assert database.endswith(".db")
+
+    conn = sqlite3.connect(database)
+    cur = conn.cursor()
+
+    cur.execute(DROP_NUM_LINES_TABLE_CMD)
+    cur.execute(CREATE_NUM_LINES_TABLE_CMD)
+
+    conn.commit()
+
+    return conn
+
+
 def insert_record(conn: sqlite3.Connection, backup: Backup):
     # TODO do executemany instead?
     # https://docs.python.org/3/library/sqlite3.html#how-to-use-placeholders-to-bind-values-in-sql-queries
@@ -166,6 +181,49 @@ def insert_lint_error_record(conn: sqlite3.Connection, lint_error: LintError):
     cur = conn.cursor()
     cur.execute(INSERT_LINT_ERROR_CMD, data)
     conn.commit()
+
+
+def insert_num_lines_record(conn: sqlite3.Connection, num_lines: NumLines):
+    # TODO do executemany instead?
+    # https://docs.python.org/3/library/sqlite3.html#how-to-use-placeholders-to-bind-values-in-sql-queries
+    data = {
+        "file_contents_location": num_lines.file_contents_location,
+        "file_name": num_lines.file_name,
+        "num_lines": num_lines.num_lines,
+    }
+    cur = conn.cursor()
+    cur.execute(INSERT_NUM_LINES_CMD, data)
+    conn.commit()
+
+
+def compute_num_lines(conn: sqlite3.Connection, assignment_files: Dict[str, List[str]]):
+    result = []
+    cur = conn.cursor()
+    rows = cur.execute(SELECT_BACKUP_METADATA_CMD).fetchall()
+    for r in rows:
+        assignment = r[0]
+        file_contents_location = r[1]
+        for file_name in assignment_files[assignment]:
+            with open(f"{file_contents_location}/{file_name}", "r") as f:
+                num_lines = len(f.read().split("\n"))
+            result.append(NumLines(file_contents_location, file_name, num_lines))
+    return result
+
+
+def store_num_lines(
+    conn: sqlite3.Connection,
+    assignment_files: Dict[str, List[str]],
+    verbose: bool = False,
+):
+    num_lines_objects = compute_num_lines(conn, assignment_files)
+    if verbose:
+        print(f"Computed {len(num_lines_objects)} num lines objects")
+
+    for num_lines in num_lines_objects:
+        insert_num_lines_record(conn, num_lines)
+
+    if verbose:
+        print("Inserted all num lines objects into db")
 
 
 def sha256(s: str) -> str:

@@ -4,6 +4,8 @@ DROP_OKPY_MESSAGES_TABLE_CMD = "DROP TABLE IF EXISTS okpy_messages"
 
 DROP_LINT_ERRORS_TABLE_CMD = "DROP TABLE IF EXISTS lint_errors"
 
+DROP_NUM_LINES_TABLE_CMD = "DROP TABLE IF EXISTS num_lines"
+
 CREATE_BACKUP_METADATA_TABLE_CMD = """
 CREATE TABLE backup_metadata (
     backup_id TEXT PRIMARY KEY,
@@ -126,4 +128,32 @@ INSERT INTO lint_errors VALUES (
     :code,
     :url
 );
+"""
+
+CREATE_NUM_LINES_TABLE_CMD = """
+CREATE TABLE num_lines (
+	file_contents_location TEXT,
+    file_name TEXT,
+    num_lines INTEGER NOT NULL,
+
+	PRIMARY KEY (file_contents_location, file_name)
+);
+"""
+
+INSERT_NUM_LINES_CMD = """
+INSERT INTO num_lines VALUES (
+    :file_contents_location,
+    :file_name,
+    :num_lines
+);
+"""
+
+SELECT_BACKUP_METADATA_CMD = """
+SELECT
+    assignment,
+    file_contents_location
+FROM backup_metadata
+WHERE
+    file_contents_location IS NOT NULL
+    AND autograder_output_location IS NOT NULL;
 """

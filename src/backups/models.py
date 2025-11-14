@@ -129,3 +129,10 @@ class LintError:
         self.message = message
         self.code = code
         self.url = url
+
+
+class NumLines:
+    def __init__(self, file_contents_location: str, file_name: str, num_lines: int):
+        self.file_contents_location = file_contents_location
+        self.file_name = file_name
+        self.num_lines = num_lines
