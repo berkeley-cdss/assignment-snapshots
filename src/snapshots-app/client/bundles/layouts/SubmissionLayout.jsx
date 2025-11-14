@@ -6,15 +6,19 @@ import { MenuItem, Select } from "@mui/material";
 import { useAtom } from "jotai";
 import CircularProgress from "@mui/material/CircularProgress";
 import Switch from "@mui/material/Switch";
-import FormGroup from '@mui/material/FormGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
+import FormGroup from "@mui/material/FormGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
 import { useParams } from "react-router";
-import Fab from '@mui/material/Fab';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import Snackbar from '@mui/material/Snackbar';
-import { useCopyToClipboard } from 'react-use';
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import Snackbar from "@mui/material/Snackbar";
+import { useCopyToClipboard } from "react-use";
+import IconButton from "@mui/material/IconButton";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import { Typography } from "@mui/material";
 
-import AutograderOutput from "../components/submission/AutograderOutput";
 import FileViewer from "../components/submission/FileViewer";
 import Graphs from "../components/submission/Graphs";
 import Timeline from "../components/submission/Timeline";
@@ -64,6 +68,8 @@ function SubmissionLayout() {
 
   const [isSnackbarOpen, setIsSnackbarOpen] = React.useState(false);
   const [state, copyToClipboard] = useCopyToClipboard();
+
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
 
   const routeParams = useParams();
 
@@ -195,11 +201,8 @@ function SubmissionLayout() {
     setIsSnackbarOpen(true);
   };
 
-  const handleSnackbarClose = (
-    event,
-    reason,
-  ) => {
-    if (reason === 'clickaway') {
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") {
       return;
     }
 
@@ -232,19 +235,36 @@ function SubmissionLayout() {
               }}
             >
               <h2>File Viewer</h2>
-              <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+              <div
+                style={{ display: "flex", gap: "1rem", alignItems: "center" }}
+              >
                 {/* TODO diff viewer? */}
                 <FormGroup>
-                  <FormControlLabel control={<Switch
-                    labelId="light-mode-switch-label"
-                    checked={lightMode}
-                    onChange={(event) => setLightMode(event.target.checked)}
-                  />} label={lightMode ? "Light Mode" : "Dark Mode"}>
-                  </FormControlLabel>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        labelId="light-mode-switch-label"
+                        checked={lightMode}
+                        onChange={(event) => setLightMode(event.target.checked)}
+                      />
+                    }
+                    label={lightMode ? "Light Mode" : "Dark Mode"}
+                  ></FormControlLabel>
                 </FormGroup>
-                <Fab color="primary" size="small" aria-label="copy code to clipboard" onClick={copyCode} >
-                        <ContentCopyIcon />
-                      </Fab>
+                <IconButton
+                  color="primary"
+                  size="small"
+                  aria-label="copy code to clipboard"
+                  onClick={copyCode}
+                >
+                  <ContentCopyIcon />
+                </IconButton>
+                <Button
+                  variant="contained"
+                  onClick={() => setIsDialogOpen(true)}
+                >
+                  View Autograder Output
+                </Button>
                 <FormControl>
                   <InputLabel id="file-select-label">File</InputLabel>
                   <Select
@@ -279,21 +299,47 @@ function SubmissionLayout() {
           </MainContent>
           <RightSidebar sx={{ display: { xs: "none", sm: "block" } }}>
             {/* Right Sidebar Content Area */}
-            {autograderOutput === "" ? (
-              <CircularProgress />
-            ) : (
-              <AutograderOutput text={autograderOutput} />
-            )}
             <Graphs />
           </RightSidebar>
         </ContentWrapper>
       )}
+
       <Snackbar
         open={isSnackbarOpen}
         autoHideDuration={1000}
         onClose={handleSnackbarClose}
         message="Code copied to clipboard!"
       />
+
+      <Dialog
+        open={isDialogOpen}
+        onClose={() => {
+          setIsDialogOpen(false);
+          console.log("autograder output", autograderOutput);
+        }}
+        aria-labelledby="autogdrader-output-dialog-title"
+        aria-describedby="autograder-output-dialog-description"
+      >
+        <DialogTitle id="autograder-output-dialog-title">
+          Autograder Output
+        </DialogTitle>
+        <DialogContent>
+          <Typography
+            id="autograder-output-dialog-description"
+            component="pre"
+            style={{
+              whiteSpace: "pre-wrap",
+              fontFamily: "Menlo",
+              fontSize: "0.8rem",
+            }}
+          >
+            {autograderOutput}
+          </Typography>
+          {/* <DialogContentText id="autograder-output-dialog-description" sx={{ fontFamily: "Menlo", fontSize: "0.8rem" }}>
+            {autograderOutput}
+          </DialogContentText> */}
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 }
