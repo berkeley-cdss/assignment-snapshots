@@ -24,7 +24,11 @@ function Timeline({ backups, selectedBackup, handleBackupSelect }) {
   return (
     <div>
       <h2>Timeline</h2>
-      <ButtonGroup orientation="vertical" aria-label="Vertical button group" style={{ width: "100%" }}>
+      <ButtonGroup
+        orientation="vertical"
+        aria-label="Vertical button group"
+        style={{ width: "100%" }}
+      >
         {backups.map((backup, index) => {
           const isSelected = index === selectedBackup;
           const date = new Date(backup.created);

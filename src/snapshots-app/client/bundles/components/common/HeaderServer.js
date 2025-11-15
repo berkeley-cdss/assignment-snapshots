@@ -1,4 +1,4 @@
-import Header from './Header';
+import Header from "./Header";
 // This could be specialized for server rendering
 // For example, if using React-Router, we'd have the SSR setup here.
 

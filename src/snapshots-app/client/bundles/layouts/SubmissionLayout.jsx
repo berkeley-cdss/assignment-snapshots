@@ -336,7 +336,10 @@ function SubmissionLayout() {
             {filesToMetadata === null || file === "" ? (
               <CircularProgress />
             ) : (
-              <Graphs backupCreatedTimestamps={backupCreatedTimestamps} fileMetadata={filesToMetadata[file]} />
+              <Graphs
+                backupCreatedTimestamps={backupCreatedTimestamps}
+                fileMetadata={filesToMetadata[file]}
+              />
             )}
           </RightSidebar>
         </ContentWrapper>

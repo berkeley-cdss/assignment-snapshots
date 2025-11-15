@@ -1,8 +1,8 @@
-import { atom } from 'jotai';
+import { atom } from "jotai";
 
 // TODO how to fix problem of going to page directly by URL?
 
-export const userAtom = atom('rdang@berkeley.edu');
+export const userAtom = atom("rdang@berkeley.edu");
 
 // array of json objects representing all courses the user teaches
 export const coursesAtom = atom([]);
