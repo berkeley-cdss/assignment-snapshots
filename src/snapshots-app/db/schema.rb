@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_07_165227) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_14_174157) do
   create_table "assignment_files", force: :cascade do |t|
     t.integer "assignment_id", null: false
     t.string "file_name", null: false
@@ -28,6 +28,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_07_165227) do
     t.datetime "updated_at", null: false
     t.index ["course_id"], name: "index_assignments_on_course_id"
     t.index ["name", "course_id"], name: "index_assignments_on_name_and_course_id", unique: true
+  end
+
+  create_table "backup_file_metadata", id: false, force: :cascade do |t|
+    t.string "file_contents_location", null: false
+    t.string "file_name", null: false
+    t.integer "num_lines"
   end
 
   create_table "backup_metadata", primary_key: "backup_id", id: :string, force: :cascade do |t|

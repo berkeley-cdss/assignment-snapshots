@@ -65,6 +65,7 @@ function SubmissionLayout() {
   const [lightMode, setLightMode] = React.useState(true);
 
   const [lintErrors, setLintErrors] = React.useState([]);
+  const [filesToMetadata, setFilesToMetadata] = React.useState(null);
 
   const [isSnackbarOpen, setIsSnackbarOpen] = React.useState(false);
   const [state, copyToClipboard] = useCopyToClipboard();
@@ -178,11 +179,44 @@ function SubmissionLayout() {
       });
   }, [loadingBackups, backups, selectedBackup, file]);
 
+  // Fetch backup file metadata for currently selected backup and file
+  // if backups is done loading
+  React.useEffect(() => {
+    if (loadingBackups || backups.length === 0 || file === "") {
+      return;
+    }
+
+    fetch(
+      `/api/backup_file_metadata/${routeParams.courseId}/${routeParams.assignmentId}/${routeParams.studentId}`,
+      {
+        method: "GET",
+      },
+    )
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((responseData) => {
+        setFilesToMetadata(responseData.files_to_metadata);
+      });
+  }, [routeParams, loadingBackups, backups, selectedBackup, file]);
+
+  const backupCreatedTimestamps = React.useMemo(() => {
+    if (loadingBackups || backups.length === 0) {
+      return [];
+    }
+
+    return backups.map((backup) => backup.created);
+  }, [loadingBackups, backups]);
+
   function handleBackupSelect(selectedBackupIndex) {
     setSelectedBackup(selectedBackupIndex);
     // Set these values to empty so that circular progress shows while loading new contents
     setCode("");
     setAutograderOutput("");
+    setFilesToMetadata(null);
   }
 
   function getLanguage(file) {
@@ -299,7 +333,14 @@ function SubmissionLayout() {
           </MainContent>
           <RightSidebar sx={{ display: { xs: "none", sm: "block" } }}>
             {/* Right Sidebar Content Area */}
-            <Graphs />
+            {filesToMetadata === null || file === "" ? (
+              <CircularProgress />
+            ) : (
+              <Graphs
+                backupCreatedTimestamps={backupCreatedTimestamps}
+                fileMetadata={filesToMetadata[file]}
+              />
+            )}
           </RightSidebar>
         </ContentWrapper>
       )}

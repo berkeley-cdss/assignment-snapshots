@@ -1,0 +1,26 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+alice_ants_metadata_1:
+  file_contents_location: cal/cs61a/fa25/ants/abc123/abc123
+  file_name: ants.py
+  num_lines: 300
+
+alice_ants_metadata_2:
+  file_contents_location: cal/cs61a/fa25/ants/abc123/def456
+  file_name: ants.py
+  num_lines: 350
+
+bob_maps_utils_metadata:
+  file_contents_location: cal/cs61a/fa25/ants/def456/aaa111
+  file_name: utils.py
+  num_lines: 50
+
+bob_maps_abstractions_metadata:
+  file_contents_location: cal/cs61a/fa25/ants/def456/aaa111
+  file_name: abstractions.py
+  num_lines: 90
+
+bob_maps_recommend_metadata:
+  file_contents_location: cal/cs61a/fa25/ants/def456/aaa111
+  file_name: recommend.py
+  num_lines: 250

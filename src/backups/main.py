@@ -21,11 +21,11 @@ from request import get_backups_for_all_users_all_assignments
 from storage import (
     setup_db,
     setup_db_lint_errors,
-    setup_db_num_lines,
+    setup_db_backup_file_metadata,
     PREFIX,
     responses_to_backups,
     store_lint_errors,
-    store_num_lines,
+    store_backup_file_metadata,
 )
 
 DEFAULT_CONFIG_FILE = "backup_config.json"
@@ -351,7 +351,7 @@ def lint(
 
 
 @app.command()
-def num_lines(
+def backup_file_metadata(
     database: Annotated[
         str,
         typer.Option(
@@ -368,7 +368,7 @@ def num_lines(
 ):
     """
     Assuming the `request` and `store` commands have already been run,
-    running this command will produce the `num_lines` table in the backups database.
+    running this command will produce the `backup_file_metadata` table in the backups database.
 
     If any arguments are not specified, this command will use the values in the CONFIG .json file.
     """
@@ -382,11 +382,13 @@ def num_lines(
     if timeit:
         start = time()
 
-    conn = setup_db_num_lines(database)
+    conn = setup_db_backup_file_metadata(database)
     if verbose:
         print(f"Setup database {database}")
 
-    store_num_lines(conn, config_dict["course"]["assignment_files"], verbose=verbose)
+    store_backup_file_metadata(
+        conn, config_dict["course"]["assignment_files"], verbose=verbose
+    )
 
     if timeit:
         end = time()

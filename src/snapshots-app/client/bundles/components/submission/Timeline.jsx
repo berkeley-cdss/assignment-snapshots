@@ -24,16 +24,20 @@ function Timeline({ backups, selectedBackup, handleBackupSelect }) {
   return (
     <div>
       <h2>Timeline</h2>
-      <ButtonGroup orientation="vertical" aria-label="Vertical button group" style={{ width: "100%" }}>
+      <ButtonGroup
+        orientation="vertical"
+        aria-label="Vertical button group"
+        style={{ width: "100%" }}
+      >
         {backups.map((backup, index) => {
           const isSelected = index === selectedBackup;
           const date = new Date(backup.created);
           const formattedDate = date.toLocaleString("en-US", {
             month: "2-digit",
             day: "2-digit",
-            year: "2-digit",
             hour: "2-digit",
             minute: "2-digit",
+            second: "2-digit",
             hour12: true,
           });
           return (

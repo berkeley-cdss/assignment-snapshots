@@ -131,14 +131,14 @@ def setup_db_lint_errors(database: str) -> sqlite3.Connection:
 
 
 # TODO figure out a way to generalize this better
-def setup_db_num_lines(database: str) -> sqlite3.Connection:
+def setup_db_backup_file_metadata(database: str) -> sqlite3.Connection:
     assert database.endswith(".db")
 
     conn = sqlite3.connect(database)
     cur = conn.cursor()
 
-    cur.execute(DROP_NUM_LINES_TABLE_CMD)
-    cur.execute(CREATE_NUM_LINES_TABLE_CMD)
+    cur.execute(DROP_BACKUP_FILE_METADATA_TABLE_CMD)
+    cur.execute(CREATE_BACKUP_FILE_METADATA_TABLE_CMD)
 
     conn.commit()
 
@@ -183,20 +183,24 @@ def insert_lint_error_record(conn: sqlite3.Connection, lint_error: LintError):
     conn.commit()
 
 
-def insert_num_lines_record(conn: sqlite3.Connection, num_lines: NumLines):
+def insert_backup_file_metadata_record(
+    conn: sqlite3.Connection, backup_file_metadata: BackupFileMetadata
+):
     # TODO do executemany instead?
     # https://docs.python.org/3/library/sqlite3.html#how-to-use-placeholders-to-bind-values-in-sql-queries
     data = {
-        "file_contents_location": num_lines.file_contents_location,
-        "file_name": num_lines.file_name,
-        "num_lines": num_lines.num_lines,
+        "file_contents_location": backup_file_metadata.file_contents_location,
+        "file_name": backup_file_metadata.file_name,
+        "num_lines": backup_file_metadata.num_lines,
     }
     cur = conn.cursor()
-    cur.execute(INSERT_NUM_LINES_CMD, data)
+    cur.execute(INSERT_BACKUP_FILE_METADATA_CMD, data)
     conn.commit()
 
 
-def compute_num_lines(conn: sqlite3.Connection, assignment_files: Dict[str, List[str]]):
+def compute_all_backup_file_metadata(
+    conn: sqlite3.Connection, assignment_files: Dict[str, List[str]]
+):
     result = []
     cur = conn.cursor()
     rows = cur.execute(SELECT_BACKUP_METADATA_CMD).fetchall()
@@ -206,24 +210,30 @@ def compute_num_lines(conn: sqlite3.Connection, assignment_files: Dict[str, List
         for file_name in assignment_files[assignment]:
             with open(f"{file_contents_location}/{file_name}", "r") as f:
                 num_lines = len(f.read().split("\n"))
-            result.append(NumLines(file_contents_location, file_name, num_lines))
+            result.append(
+                BackupFileMetadata(file_contents_location, file_name, num_lines)
+            )
     return result
 
 
-def store_num_lines(
+def store_backup_file_metadata(
     conn: sqlite3.Connection,
     assignment_files: Dict[str, List[str]],
     verbose: bool = False,
 ):
-    num_lines_objects = compute_num_lines(conn, assignment_files)
+    backup_file_metadata_objects = compute_all_backup_file_metadata(
+        conn, assignment_files
+    )
     if verbose:
-        print(f"Computed {len(num_lines_objects)} num lines objects")
+        print(
+            f"Computed {len(backup_file_metadata_objects)} backup file metadata objects"
+        )
 
-    for num_lines in num_lines_objects:
-        insert_num_lines_record(conn, num_lines)
+    for bfm in backup_file_metadata_objects:
+        insert_backup_file_metadata_record(conn, bfm)
 
     if verbose:
-        print("Inserted all num lines objects into db")
+        print("Inserted all backup file metadata objects into db")
 
 
 def sha256(s: str) -> str:
