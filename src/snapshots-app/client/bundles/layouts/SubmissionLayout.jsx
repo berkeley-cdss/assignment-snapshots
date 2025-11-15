@@ -203,6 +203,14 @@ function SubmissionLayout() {
       });
   }, [routeParams, loadingBackups, backups, selectedBackup, file]);
 
+  const backupCreatedTimestamps = React.useMemo(() => {
+    if (loadingBackups || backups.length === 0) {
+      return [];
+    }
+
+    return backups.map((backup) => backup.created);
+  }, [loadingBackups, backups]);
+
   function handleBackupSelect(selectedBackupIndex) {
     setSelectedBackup(selectedBackupIndex);
     // Set these values to empty so that circular progress shows while loading new contents
@@ -328,7 +336,7 @@ function SubmissionLayout() {
             {filesToMetadata === null || file === "" ? (
               <CircularProgress />
             ) : (
-              <Graphs fileMetadata={filesToMetadata[file]} />
+              <Graphs backupCreatedTimestamps={backupCreatedTimestamps} fileMetadata={filesToMetadata[file]} />
             )}
           </RightSidebar>
         </ContentWrapper>
