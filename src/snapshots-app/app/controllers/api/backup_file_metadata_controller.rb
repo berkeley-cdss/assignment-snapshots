@@ -1,4 +1,4 @@
-class Api::BackupFileMetadatumController < ApplicationController
+class Api::BackupFileMetadataController < ApplicationController
   CACHE_TTL = 1.hour
 
   def show

@@ -1,6 +1,6 @@
 require "test_helper"
 
-class Api::BackupFileMetadatumControllerTest < ActionDispatch::IntegrationTest
+class Api::BackupFileMetadataControllerTest < ActionDispatch::IntegrationTest
   # Load fixtures
   setup do
     @cs61a = courses(:cs61a)
@@ -19,13 +19,13 @@ class Api::BackupFileMetadatumControllerTest < ActionDispatch::IntegrationTest
     @bob_maps_recommend_metadata = backup_file_metadata(:bob_maps_recommend_metadata)
   end
 
-  def api_backup_file_metadatum_url(course_id, assignment_id, user_id)
-    "/api/backup_file_metadatum/#{course_id}/#{assignment_id}/#{user_id}"
+  def api_backup_file_metadata_url(course_id, assignment_id, user_id)
+    "/api/backup_file_metadata/#{course_id}/#{assignment_id}/#{user_id}"
   end
 
   test "should return 200 OK and backup file metadata for a valid course, assignment, and student" do
     # Works for CS 61A Ants
-    get api_backup_file_metadatum_url(@cs61a.id, @ants_cs61a.id, @alice.id)
+    get api_backup_file_metadata_url(@cs61a.id, @ants_cs61a.id, @alice.id)
     assert_response :ok
 
     response_json = JSON.parse(@response.body)
@@ -40,7 +40,7 @@ class Api::BackupFileMetadatumControllerTest < ActionDispatch::IntegrationTest
     assert_equal [@alice_ants_metadata_1.num_lines, @alice_ants_metadata_2.num_lines], response_json["files_to_metadata"]["ants.py"]["num_lines"]
 
     # Works for Data C88C Maps
-    get api_backup_file_metadatum_url(@datac88c.id, @maps_datac88c.id, @bob.id)
+    get api_backup_file_metadata_url(@datac88c.id, @maps_datac88c.id, @bob.id)
     assert_response :ok
 
     response_json = JSON.parse(@response.body)
@@ -59,7 +59,7 @@ class Api::BackupFileMetadatumControllerTest < ActionDispatch::IntegrationTest
 
   test "should return 404 Not Found if Course ID is invalid" do
     invalid_course_id = 999999
-    get api_backup_file_metadatum_url(invalid_course_id, @ants_cs61a.id, @alice.id)
+    get api_backup_file_metadata_url(invalid_course_id, @ants_cs61a.id, @alice.id)
     assert_response :not_found
 
     response_json = JSON.parse(@response.body)
@@ -68,7 +68,7 @@ class Api::BackupFileMetadatumControllerTest < ActionDispatch::IntegrationTest
 
   test "should return 404 Not Found if Assignment ID is invalid for the Course" do
     invalid_assignment_id = 999999
-    get api_backup_file_metadatum_url(@cs61a.id, invalid_assignment_id, @alice.id)
+    get api_backup_file_metadata_url(@cs61a.id, invalid_assignment_id, @alice.id)
     assert_response :not_found
 
     response_json = JSON.parse(@response.body)
@@ -76,7 +76,7 @@ class Api::BackupFileMetadatumControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should return 404 Not Found if User ID is not a student in the Course" do
-    get api_backup_file_metadatum_url(@cs61a.id, @ants_cs61a.id, @bob.id)
+    get api_backup_file_metadata_url(@cs61a.id, @ants_cs61a.id, @bob.id)
     assert_response :not_found
 
     response_json = JSON.parse(@response.body)

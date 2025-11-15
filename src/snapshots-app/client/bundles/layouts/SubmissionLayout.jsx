@@ -187,7 +187,7 @@ function SubmissionLayout() {
     }
 
     fetch(
-      `/api/backup_file_metadatum/${routeParams.courseId}/${routeParams.assignmentId}/${routeParams.studentId}`,
+      `/api/backup_file_metadata/${routeParams.courseId}/${routeParams.assignmentId}/${routeParams.studentId}`,
       {
         method: "GET",
       },
