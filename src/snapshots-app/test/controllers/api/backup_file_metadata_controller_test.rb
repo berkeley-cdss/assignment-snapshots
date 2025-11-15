@@ -36,8 +36,8 @@ class Api::BackupFileMetadataControllerTest < ActionDispatch::IntegrationTest
     assert_equal @alice.id, response_json["user_id"]
 
     # Check files_to_metadata hash
-    assert_equal ["ants.py"], response_json["files_to_metadata"].keys.sort
-    assert_equal [@alice_ants_metadata_1.num_lines, @alice_ants_metadata_2.num_lines], response_json["files_to_metadata"]["ants.py"]["num_lines"]
+    assert_equal [ "ants.py" ], response_json["files_to_metadata"].keys.sort
+    assert_equal [ @alice_ants_metadata_1.num_lines, @alice_ants_metadata_2.num_lines ], response_json["files_to_metadata"]["ants.py"]["num_lines"]
 
     # Works for Data C88C Maps
     get api_backup_file_metadata_url(@datac88c.id, @maps_datac88c.id, @bob.id)
@@ -51,10 +51,10 @@ class Api::BackupFileMetadataControllerTest < ActionDispatch::IntegrationTest
     assert_equal @bob.id, response_json["user_id"]
 
     # Check files_to_metadata hash
-    assert_equal ["abstractions.py", "recommend.py", "utils.py"], response_json["files_to_metadata"].keys.sort
-    assert_equal [@bob_maps_utils_metadata.num_lines], response_json["files_to_metadata"]["utils.py"]["num_lines"]
-    assert_equal [@bob_maps_abstractions_metadata.num_lines], response_json["files_to_metadata"]["abstractions.py"]["num_lines"]
-    assert_equal [@bob_maps_recommend_metadata.num_lines], response_json["files_to_metadata"]["recommend.py"]["num_lines"]
+    assert_equal [ "abstractions.py", "recommend.py", "utils.py" ], response_json["files_to_metadata"].keys.sort
+    assert_equal [ @bob_maps_utils_metadata.num_lines ], response_json["files_to_metadata"]["utils.py"]["num_lines"]
+    assert_equal [ @bob_maps_abstractions_metadata.num_lines ], response_json["files_to_metadata"]["abstractions.py"]["num_lines"]
+    assert_equal [ @bob_maps_recommend_metadata.num_lines ], response_json["files_to_metadata"]["recommend.py"]["num_lines"]
   end
 
   test "should return 404 Not Found if Course ID is invalid" do
