@@ -12,5 +12,14 @@ module ActiveSupport
     fixtures :all
 
     # Add more helper methods to be used by all tests here...
+
+    # assert_equal of nil values will break in minitest 6 so preemptively using assert_nil instead
+    def assert_equal_or_nil(expected, actual)
+      if expected.nil?
+        assert_nil actual
+      else
+        assert_equal expected, actual
+      end
+    end
   end
 end

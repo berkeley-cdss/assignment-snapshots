@@ -22,15 +22,6 @@ class Api::BackupsControllerTest < ActionDispatch::IntegrationTest
     "/api/backups/#{course_id}/#{assignment_id}/#{user_id}"
   end
 
-  # assert_equal of nil values will break in minitest 6 so preemptively using assert_nil instead
-  def assert_equal_or_nil(expected, actual)
-    if expected.nil?
-      assert_nil actual
-    else
-      assert_equal expected, actual
-    end
-  end
-
   def assert_backup_structure(backup_json, expected_backup_fixture)
     assert_equal expected_backup_fixture.backup_id, backup_json["backup_id"]
     assert_equal expected_backup_fixture.created, backup_json["created"]
