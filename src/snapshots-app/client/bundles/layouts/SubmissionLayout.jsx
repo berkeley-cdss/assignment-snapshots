@@ -208,15 +208,24 @@ function SubmissionLayout() {
   }, [backups]);
 
   function getTotalQuestionsSolved(history) {
-    return history.reduce((total, currQuestion) => total + (currQuestion.solved ? 1 : 0), 0);
+    return history.reduce(
+      (total, currQuestion) => total + (currQuestion.solved ? 1 : 0),
+      0,
+    );
   }
 
   function getTotalQuestionsUnsolved(history) {
-    return history.reduce((total, currQuestion) => total + (currQuestion.solved ? 0 : 1), 0);
+    return history.reduce(
+      (total, currQuestion) => total + (currQuestion.solved ? 0 : 1),
+      0,
+    );
   }
 
   function getTotalAttempts(history) {
-    return history.reduce((total, currQuestion) => total + currQuestion.attempts, 0);
+    return history.reduce(
+      (total, currQuestion) => total + currQuestion.attempts,
+      0,
+    );
   }
 
   const numQuestionsSolved = React.useMemo(() => {
