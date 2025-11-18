@@ -118,12 +118,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_18_074729) do
     t.index ["user_id"], name: "index_staff_memberships_on_user_id"
   end
 
-  create_table "tests", force: :cascade do |t|
-    t.json "object"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "unlock_message_cases", id: false, force: :cascade do |t|
     t.string "backup_id", null: false
     t.boolean "correct", null: false
