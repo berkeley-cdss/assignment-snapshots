@@ -317,6 +317,30 @@ function SubmissionLayout() {
     return null;
   }
 
+  function getOutputDialog() {
+    if (backups.length !== 0) {
+      if (backups[selectedBackup].unlock) {
+        return (
+          <UnlockingTestOutputDialog
+          open={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
+          unlockingTestCases={backups[selectedBackup].unlock_message_cases}
+          questionCliNames={backups[selectedBackup].question_cli_names}
+        />
+        )
+      } else {
+        return (<AutograderOutputDialog
+          open={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
+          autograderOutput={autograderOutput}
+          questionCliNames={backups[selectedBackup].question_cli_names}
+        />)
+      }
+    }
+
+    return null;
+  }
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       {backups.length === 0 ? (
@@ -429,19 +453,7 @@ function SubmissionLayout() {
         message="Code copied to clipboard!"
       />
 
-      {backups.length !== 0 && backups[selectedBackup].unlock ? (
-        <UnlockingTestOutputDialog
-          open={isDialogOpen}
-          onClose={() => setIsDialogOpen(false)}
-          unlockingTestCases={backups[selectedBackup].unlock_message_cases}
-        />
-      ) : (
-        <AutograderOutputDialog
-          open={isDialogOpen}
-          onClose={() => setIsDialogOpen(false)}
-          autograderOutput={autograderOutput}
-        />
-      )}
+      {getOutputDialog()}
     </Box>
   );
 }
