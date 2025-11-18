@@ -14,14 +14,13 @@ import Snackbar from "@mui/material/Snackbar";
 import { useCopyToClipboard } from "react-use";
 import IconButton from "@mui/material/IconButton";
 import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
-import { Typography } from "@mui/material";
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 import FileViewer from "../components/submission/FileViewer";
 import Graphs from "../components/submission/Graphs";
 import Timeline from "../components/submission/Timeline";
+import AutograderOutputDialog from "../components/submission/AutograderOutputDialog";
+import UnlockingTestOutputDialog from "../components/submission/UnlockingTestOutputDialog";
 import { FormControl, InputLabel } from "@mui/material";
 import { backupsAtom } from "../state/atoms";
 
@@ -101,7 +100,7 @@ function SubmissionLayout() {
   // Fetch autograder output for current selected backup
   // if backups is done loading
   React.useEffect(() => {
-    if (loadingBackups || backups.length === 0) {
+    if (loadingBackups || backups.length === 0 || backups[selectedBackup].unlock) {
       return;
     }
 
@@ -295,10 +294,15 @@ function SubmissionLayout() {
                 </IconButton>
                 <Button
                   variant="contained"
-                  onClick={() => setIsDialogOpen(true)}
+                  onClick={() => {
+                    setIsDialogOpen(true)
+                    console.log("output button clicked")
+                  }}
+                  startIcon={<VisibilityIcon />}
                 >
-                  View Autograder Output
+                  {backups.length !== 0 && backups[selectedBackup].unlock ? "Unlocking Test Output" : "Autograder Output"}
                 </Button>
+
                 <FormControl>
                   <InputLabel id="file-select-label">File</InputLabel>
                   <Select
@@ -352,35 +356,11 @@ function SubmissionLayout() {
         message="Code copied to clipboard!"
       />
 
-      <Dialog
-        open={isDialogOpen}
-        onClose={() => {
-          setIsDialogOpen(false);
-          console.log("autograder output", autograderOutput);
-        }}
-        aria-labelledby="autogdrader-output-dialog-title"
-        aria-describedby="autograder-output-dialog-description"
-      >
-        <DialogTitle id="autograder-output-dialog-title">
-          Autograder Output
-        </DialogTitle>
-        <DialogContent>
-          <Typography
-            id="autograder-output-dialog-description"
-            component="pre"
-            style={{
-              whiteSpace: "pre-wrap",
-              fontFamily: "Menlo",
-              fontSize: "0.8rem",
-            }}
-          >
-            {autograderOutput}
-          </Typography>
-          {/* <DialogContentText id="autograder-output-dialog-description" sx={{ fontFamily: "Menlo", fontSize: "0.8rem" }}>
-            {autograderOutput}
-          </DialogContentText> */}
-        </DialogContent>
-      </Dialog>
+      {backups.length !== 0 && backups[selectedBackup].unlock ? (
+        <UnlockingTestOutputDialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)} unlockingTestCases={backups[selectedBackup].unlock_message_cases} />
+      ) : (
+        <AutograderOutputDialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)} autograderOutput={autograderOutput} />
+      )}
     </Box>
   );
 }
