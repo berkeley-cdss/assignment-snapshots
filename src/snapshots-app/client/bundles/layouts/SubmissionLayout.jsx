@@ -97,10 +97,7 @@ function SubmissionLayout() {
   // Fetch autograder output for current selected backup
   // if backups is done loading
   React.useEffect(() => {
-    if (
-      backups.length === 0 ||
-      backups[selectedBackup].unlock
-    ) {
+    if (backups.length === 0 || backups[selectedBackup].unlock) {
       return;
     }
 
@@ -246,7 +243,10 @@ function SubmissionLayout() {
     if (backups.length !== 0) {
       // TODO not really sure why but sometimes even if a test case is unlocking type, there are no unlock messages.
       // if this is the case, don't display the "unlocking tests output" button
-      if (backups[selectedBackup].unlock && backups[selectedBackup].unlock_message_cases.length !== 0) {
+      if (
+        backups[selectedBackup].unlock &&
+        backups[selectedBackup].unlock_message_cases.length !== 0
+      ) {
         return (
           <Button
             variant="contained"
@@ -265,7 +265,7 @@ function SubmissionLayout() {
           >
             Autograder Output
           </Button>
-        )
+        );
       }
     }
 
