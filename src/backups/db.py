@@ -1,11 +1,3 @@
-DROP_BACKUP_METADATA_TABLE_CMD = "DROP TABLE IF EXISTS backup_metadata"
-
-DROP_OKPY_MESSAGES_TABLE_CMD = "DROP TABLE IF EXISTS okpy_messages"
-
-DROP_LINT_ERRORS_TABLE_CMD = "DROP TABLE IF EXISTS lint_errors"
-
-DROP_BACKUP_FILE_METADATA_TABLE_CMD = "DROP TABLE IF EXISTS backup_file_metadata"
-
 CREATE_BACKUP_METADATA_TABLE_CMD = """
 CREATE TABLE backup_metadata (
     backup_id TEXT PRIMARY KEY,
@@ -74,6 +66,140 @@ INSERT INTO okpy_messages VALUES
 (:id, :type, :description)
 """
 
+CREATE_LINT_ERRORS_TABLE_CMD = """
+CREATE TABLE lint_errors (
+	file_contents_location TEXT NOT NULL,
+	line_number INTEGER NOT NULL,
+	message TEXT NOT NULL,
+	code TEXT NOT NULL, -- lint error code
+	url TEXT, -- lint error URL for more information
+
+	UNIQUE (file_contents_location, line_number, message, code)
+);
+"""
+
+CREATE_BACKUP_FILE_METADATA_TABLE_CMD = """
+CREATE TABLE backup_file_metadata (
+	file_contents_location TEXT,
+    file_name TEXT,
+    num_lines INTEGER NOT NULL,
+
+	PRIMARY KEY (file_contents_location, file_name)
+);
+"""
+
+CREATE_ANALYTICS_MESSAGES_TABLE_CMD = """
+CREATE TABLE analytics_messages (
+    backup_id TEXT PRIMARY KEY NOT NULL,
+
+    -- boolean
+    unlock INTEGER NOT NULL,
+
+    -- under the hood, TEXT (json string)
+    -- names of questions passed into -q flag of python3 ok command
+    question_cli_names JSON,
+
+    -- under the hood, TEXT (json string)
+    question_display_names JSON,
+
+    -- under the hood, TEXT (json string)
+    --- past problems solved bool and attempts
+    history JSON NOT NULL,
+
+    FOREIGN KEY (backup_id) REFERENCES backup_metadata(backup_id)
+);
+"""
+
+CREATE_GRADING_MESSAGE_QUESTIONS_TABLE_CMD = """
+CREATE TABLE grading_message_questions (
+	backup_id TEXT NOT NULL,
+	question_display_name TEXT NOT NULL,
+	locked INTEGER NOT NULL, -- number of locked tests for this question
+	passed INTEGER NOT NULL, -- number of passed tests for this question
+	failed INTEGER NOT NULL, -- number of failed tests for this question
+
+	PRIMARY KEY (backup_id, question_display_name)
+	FOREIGN KEY (backup_id) REFERENCES backup_metadata(backup_id)
+);
+"""
+
+CREATE_UNLOCK_MESSAGE_CASES_TABLE_CMD = """
+CREATE TABLE unlock_message_cases (
+	backup_id TEXT NOT NULL,
+	correct INTEGER NOT NULL, -- boolean
+	prompt TEXT NOT NULL,
+	student_answer JSON NOT NULL,
+	printed_msg JSON NOT NULL,
+	case_id TEXT NOT NULL,
+    question_timestamp TEXT NOT NULL, -- ISO8601 string
+    answer_timestamp TEXT NOT NULL, -- ISO8601 string
+
+	PRIMARY KEY (backup_id, question_timestamp),
+	FOREIGN KEY (backup_id) REFERENCES backup_metadata(backup_id)
+);
+"""
+
+INSERT_LINT_ERROR_CMD = """
+INSERT INTO lint_errors VALUES (
+    :file_contents_location,
+    :line_number,
+    :message,
+    :code,
+    :url
+);
+"""
+
+INSERT_BACKUP_FILE_METADATA_CMD = """
+INSERT INTO backup_file_metadata VALUES (
+    :file_contents_location,
+    :file_name,
+    :num_lines
+);
+"""
+
+INSERT_ANALYTICS_MESSAGE_CMD = """
+INSERT INTO analytics_messages VALUES (
+    :backup_id,
+    :unlock,
+    :question_cli_names,
+    :question_display_names,
+    :history
+);
+"""
+
+INSERT_GRADING_MESSAGE_QUESTION_CMD = """
+INSERT INTO grading_message_questions VALUES (
+    :backup_id,
+    :question_display_name,
+    :locked,
+    :passed,
+    :failed
+);
+"""
+
+INSERT_UNLOCK_MESSAGE_CASE_CMD = """
+INSERT INTO unlock_message_cases VALUES (
+    :backup_id,
+    :correct,
+    :prompt,
+    :student_answer,
+    :printed_msg,
+    :case_id,
+    :question_timestamp,
+    :answer_timestamp
+);
+"""
+
+SELECT_BACKUP_METADATA_CMD = """
+SELECT
+    assignment,
+    file_contents_location
+FROM backup_metadata
+WHERE
+    file_contents_location IS NOT NULL
+    AND autograder_output_location IS NOT NULL;
+"""
+
 OKPY_MESSAGES_VALUES = [
     {
         "id": 1,
@@ -107,53 +233,3 @@ OKPY_MESSAGES_VALUES = [
     },
     # NOTE: there is another okpy message called "email" but that just contains the student's email
 ]
-
-CREATE_LINT_ERRORS_TABLE_CMD = """
-CREATE TABLE lint_errors (
-	file_contents_location TEXT NOT NULL,
-	line_number INTEGER NOT NULL,
-	message TEXT NOT NULL,
-	code TEXT NOT NULL, -- lint error code
-	url TEXT, -- lint error URL for more information
-
-	UNIQUE (file_contents_location, line_number, message, code)
-);
-"""
-
-INSERT_LINT_ERROR_CMD = """
-INSERT INTO lint_errors VALUES (
-    :file_contents_location,
-    :line_number,
-    :message,
-    :code,
-    :url
-);
-"""
-
-CREATE_BACKUP_FILE_METADATA_TABLE_CMD = """
-CREATE TABLE backup_file_metadata (
-	file_contents_location TEXT,
-    file_name TEXT,
-    num_lines INTEGER NOT NULL,
-
-	PRIMARY KEY (file_contents_location, file_name)
-);
-"""
-
-INSERT_BACKUP_FILE_METADATA_CMD = """
-INSERT INTO backup_file_metadata VALUES (
-    :file_contents_location,
-    :file_name,
-    :num_lines
-);
-"""
-
-SELECT_BACKUP_METADATA_CMD = """
-SELECT
-    assignment,
-    file_contents_location
-FROM backup_metadata
-WHERE
-    file_contents_location IS NOT NULL
-    AND autograder_output_location IS NOT NULL;
-"""

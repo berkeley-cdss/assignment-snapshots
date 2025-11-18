@@ -5,12 +5,38 @@ Contains logic for persistent storage of assignment backups
 import hashlib
 import os
 import sqlite3
-from typing import List, Dict
+from typing import List, Dict, Callable
+import json
+from datetime import datetime
 
-from db import *
-from models import *
+from db import (
+    CREATE_BACKUP_METADATA_TABLE_CMD,
+    CREATE_OKPY_MESSAGES_TABLE_CMD,
+    CREATE_LINT_ERRORS_TABLE_CMD,
+    CREATE_ANALYTICS_MESSAGES_TABLE_CMD,
+    CREATE_GRADING_MESSAGE_QUESTIONS_TABLE_CMD,
+    CREATE_UNLOCK_MESSAGE_CASES_TABLE_CMD,
+    CREATE_BACKUP_FILE_METADATA_TABLE_CMD,
+    INSERT_BACKUP_METADATA_CMD,
+    INSERT_OKPY_MESSAGES_TABLE_CMD,
+    INSERT_LINT_ERROR_CMD,
+    INSERT_BACKUP_FILE_METADATA_CMD,
+    INSERT_ANALYTICS_MESSAGE_CMD,
+    INSERT_GRADING_MESSAGE_QUESTION_CMD,
+    INSERT_UNLOCK_MESSAGE_CASE_CMD,
+    SELECT_BACKUP_METADATA_CMD,
+    OKPY_MESSAGES_VALUES,
+)
+from models import (
+    Backup,
+    LintError,
+    BackupFileMetadata,
+    MESSAGE_KIND_TO_CLASS,
+    AnalyticsMessage,
+    GradingMessage,
+    UnlockMessage,
+)
 
-# TODO type hints
 
 PREFIX = "../../data/private"
 
@@ -24,6 +50,7 @@ def create_backup_and_write_messages(
     student_email: str,
     backup: dict,
     path_prefix: str,
+    conn: sqlite3.Connection,
 ):
     backup_id = backup["id"]
     created = backup["created"]
@@ -65,14 +92,17 @@ def create_backup_and_write_messages(
             autograder_output_location = msg_class.location(directory)
         elif kind == "grading":
             grading_location = msg_class.location(directory)
+            insert_grading_message_question_records(conn, backup_id, msg_obj)
         elif kind == "file_contents":
             file_contents_location = msg_class.location(directory)
         elif kind == "analytics":
             analytics_location = msg_class.location(directory)
+            insert_analytics_message_record(conn, backup_id, msg_obj)
         elif kind == "scoring":
             scoring_location = msg_class.location(directory)
         elif kind == "unlock":
             unlock_location = msg_class.location(directory)
+            insert_unlock_message_case_records(conn, backup_id, msg_obj)
         else:
             raise ValueError(f"Unknown backup message type {msg_class}")
 
@@ -93,61 +123,74 @@ def create_backup_and_write_messages(
     )
 
 
-def setup_db(database: str) -> sqlite3.Connection:
-    assert database.endswith(".db")
+def drop_table_if_exists_command(table: str) -> str:
+    return f"DROP TABLE IF EXISTS {table}"
 
+
+def setup_db(
+    database: str, setup_func: Callable[[sqlite3.Connection], None]
+) -> sqlite3.Connection:
+    assert database.endswith(".db")
     conn = sqlite3.connect(database)
+    setup_func(conn)
+    return conn
+
+
+def setup_backups_and_messages(conn: sqlite3.Connection) -> None:
     cur = conn.cursor()
 
-    cur.execute(DROP_BACKUP_METADATA_TABLE_CMD)
-    cur.execute(DROP_OKPY_MESSAGES_TABLE_CMD)
+    tables = [
+        "backup_metadata",
+        "okpy_messages",
+        "analytics_messages",
+        "grading_message_questions",
+        "unlock_message_cases",
+    ]
 
-    cur.execute(CREATE_BACKUP_METADATA_TABLE_CMD)
-    cur.execute(CREATE_OKPY_MESSAGES_TABLE_CMD)
+    for table in tables:
+        cur.execute(drop_table_if_exists_command(table))
 
     conn.commit()
 
+    create_cmds = [
+        CREATE_BACKUP_METADATA_TABLE_CMD,
+        CREATE_OKPY_MESSAGES_TABLE_CMD,
+        CREATE_ANALYTICS_MESSAGES_TABLE_CMD,
+        CREATE_GRADING_MESSAGE_QUESTIONS_TABLE_CMD,
+        CREATE_UNLOCK_MESSAGE_CASES_TABLE_CMD,
+    ]
+
+    for cmd in create_cmds:
+        cur.execute(cmd)
+
+    conn.commit()
+
+    # these values are hardcoded so just add them right away
     for row_data in OKPY_MESSAGES_VALUES:
         cur.execute(INSERT_OKPY_MESSAGES_TABLE_CMD, row_data)
 
     conn.commit()
 
-    return conn
 
-
-# TODO figure out a way to generalize this better
-def setup_db_lint_errors(database: str) -> sqlite3.Connection:
-    assert database.endswith(".db")
-
-    conn = sqlite3.connect(database)
+def setup_lint_errors(conn: sqlite3.Connection) -> None:
     cur = conn.cursor()
 
-    cur.execute(DROP_LINT_ERRORS_TABLE_CMD)
+    cur.execute(drop_table_if_exists_command("lint_errors"))
     cur.execute(CREATE_LINT_ERRORS_TABLE_CMD)
 
     conn.commit()
 
-    return conn
 
-
-# TODO figure out a way to generalize this better
-def setup_db_backup_file_metadata(database: str) -> sqlite3.Connection:
-    assert database.endswith(".db")
-
-    conn = sqlite3.connect(database)
+def setup_backup_file_metadata(conn: sqlite3.Connection) -> None:
     cur = conn.cursor()
 
-    cur.execute(DROP_BACKUP_FILE_METADATA_TABLE_CMD)
+    cur.execute(drop_table_if_exists_command("backup_file_metadata"))
     cur.execute(CREATE_BACKUP_FILE_METADATA_TABLE_CMD)
 
     conn.commit()
 
-    return conn
 
-
-def insert_record(conn: sqlite3.Connection, backup: Backup):
-    # TODO do executemany instead?
-    # https://docs.python.org/3/library/sqlite3.html#how-to-use-placeholders-to-bind-values-in-sql-queries
+def insert_backup_metadata_record(conn: sqlite3.Connection, backup: Backup):
     data = {
         "backup_id": backup.backup_id,
         "created": backup.created,
@@ -169,8 +212,6 @@ def insert_record(conn: sqlite3.Connection, backup: Backup):
 
 
 def insert_lint_error_record(conn: sqlite3.Connection, lint_error: LintError):
-    # TODO do executemany instead?
-    # https://docs.python.org/3/library/sqlite3.html#how-to-use-placeholders-to-bind-values-in-sql-queries
     data = {
         "file_contents_location": lint_error.file_contents_location,
         "line_number": lint_error.line_number,
@@ -186,8 +227,6 @@ def insert_lint_error_record(conn: sqlite3.Connection, lint_error: LintError):
 def insert_backup_file_metadata_record(
     conn: sqlite3.Connection, backup_file_metadata: BackupFileMetadata
 ):
-    # TODO do executemany instead?
-    # https://docs.python.org/3/library/sqlite3.html#how-to-use-placeholders-to-bind-values-in-sql-queries
     data = {
         "file_contents_location": backup_file_metadata.file_contents_location,
         "file_name": backup_file_metadata.file_name,
@@ -195,6 +234,64 @@ def insert_backup_file_metadata_record(
     }
     cur = conn.cursor()
     cur.execute(INSERT_BACKUP_FILE_METADATA_CMD, data)
+    conn.commit()
+
+
+def insert_analytics_message_record(
+    conn: sqlite3.Connection, backup_id: str, analytics_message: AnalyticsMessage
+):
+    data = {
+        "backup_id": backup_id,
+        "unlock": analytics_message.contents["unlock"],
+        "question_cli_names": json.dumps(
+            analytics_message.contents.get("requested-questions")
+        ),
+        "question_display_names": json.dumps(
+            analytics_message.contents.get("question")
+        ),
+        "history": json.dumps(analytics_message.contents["history"]),
+    }
+    cur = conn.cursor()
+    cur.execute(INSERT_ANALYTICS_MESSAGE_CMD, data)
+    conn.commit()
+
+
+def insert_grading_message_question_records(
+    conn: sqlite3.Connection, backup_id: str, grading_message: GradingMessage
+):
+    cur = conn.cursor()
+    for question_display_name, test_data in grading_message.contents.items():
+        data = {
+            "backup_id": backup_id,
+            "question_display_name": question_display_name,
+            "locked": test_data["locked"],
+            "passed": test_data["passed"],
+            "failed": test_data["failed"],
+        }
+        cur.execute(INSERT_GRADING_MESSAGE_QUESTION_CMD, data)
+    conn.commit()
+
+
+def insert_unlock_message_case_records(
+    conn: sqlite3.Connection, backup_id: str, unlock_message: UnlockMessage
+):
+    cur = conn.cursor()
+    for case in unlock_message.contents:
+        data = {
+            "backup_id": backup_id,
+            "correct": case["correct"],
+            "prompt": case["prompt"],
+            "student_answer": json.dumps(case["answer"]),
+            "printed_msg": json.dumps(case["printed msg"]),
+            "case_id": case["case_id"],
+            "question_timestamp": datetime.fromtimestamp(
+                case["question timestamp"]
+            ).isoformat(),
+            "answer_timestamp": datetime.fromtimestamp(
+                case["answer timestamp"]
+            ).isoformat(),
+        }
+        cur.execute(INSERT_UNLOCK_MESSAGE_CASE_CMD, data)
     conn.commit()
 
 
@@ -260,8 +357,9 @@ def responses_to_backups(
                         sha256(student_email) if deidentify else student_email,
                         backup_dict,
                         path_prefix,
+                        conn,
                     )
-                    insert_record(conn, backup)
+                    insert_backup_metadata_record(conn, backup)
                     num_backups += 1
     return num_backups
 
