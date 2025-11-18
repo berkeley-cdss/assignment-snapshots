@@ -2,7 +2,7 @@ import React from "react";
 
 import { LineChart } from "@mui/x-charts/LineChart";
 
-function Graphs({ backupCreatedTimestamps, fileMetadata }) {
+function Graphs({ file, backupCreatedTimestamps, fileMetadata }) {
   return (
     <div>
       <h2>Assignment Insights</h2>
@@ -29,7 +29,7 @@ function Graphs({ backupCreatedTimestamps, fileMetadata }) {
           {
             curve: "linear",
             data: fileMetadata.num_lines,
-            label: "Number of Lines of Code",
+            label: `# of lines of code in ${file}`,
           },
         ]}
         height={300}
