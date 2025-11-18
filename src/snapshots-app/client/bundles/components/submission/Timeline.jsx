@@ -46,7 +46,11 @@ function TimelineButton({ backup, selected, index, handleBackupSelect }) {
   function getTooltipTitle() {
     if (backup.unlock) {
       if (numFailedTests === 0) {
-        return `All ${numPassedTests} unlocking tests passed`;
+        if (numPassedTests > 0) {
+          return `All ${numPassedTests} unlocking tests passed`;
+        } else {
+          return `Ran unlocking command but no test data`;
+        }
       } else {
         return `${numPassedTests} unlocking tests passed, ${numFailedTests} unlocking tests failed`;
       }
