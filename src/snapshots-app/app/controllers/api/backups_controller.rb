@@ -29,17 +29,32 @@ class Api::BackupsController < ApplicationController
     assignment_file_names = AssignmentFile.where(assignment_id: assignment_id).map { |af| af.file_name }
     backup_metadata = BackupMetadatum.where(course: course.okpy_endpoint, assignment: assignment.okpy_endpoint, student_email: student.email).order(:created)
     backups = backup_metadata.filter_map do |backup|
-      # Only backups with student code file contents and autograder output will be included in the timeline UI
-      if backup.file_contents_location.present? and backup.autograder_output_location.present?
-        {
-          backup_id: backup.backup_id,
-          created: backup.created,
-          file_contents_location: backup.file_contents_location,
-          autograder_output_location: backup.autograder_output_location
-        }
-      else
+      analytics = AnalyticsMessage.find(backup.backup_id)
+
+      grading_message_questions = if backup.grading_location.nil?
         nil
+      else
+        GradingMessageQuestion.where(backup_id: backup.backup_id).order(:question_display_name)
       end
+
+      unlock_message_cases = if backup.unlock_location.nil?
+        nil
+      else
+        UnlockMessageCase.where(backup_id: backup.backup_id).order(:question_timestamp)
+      end
+
+      {
+        backup_id: backup.backup_id,
+        created: backup.created,
+        file_contents_location: backup.file_contents_location,
+        autograder_output_location: backup.autograder_output_location,
+        unlock: analytics.unlock,
+        question_cli_names: analytics.question_cli_names,
+        question_display_names: analytics.question_display_names,
+        history: analytics.history.sort_by { |h| h["display_name"] },
+        grading_message_questions: grading_message_questions,
+        unlock_message_cases: unlock_message_cases
+      }
     end
 
     render json: { "course_id": course_id, "assignment_id": assignment_id, "user_id": user_id, "assignment_file_names": assignment_file_names, "backups": backups }, status: :ok

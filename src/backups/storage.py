@@ -240,6 +240,16 @@ def insert_backup_file_metadata_record(
 def insert_analytics_message_record(
     conn: sqlite3.Connection, backup_id: str, analytics_message: AnalyticsMessage
 ):
+    questions = analytics_message.contents["history"]["questions"]
+    history = []
+    for question_display_name, question_data in questions.items():
+        question = {
+            "display_name": question_display_name,
+            "attempts": question_data["attempts"],
+            "solved": question_data["solved"],
+        }
+        history.append(question)
+
     data = {
         "backup_id": backup_id,
         "unlock": analytics_message.contents["unlock"],
@@ -249,7 +259,7 @@ def insert_analytics_message_record(
         "question_display_names": json.dumps(
             analytics_message.contents.get("question")
         ),
-        "history": json.dumps(analytics_message.contents["history"]),
+        "history": json.dumps(history),
     }
     cur = conn.cursor()
     cur.execute(INSERT_ANALYTICS_MESSAGE_CMD, data)
