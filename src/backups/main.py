@@ -20,8 +20,9 @@ from emails import process_roster
 from request import get_backups_for_all_users_all_assignments
 from storage import (
     setup_db,
-    setup_db_lint_errors,
-    setup_db_backup_file_metadata,
+    setup_backups_and_messages,
+    setup_lint_errors,
+    setup_backup_file_metadata,
     PREFIX,
     responses_to_backups,
     store_lint_errors,
@@ -257,7 +258,7 @@ def store(
     if timeit:
         start = time()
 
-    conn = setup_db(database)
+    conn = setup_db(database, setup_backups_and_messages)
     if verbose:
         print(f"Setup database {database}")
 
@@ -336,7 +337,7 @@ def lint(
     if timeit:
         start = time()
 
-    conn = setup_db_lint_errors(database)
+    conn = setup_db(database, setup_lint_errors)
     if verbose:
         print(f"Setup database {database}")
 
@@ -382,7 +383,7 @@ def backup_file_metadata(
     if timeit:
         start = time()
 
-    conn = setup_db_backup_file_metadata(database)
+    conn = setup_db(database, setup_backup_file_metadata)
     if verbose:
         print(f"Setup database {database}")
 
