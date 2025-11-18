@@ -14,7 +14,7 @@ import Snackbar from "@mui/material/Snackbar";
 import { useCopyToClipboard } from "react-use";
 import IconButton from "@mui/material/IconButton";
 import Button from "@mui/material/Button";
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityIcon from "@mui/icons-material/Visibility";
 
 import FileViewer from "../components/submission/FileViewer";
 import Graphs from "../components/submission/Graphs";
@@ -100,7 +100,11 @@ function SubmissionLayout() {
   // Fetch autograder output for current selected backup
   // if backups is done loading
   React.useEffect(() => {
-    if (loadingBackups || backups.length === 0 || backups[selectedBackup].unlock) {
+    if (
+      loadingBackups ||
+      backups.length === 0 ||
+      backups[selectedBackup].unlock
+    ) {
       return;
     }
 
@@ -284,6 +288,7 @@ function SubmissionLayout() {
                     label={lightMode ? "Light Mode" : "Dark Mode"}
                   ></FormControlLabel>
                 </FormGroup>
+                
                 <IconButton
                   color="primary"
                   size="small"
@@ -292,15 +297,18 @@ function SubmissionLayout() {
                 >
                   <ContentCopyIcon />
                 </IconButton>
+
                 <Button
                   variant="contained"
                   onClick={() => {
-                    setIsDialogOpen(true)
-                    console.log("output button clicked")
+                    setIsDialogOpen(true);
+                    console.log("output button clicked");
                   }}
                   startIcon={<VisibilityIcon />}
                 >
-                  {backups.length !== 0 && backups[selectedBackup].unlock ? "Unlocking Test Output" : "Autograder Output"}
+                  {backups.length !== 0 && backups[selectedBackup].unlock
+                    ? "Unlocking Test Output"
+                    : "Autograder Output"}
                 </Button>
 
                 <FormControl>
@@ -357,9 +365,17 @@ function SubmissionLayout() {
       />
 
       {backups.length !== 0 && backups[selectedBackup].unlock ? (
-        <UnlockingTestOutputDialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)} unlockingTestCases={backups[selectedBackup].unlock_message_cases} />
+        <UnlockingTestOutputDialog
+          open={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
+          unlockingTestCases={backups[selectedBackup].unlock_message_cases}
+        />
       ) : (
-        <AutograderOutputDialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)} autograderOutput={autograderOutput} />
+        <AutograderOutputDialog
+          open={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
+          autograderOutput={autograderOutput}
+        />
       )}
     </Box>
   );
