@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_18_073033) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_18_074254) do
   create_table "analytics_messages", primary_key: "backup_id", id: :string, force: :cascade do |t|
     t.boolean "unlock", null: false
     t.json "question_cli_names"
@@ -87,6 +87,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_18_073033) do
     t.index ["user_id"], name: "index_enrollments_on_user_id"
   end
 
+  create_table "grading_message_questions", id: false, force: :cascade do |t|
+    t.string "backup_id", null: false
+    t.string "question_display_name", null: false
+    t.integer "locked", null: false
+    t.integer "passed", null: false
+    t.integer "failed", null: false
+  end
+
   create_table "lint_errors", id: false, force: :cascade do |t|
     t.string "file_contents_location", null: false
     t.integer "line_number", null: false
@@ -134,6 +142,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_18_073033) do
   add_foreign_key "assignments", "courses"
   add_foreign_key "enrollments", "courses"
   add_foreign_key "enrollments", "users"
+  add_foreign_key "grading_message_questions", "backup_metadata", column: "backup_id", primary_key: "backup_id"
   add_foreign_key "staff_memberships", "courses"
   add_foreign_key "staff_memberships", "users"
 end
