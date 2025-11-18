@@ -243,7 +243,11 @@ def insert_analytics_message_record(
     questions = analytics_message.contents["history"]["questions"]
     history = []
     for question_display_name, question_data in questions.items():
-        question = {"display_name": question_display_name, "attempts": question_data["attempts"], "solved": question_data["solved"]}
+        question = {
+            "display_name": question_display_name,
+            "attempts": question_data["attempts"],
+            "solved": question_data["solved"],
+        }
         history.append(question)
 
     data = {
