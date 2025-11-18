@@ -279,9 +279,9 @@ def store(
     cur = conn.cursor()
     cur.execute("SELECT COUNT(*) FROM backup_metadata")
     num_rows = cur.fetchone()[0]
-    assert (
-        num_backups == num_rows
-    ), "num_backups should match num_rows in backup_metadata table"
+    assert num_backups == num_rows, (
+        "num_backups should match num_rows in backup_metadata table"
+    )
     if verbose:
         print(
             f"Wrote backup file contents to {storage_dir} and inserted {num_rows} rows into backup_metadata table"

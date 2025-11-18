@@ -17,7 +17,6 @@ from db import (
     CREATE_GRADING_MESSAGE_QUESTIONS_TABLE_CMD,
     CREATE_UNLOCK_MESSAGE_CASES_TABLE_CMD,
     CREATE_BACKUP_FILE_METADATA_TABLE_CMD,
-
     INSERT_BACKUP_METADATA_CMD,
     INSERT_OKPY_MESSAGES_TABLE_CMD,
     INSERT_LINT_ERROR_CMD,
@@ -25,9 +24,7 @@ from db import (
     INSERT_ANALYTICS_MESSAGE_CMD,
     INSERT_GRADING_MESSAGE_QUESTION_CMD,
     INSERT_UNLOCK_MESSAGE_CASE_CMD,
-
     SELECT_BACKUP_METADATA_CMD,
-
     OKPY_MESSAGES_VALUES,
 )
 from models import (
@@ -130,7 +127,9 @@ def drop_table_if_exists_command(table: str) -> str:
     return f"DROP TABLE IF EXISTS {table}"
 
 
-def setup_db(database: str, setup_func: Callable[[sqlite3.Connection], None]) -> sqlite3.Connection:
+def setup_db(
+    database: str, setup_func: Callable[[sqlite3.Connection], None]
+) -> sqlite3.Connection:
     assert database.endswith(".db")
     conn = sqlite3.connect(database)
     setup_func(conn)
@@ -243,10 +242,14 @@ def insert_analytics_message_record(
 ):
     data = {
         "backup_id": backup_id,
-        "unlock": analytics_message.contents['unlock'],
-        "question_cli_names": json.dumps(analytics_message.contents.get('requested-questions')),
-        "question_display_names": json.dumps(analytics_message.contents.get('question')),
-        "history": json.dumps(analytics_message.contents['history']),
+        "unlock": analytics_message.contents["unlock"],
+        "question_cli_names": json.dumps(
+            analytics_message.contents.get("requested-questions")
+        ),
+        "question_display_names": json.dumps(
+            analytics_message.contents.get("question")
+        ),
+        "history": json.dumps(analytics_message.contents["history"]),
     }
     cur = conn.cursor()
     cur.execute(INSERT_ANALYTICS_MESSAGE_CMD, data)
@@ -261,9 +264,9 @@ def insert_grading_message_question_records(
         data = {
             "backup_id": backup_id,
             "question_display_name": question_display_name,
-            "locked": test_data['locked'],
-            "passed": test_data['passed'],
-            "failed": test_data['failed'],
+            "locked": test_data["locked"],
+            "passed": test_data["passed"],
+            "failed": test_data["failed"],
         }
         cur.execute(INSERT_GRADING_MESSAGE_QUESTION_CMD, data)
     conn.commit()
@@ -276,13 +279,17 @@ def insert_unlock_message_case_records(
     for case in unlock_message.contents:
         data = {
             "backup_id": backup_id,
-            "correct": case['correct'],
-            "prompt": case['prompt'],
-            "student_answer": json.dumps(case['answer']),
-            "printed_msg": json.dumps(case['printed msg']),
-            "case_id": case['case_id'],
-            "question_timestamp": datetime.fromtimestamp(case['question timestamp']).isoformat(),
-            "answer_timestamp": datetime.fromtimestamp(case['answer timestamp']).isoformat(),
+            "correct": case["correct"],
+            "prompt": case["prompt"],
+            "student_answer": json.dumps(case["answer"]),
+            "printed_msg": json.dumps(case["printed msg"]),
+            "case_id": case["case_id"],
+            "question_timestamp": datetime.fromtimestamp(
+                case["question timestamp"]
+            ).isoformat(),
+            "answer_timestamp": datetime.fromtimestamp(
+                case["answer timestamp"]
+            ).isoformat(),
         }
         cur.execute(INSERT_UNLOCK_MESSAGE_CASE_CMD, data)
     conn.commit()
