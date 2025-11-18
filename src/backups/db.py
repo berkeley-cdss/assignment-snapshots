@@ -195,9 +195,7 @@ SELECT
     assignment,
     file_contents_location
 FROM backup_metadata
-WHERE
-    file_contents_location IS NOT NULL
-    AND autograder_output_location IS NOT NULL;
+WHERE file_contents_location IS NOT NULL;
 """
 
 OKPY_MESSAGES_VALUES = [
