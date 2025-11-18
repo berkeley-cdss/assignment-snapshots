@@ -23,7 +23,8 @@ function Graphs({
     },
   ];
   const height = 300;
-  const GRAPHS_TOOLTIP_INFO = "Visualize the student's progress over time. Note that a question may be comprised of multiple tests and an attempt is defined as running an OkPy command.";
+  const GRAPHS_TOOLTIP_INFO =
+    "Visualize the student's progress over time. Note that a question may be comprised of multiple tests and an attempt is defined as running an OkPy command.";
 
   function formatDate(date) {
     return date.toLocaleString("en-US", {
@@ -38,7 +39,10 @@ function Graphs({
 
   return (
     <div>
-      <div style={{ fontSize: "1.5rem" }}>Assignment Insights <InfoTooltip info={GRAPHS_TOOLTIP_INFO} placement="top" /></div>
+      <div style={{ fontSize: "1.5rem" }}>
+        Assignment Insights{" "}
+        <InfoTooltip info={GRAPHS_TOOLTIP_INFO} placement="top" />
+      </div>
       <LineChart
         xAxis={xAxis}
         series={[

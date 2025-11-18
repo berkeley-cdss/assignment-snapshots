@@ -71,7 +71,8 @@ function SubmissionLayout() {
 
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
 
-  const FILE_VIEWER_TOOLTIP_INFO = "View the code file(s) and OkPy output for this particular backup";
+  const FILE_VIEWER_TOOLTIP_INFO =
+    "View the code file(s) and OkPy output for this particular backup";
 
   const routeParams = useParams();
 
@@ -325,19 +326,21 @@ function SubmissionLayout() {
       if (backups[selectedBackup].unlock) {
         return (
           <UnlockingTestOutputDialog
-          open={isDialogOpen}
-          onClose={() => setIsDialogOpen(false)}
-          unlockingTestCases={backups[selectedBackup].unlock_message_cases}
-          questionCliNames={backups[selectedBackup].question_cli_names}
-        />
-        )
+            open={isDialogOpen}
+            onClose={() => setIsDialogOpen(false)}
+            unlockingTestCases={backups[selectedBackup].unlock_message_cases}
+            questionCliNames={backups[selectedBackup].question_cli_names}
+          />
+        );
       } else {
-        return (<AutograderOutputDialog
-          open={isDialogOpen}
-          onClose={() => setIsDialogOpen(false)}
-          autograderOutput={autograderOutput}
-          questionCliNames={backups[selectedBackup].question_cli_names}
-        />)
+        return (
+          <AutograderOutputDialog
+            open={isDialogOpen}
+            onClose={() => setIsDialogOpen(false)}
+            autograderOutput={autograderOutput}
+            questionCliNames={backups[selectedBackup].question_cli_names}
+          />
+        );
       }
     }
 
@@ -369,7 +372,10 @@ function SubmissionLayout() {
                 marginBottom: "1rem",
               }}
             >
-              <div style={{ fontSize: "1.5rem" }}>File Viewer <InfoTooltip info={FILE_VIEWER_TOOLTIP_INFO} placement="top" /></div>
+              <div style={{ fontSize: "1.5rem" }}>
+                File Viewer{" "}
+                <InfoTooltip info={FILE_VIEWER_TOOLTIP_INFO} placement="top" />
+              </div>
               <div
                 style={{ display: "flex", gap: "1rem", alignItems: "center" }}
               >

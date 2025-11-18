@@ -99,11 +99,14 @@ function TimelineButton({ backup, selected, index, handleBackupSelect }) {
 }
 
 function Timeline({ backups, selectedBackup, handleBackupSelect }) {
-  const TIMELINE_TOOLTIP_INFO = "A timeline of this student's OkPy backups. A backup is formed every time they run unlocking or coding tests for a particular question."
+  const TIMELINE_TOOLTIP_INFO =
+    "A timeline of this student's OkPy backups. A backup is formed every time they run unlocking or coding tests for a particular question.";
 
   return (
     <div>
-      <div style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>Timeline <InfoTooltip info={TIMELINE_TOOLTIP_INFO} placement="top" /></div>
+      <div style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>
+        Timeline <InfoTooltip info={TIMELINE_TOOLTIP_INFO} placement="top" />
+      </div>
       <ButtonGroup
         orientation="vertical"
         aria-label="Vertical button group"
