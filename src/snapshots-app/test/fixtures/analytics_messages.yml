@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  backup_id: MyString
+  unlock: false
+  question_cli_names: 
+  question_display_names: 
+  history: 
+
+two:
+  backup_id: MyString
+  unlock: false
+  question_cli_names: 
+  question_display_names: 
+  history: 
