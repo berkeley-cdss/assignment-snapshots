@@ -22,7 +22,7 @@ function UnlockingTestCase({
 
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: "2rem" }}>
         <div style={{ fontSize: "1.2rem", paddingBottom: "0.5rem" }}>
           {testCaseId}
         </div>
@@ -40,15 +40,15 @@ function UnlockingTestCase({
         )}
       </div>
 
-      <div style={{ fontWeight: "bold" }}>{prompt}</div>
+      <div style={{ fontWeight: "bold", fontFamily: 'Menlo' }}>{prompt}</div>
 
-      <div>
+      <div style={{ fontFamily: 'Menlo' }}>
         {studentAnswer.map((answer) => (
           <div>{answer}</div>
         ))}
       </div>
 
-      <div>
+      <div style={{ fontFamily: 'Menlo' }}>
         {printedMsg.map((msg) => (
           <div>{msg}</div>
         ))}
