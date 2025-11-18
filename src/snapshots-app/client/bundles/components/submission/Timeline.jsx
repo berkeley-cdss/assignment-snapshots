@@ -23,7 +23,7 @@ function Timeline({ backups, selectedBackup, handleBackupSelect }) {
 
   return (
     <div>
-      <h2>Timeline</h2>
+      <div style={{ fontSize: "1.5rem" }}>Timeline</div>
       <ButtonGroup
         orientation="vertical"
         aria-label="Vertical button group"
