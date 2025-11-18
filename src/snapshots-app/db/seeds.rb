@@ -9,6 +9,7 @@
 #   end
 
 # Delete existing data (order matters due to foreign key constraints)
+AssignmentProblem.delete_all
 AssignmentFile.delete_all
 Assignment.delete_all
 StaffMembership.delete_all
@@ -40,14 +41,31 @@ assignments = [
     name: "Maps",
     due_date: "2025-03-18 23:59:00",
     okpy_endpoint: "maps",
-    files: [ "utils.py", "abstractions.py", "recommend.py" ]
+    files: [ "utils.py", "abstractions.py", "recommend.py" ],
+    problems: [
+                "Problem 0 Utils",
+                "Problem 1",
+                "Problem 2",
+                "Problem 3",
+                "Problem 4",
+                "Problem 5",
+                "Problem 6",
+                "Problem 7",
+                "Problem 8",
+                "Problem 9",
+                "Problem 10"
+            ]
     # course: data c88c
   },
   {
     name: "Lab 0",
     due_date: "2025-01-31 23:59:00",
     okpy_endpoint: "lab00",
-    files: [ "lab00.py" ]
+    files: [ "lab00.py" ],
+    problems: [
+                "Python Basics",
+                "twenty_twenty_five"
+            ]
     # course: data c88c
   }
 ]
@@ -98,6 +116,10 @@ courses.each do |course|
 
     assignment[:files].each do |file_name|
       AssignmentFile.create!(assignment_id: assignment_record.id, file_name: file_name)
+    end
+
+    assignment[:problems].each do |problem_name|
+      AssignmentProblem.create!(assignment_id: assignment_record.id, display_name: problem_name)
     end
   end
 end
