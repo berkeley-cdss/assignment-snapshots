@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_18_074254) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_18_074729) do
   create_table "analytics_messages", primary_key: "backup_id", id: :string, force: :cascade do |t|
     t.boolean "unlock", null: false
     t.json "question_cli_names"
@@ -124,6 +124,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_18_074254) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "unlock_message_cases", id: false, force: :cascade do |t|
+    t.string "backup_id", null: false
+    t.boolean "correct", null: false
+    t.string "prompt", null: false
+    t.json "student_answer", null: false
+    t.json "printed_msg", null: false
+    t.string "case_id", null: false
+    t.string "question_timestamp", null: false
+    t.string "answer_timestamp", null: false
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "first_name", null: false
     t.string "last_name", null: false
@@ -145,4 +156,5 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_18_074254) do
   add_foreign_key "grading_message_questions", "backup_metadata", column: "backup_id", primary_key: "backup_id"
   add_foreign_key "staff_memberships", "courses"
   add_foreign_key "staff_memberships", "users"
+  add_foreign_key "unlock_message_cases", "backup_metadata", column: "backup_id", primary_key: "backup_id"
 end
