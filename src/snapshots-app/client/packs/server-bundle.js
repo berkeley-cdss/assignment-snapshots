@@ -10,6 +10,8 @@ import DiffViewer from "../bundles/components/submission/DiffViewerServer";
 import FileViewer from "../bundles/components/submission/FileViewerServer";
 import Graphs from "../bundles/components/submission/GraphsServer";
 import Timeline from "../bundles/components/submission/TimelineServer";
+import AutograderOutputDialog from "../bundles/components/submission/AutograderOutputDialogServer";
+import UnlockingTestOutputDialog from "../bundles/components/submission/UnlockingTestOutputDialogServer";
 
 import SubmissionLayout from "../bundles/layouts/SubmissionLayoutServer";
 
@@ -28,6 +30,8 @@ ReactOnRails.register({
   FileViewer,
   Graphs,
   Timeline,
+  AutograderOutputDialog,
+  UnlockingTestOutputDialog,
   SubmissionLayout,
   Login,
   Courses,
