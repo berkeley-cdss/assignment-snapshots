@@ -22,6 +22,7 @@ import Graphs from "../components/submission/Graphs";
 import Timeline from "../components/submission/Timeline";
 import AutograderOutputDialog from "../components/submission/AutograderOutputDialog";
 import UnlockingTestOutputDialog from "../components/submission/UnlockingTestOutputDialog";
+import InfoTooltip from "../components/common/InfoTooltip";
 import { backupsAtom } from "../state/atoms";
 
 // TODO minWidth: 0 prevent main content from stretching out to sidebars, but this seems rather hacky?
@@ -69,6 +70,8 @@ function SubmissionLayout() {
   const [state, copyToClipboard] = useCopyToClipboard();
 
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+
+  const FILE_VIEWER_TOOLTIP_INFO = "View the code file(s) and OkPy output for this particular backup";
 
   const routeParams = useParams();
 
@@ -366,7 +369,7 @@ function SubmissionLayout() {
                 marginBottom: "1rem",
               }}
             >
-              <div style={{ fontSize: "1.5rem" }}>File Viewer</div>
+              <div style={{ fontSize: "1.5rem" }}>File Viewer <InfoTooltip info={FILE_VIEWER_TOOLTIP_INFO} placement="top" /></div>
               <div
                 style={{ display: "flex", gap: "1rem", alignItems: "center" }}
               >

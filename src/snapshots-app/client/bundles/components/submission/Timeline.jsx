@@ -6,6 +6,7 @@ import LockOpenIcon from "@mui/icons-material/LockOpen";
 import DoneIcon from "@mui/icons-material/Done";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { Tooltip } from "@mui/material";
+import InfoTooltip from "../common/InfoTooltip";
 
 function TimelineButton({ backup, selected, index, handleBackupSelect }) {
   function getNumPassedTests() {
@@ -98,9 +99,11 @@ function TimelineButton({ backup, selected, index, handleBackupSelect }) {
 }
 
 function Timeline({ backups, selectedBackup, handleBackupSelect }) {
+  const TIMELINE_TOOLTIP_INFO = "A timeline of this student's OkPy backups. A backup is formed every time they run unlocking or coding tests for a particular question."
+
   return (
     <div>
-      <div style={{ fontSize: "1.5rem" }}>Timeline</div>
+      <div style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>Timeline <InfoTooltip info={TIMELINE_TOOLTIP_INFO} placement="top" /></div>
       <ButtonGroup
         orientation="vertical"
         aria-label="Vertical button group"
