@@ -15,13 +15,13 @@ import { useCopyToClipboard } from "react-use";
 import IconButton from "@mui/material/IconButton";
 import Button from "@mui/material/Button";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import { FormControl, InputLabel } from "@mui/material";
 
 import FileViewer from "../components/submission/FileViewer";
 import Graphs from "../components/submission/Graphs";
 import Timeline from "../components/submission/Timeline";
 import AutograderOutputDialog from "../components/submission/AutograderOutputDialog";
 import UnlockingTestOutputDialog from "../components/submission/UnlockingTestOutputDialog";
-import { FormControl, InputLabel } from "@mui/material";
 import { backupsAtom } from "../state/atoms";
 
 // TODO minWidth: 0 prevent main content from stretching out to sidebars, but this seems rather hacky?
@@ -56,7 +56,6 @@ function SubmissionLayout() {
   const [selectedBackup, setSelectedBackup] = React.useState(0);
   const [files, setFiles] = React.useState([]);
   const [file, setFile] = React.useState("");
-  const [loadingBackups, setLoadingBackups] = React.useState(false);
 
   const [code, setCode] = React.useState("");
   const [autograderOutput, setAutograderOutput] = React.useState("");
@@ -75,7 +74,6 @@ function SubmissionLayout() {
 
   // Fetch backups
   React.useEffect(() => {
-    setLoadingBackups(true);
     fetch(
       `/api/backups/${routeParams.courseId}/${routeParams.assignmentId}/${routeParams.studentId}`,
       {
@@ -93,7 +91,6 @@ function SubmissionLayout() {
         setSelectedBackup(0);
         setFiles(responseData.assignment_file_names);
         setFile(responseData.assignment_file_names[0]);
-        setLoadingBackups(false);
       });
   }, [routeParams, setBackups]);
 
@@ -101,7 +98,6 @@ function SubmissionLayout() {
   // if backups is done loading
   React.useEffect(() => {
     if (
-      loadingBackups ||
       backups.length === 0 ||
       backups[selectedBackup].unlock
     ) {
@@ -126,12 +122,12 @@ function SubmissionLayout() {
       .then((responseData) => {
         setAutograderOutput(responseData.file_contents);
       });
-  }, [loadingBackups, backups, selectedBackup]);
+  }, [backups, selectedBackup]);
 
   // Fetch code file contents for currently selected backup and file
   // if backups is done loading
   React.useEffect(() => {
-    if (loadingBackups || backups.length === 0 || file === "") {
+    if (backups.length === 0 || file === "") {
       return;
     }
 
@@ -153,12 +149,12 @@ function SubmissionLayout() {
       .then((responseData) => {
         setCode(responseData.file_contents);
       });
-  }, [loadingBackups, backups, selectedBackup, file]);
+  }, [backups, selectedBackup, file]);
 
   // Fetch lint errors for currently selected backup and file
   // if backups is done loading
   React.useEffect(() => {
-    if (loadingBackups || backups.length === 0 || file === "") {
+    if (backups.length === 0 || file === "") {
       return;
     }
 
@@ -180,12 +176,12 @@ function SubmissionLayout() {
       .then((responseData) => {
         setLintErrors(responseData.lint_errors);
       });
-  }, [loadingBackups, backups, selectedBackup, file]);
+  }, [backups, selectedBackup, file]);
 
   // Fetch backup file metadata for currently selected backup and file
   // if backups is done loading
   React.useEffect(() => {
-    if (loadingBackups || backups.length === 0 || file === "") {
+    if (backups.length === 0 || file === "") {
       return;
     }
 
@@ -204,15 +200,15 @@ function SubmissionLayout() {
       .then((responseData) => {
         setFilesToMetadata(responseData.files_to_metadata);
       });
-  }, [routeParams, loadingBackups, backups, selectedBackup, file]);
+  }, [routeParams, backups, selectedBackup, file]);
 
   const backupCreatedTimestamps = React.useMemo(() => {
-    if (loadingBackups || backups.length === 0) {
+    if (backups.length === 0) {
       return [];
     }
 
     return backups.map((backup) => backup.created);
-  }, [loadingBackups, backups]);
+  }, [backups]);
 
   function handleBackupSelect(selectedBackupIndex) {
     setSelectedBackup(selectedBackupIndex);
@@ -246,9 +242,39 @@ function SubmissionLayout() {
     setIsSnackbarOpen(false);
   };
 
+  function getOutputButton() {
+    if (backups.length !== 0) {
+      // TODO not really sure why but sometimes even if a test case is unlocking type, there are no unlock messages.
+      // if this is the case, don't display the "unlocking tests output" button
+      if (backups[selectedBackup].unlock && backups[selectedBackup].unlock_message_cases.length !== 0) {
+        return (
+          <Button
+            variant="contained"
+            onClick={() => setIsDialogOpen(true)}
+            startIcon={<VisibilityIcon />}
+          >
+            Unlocking Test Output
+          </Button>
+        );
+      } else if (!backups[selectedBackup].unlock) {
+        return (
+          <Button
+            variant="contained"
+            onClick={() => setIsDialogOpen(true)}
+            startIcon={<VisibilityIcon />}
+          >
+            Autograder Output
+          </Button>
+        )
+      }
+    }
+
+    return null;
+  }
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      {loadingBackups ? (
+      {backups.length === 0 ? (
         <CircularProgress />
       ) : (
         <ContentWrapper>
@@ -288,7 +314,7 @@ function SubmissionLayout() {
                     label={lightMode ? "Light Mode" : "Dark Mode"}
                   ></FormControlLabel>
                 </FormGroup>
-                
+
                 <IconButton
                   color="primary"
                   size="small"
@@ -298,18 +324,7 @@ function SubmissionLayout() {
                   <ContentCopyIcon />
                 </IconButton>
 
-                <Button
-                  variant="contained"
-                  onClick={() => {
-                    setIsDialogOpen(true);
-                    console.log("output button clicked");
-                  }}
-                  startIcon={<VisibilityIcon />}
-                >
-                  {backups.length !== 0 && backups[selectedBackup].unlock
-                    ? "Unlocking Test Output"
-                    : "Autograder Output"}
-                </Button>
+                {getOutputButton()}
 
                 <FormControl>
                   <InputLabel id="file-select-label">File</InputLabel>
@@ -349,6 +364,7 @@ function SubmissionLayout() {
               <CircularProgress />
             ) : (
               <Graphs
+                file={file}
                 backupCreatedTimestamps={backupCreatedTimestamps}
                 fileMetadata={filesToMetadata[file]}
               />
