@@ -207,6 +207,18 @@ function SubmissionLayout() {
     return backups.map((backup) => backup.created);
   }, [backups]);
 
+  function getTotalQuestionsSolved(history) {
+    return history.reduce((total, currQuestion) => total + (currQuestion.solved ? 1 : 0), 0);
+  }
+
+  const numQuestionsSolved = React.useMemo(() => {
+    if (backups.length === 0) {
+      return [];
+    }
+
+    return backups.map((backup) => getTotalQuestionsSolved(backup.history));
+  }, [backups]);
+
   function handleBackupSelect(selectedBackupIndex) {
     setSelectedBackup(selectedBackupIndex);
     // Set these values to empty so that circular progress shows while loading new contents
@@ -293,15 +305,18 @@ function SubmissionLayout() {
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                alignItems: "center",
+                alignItems: "flex-start",
                 marginBottom: "1rem",
               }}
             >
-              <h2>File Viewer</h2>
+              <div style={{ fontSize: "1.5rem" }}>File Viewer</div>
               <div
                 style={{ display: "flex", gap: "1rem", alignItems: "center" }}
               >
                 {/* TODO diff viewer? */}
+
+                {getOutputButton()}
+
                 <FormGroup>
                   <FormControlLabel
                     control={
@@ -323,8 +338,6 @@ function SubmissionLayout() {
                 >
                   <ContentCopyIcon />
                 </IconButton>
-
-                {getOutputButton()}
 
                 <FormControl>
                   <InputLabel id="file-select-label">File</InputLabel>
@@ -367,6 +380,7 @@ function SubmissionLayout() {
                 file={file}
                 backupCreatedTimestamps={backupCreatedTimestamps}
                 fileMetadata={filesToMetadata[file]}
+                numQuestionsSolved={numQuestionsSolved}
               />
             )}
           </RightSidebar>
