@@ -1,21 +1,21 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  backup_id: MyString
+  backup_id: abc123
   correct: false
   prompt: MyString
-  student_answer: 
-  printed_msg: 
+  student_answer: ""
+  printed_msg: ""
   case_id: MyString
-  question_timestamp: MyString
+  question_timestamp: "2025-01-01"
   answer_timestamp: MyString
 
 two:
-  backup_id: MyString
+  backup_id: abc123
   correct: false
   prompt: MyString
-  student_answer: 
-  printed_msg: 
+  student_answer: ""
+  printed_msg: ""
   case_id: MyString
-  question_timestamp: MyString
+  question_timestamp: "2025-01-02"
   answer_timestamp: MyString
