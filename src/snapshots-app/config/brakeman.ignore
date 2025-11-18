@@ -3,6 +3,29 @@
     {
       "warning_type": "Dynamic Render Path",
       "warning_code": 15,
+      "fingerprint": "0b51143e82607233064e54b9c9be0a074f507ef0e2619be4d449350c7deefcc5",
+      "check_name": "Render",
+      "message": "Render path contains parameter value",
+      "file": "app/controllers/api/backup_file_metadata_controller.rb",
+      "line": 63,
+      "link": "https://brakemanscanner.org/docs/warning_types/dynamic_render_path/",
+      "code": "render(action => Rails.cache.fetch(\"backup_file_metadatum:#{params[:course_id].to_i}:#{params[:assignment_id].to_i}:#{params[:user_id].to_i}\", :ttl => 1.hour) do\n Rails.logger.info(\"Cache MISS for cache_key #{\"backup_file_metadatum:#{params[:course_id].to_i}:#{params[:assignment_id].to_i}:#{params[:user_id].to_i}\"}. Fetching from database...\")\ncourse = Course.find_by(:id => params[:course_id].to_i)\nif Course.find_by(:id => params[:course_id].to_i).nil? then\n  render(json => { :error => (\"Course ID #{params[:course_id].to_i} not found\") }, { :status => :not_found })\n  return\nend\nassignment = Course.find_by(:id => params[:course_id].to_i).assignments.find_by(:id => params[:assignment_id].to_i)\nif Course.find_by(:id => params[:course_id].to_i).assignments.find_by(:id => params[:assignment_id].to_i).nil? then\n  render(json => { :error => (\"Assignment ID #{params[:assignment_id].to_i} not found within course ID #{params[:course_id].to_i}\") }, { :status => :not_found })\n  return\nend\nstudent = Course.find_by(:id => params[:course_id].to_i).students.find_by(:id => params[:user_id].to_i)\nif Course.find_by(:id => params[:course_id].to_i).students.find_by(:id => params[:user_id].to_i).nil? then\n  render(json => { :error => (\"User ID #{params[:user_id].to_i} not a student in course ID #{params[:course_id].to_i}\") }, { :status => :not_found })\n  return\nend\nassignment_file_names = AssignmentFile.where(:assignment_id => params[:assignment_id].to_i).map do\n af.file_name\n end\nbackup_metadata = BackupMetadatum.where(:course => Course.find_by(:id => params[:course_id].to_i).okpy_endpoint, :assignment => Course.find_by(:id => params[:course_id].to_i).assignments.find_by(:id => params[:assignment_id].to_i).okpy_endpoint, :student_email => Course.find_by(:id => params[:course_id].to_i).students.find_by(:id => params[:user_id].to_i).email).order(:created)\nfile_contents_locations = BackupMetadatum.where(:course => Course.find_by(:id => params[:course_id].to_i).okpy_endpoint, :assignment => Course.find_by(:id => params[:course_id].to_i).assignments.find_by(:id => params[:assignment_id].to_i).okpy_endpoint, :student_email => Course.find_by(:id => params[:course_id].to_i).students.find_by(:id => params[:user_id].to_i).email).order(:created).filter_map do\n if backup.file_contents_location.present? then\n  backup.file_contents_location\nelse\n  nil\nend\n end\nfiles_to_metadata = {}\nAssignmentFile.where(:assignment_id => params[:assignment_id].to_i).map do\n af.file_name\n end.each do\n files_to_metadata[file_name] = { :num_lines => ([]) }\n end\nBackupMetadatum.where(:course => Course.find_by(:id => params[:course_id].to_i).okpy_endpoint, :assignment => Course.find_by(:id => params[:course_id].to_i).assignments.find_by(:id => params[:assignment_id].to_i).okpy_endpoint, :student_email => Course.find_by(:id => params[:course_id].to_i).students.find_by(:id => params[:user_id].to_i).email).order(:created).filter_map do\n if backup.file_contents_location.present? then\n  backup.file_contents_location\nelse\n  nil\nend\n end.each do\n AssignmentFile.where(:assignment_id => params[:assignment_id].to_i).map do\n af.file_name\n end.each do\n backup_file_metadatum = BackupFileMetadatum.find_by(:file_contents_location => file_contents_location, :file_name => file_name)\nif BackupFileMetadatum.find_by(:file_contents_location => file_contents_location, :file_name => file_name).nil? then\n  [BackupFileMetadatum.find_by(:file_contents_location => file_contents_location, :file_name => file_name).num_lines]\nend\n end\n end\n{ :json => ({ :course_id => params[:course_id].to_i, :assignment_id => params[:assignment_id].to_i, :user_id => params[:user_id].to_i, :files_to_metadata => ({ file_name => ({ :num_lines => ([]) }) }) }), :status => :ok }\n end, {})",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Api::BackupFileMetadataController",
+        "method": "show"
+      },
+      "user_input": "params[:user_id]",
+      "confidence": "Weak",
+      "cwe_id": [
+        22
+      ],
+      "note": "We are using the parameters to get the backup file metadata not rendering a page"
+    },
+    {
+      "warning_type": "Dynamic Render Path",
+      "warning_code": 15,
       "fingerprint": "84f4b03c6b09bd1aa3ddf2079180825ca3a6a845725fbee1c3d74a59c4f61ebd",
       "check_name": "Render",
       "message": "Render path contains parameter value",
@@ -22,29 +45,6 @@
         22
       ],
       "note": "Ignored because we are not rendering a Rails route using the S3 object key"
-    },
-    {
-      "warning_type": "Dynamic Render Path",
-      "warning_code": 15,
-      "fingerprint": "daffb2abb2737ba0c0d14b7e31bb0d524238d6a8d3d2ad0ba30518627fbf008d",
-      "check_name": "Render",
-      "message": "Render path contains parameter value",
-      "file": "app/controllers/api/backup_file_metadata_controller.rb",
-      "line": 63,
-      "link": "https://brakemanscanner.org/docs/warning_types/dynamic_render_path/",
-      "code": "render(action => Rails.cache.fetch(\"backup_file_metadatum:#{params[:course_id].to_i}:#{params[:assignment_id].to_i}:#{params[:user_id].to_i}\", :ttl => 1.hour) do\n Rails.logger.info(\"Cache MISS for cache_key #{\"backup_file_metadatum:#{params[:course_id].to_i}:#{params[:assignment_id].to_i}:#{params[:user_id].to_i}\"}. Fetching from database...\")\ncourse = Course.find_by(:id => params[:course_id].to_i)\nif Course.find_by(:id => params[:course_id].to_i).nil? then\n  render(json => { :error => (\"Course ID #{params[:course_id].to_i} not found\") }, { :status => :not_found })\n  return\nend\nassignment = Course.find_by(:id => params[:course_id].to_i).assignments.find_by(:id => params[:assignment_id].to_i)\nif Course.find_by(:id => params[:course_id].to_i).assignments.find_by(:id => params[:assignment_id].to_i).nil? then\n  render(json => { :error => (\"Assignment ID #{params[:assignment_id].to_i} not found within course ID #{params[:course_id].to_i}\") }, { :status => :not_found })\n  return\nend\nstudent = Course.find_by(:id => params[:course_id].to_i).students.find_by(:id => params[:user_id].to_i)\nif Course.find_by(:id => params[:course_id].to_i).students.find_by(:id => params[:user_id].to_i).nil? then\n  render(json => { :error => (\"User ID #{params[:user_id].to_i} not a student in course ID #{params[:course_id].to_i}\") }, { :status => :not_found })\n  return\nend\nassignment_file_names = AssignmentFile.where(:assignment_id => params[:assignment_id].to_i).map do\n af.file_name\n end\nbackup_metadata = BackupMetadatum.where(:course => Course.find_by(:id => params[:course_id].to_i).okpy_endpoint, :assignment => Course.find_by(:id => params[:course_id].to_i).assignments.find_by(:id => params[:assignment_id].to_i).okpy_endpoint, :student_email => Course.find_by(:id => params[:course_id].to_i).students.find_by(:id => params[:user_id].to_i).email).order(:created)\nfile_contents_locations = BackupMetadatum.where(:course => Course.find_by(:id => params[:course_id].to_i).okpy_endpoint, :assignment => Course.find_by(:id => params[:course_id].to_i).assignments.find_by(:id => params[:assignment_id].to_i).okpy_endpoint, :student_email => Course.find_by(:id => params[:course_id].to_i).students.find_by(:id => params[:user_id].to_i).email).order(:created).filter_map do\n if backup.file_contents_location.present? and backup.autograder_output_location.present? then\n  backup.file_contents_location\nelse\n  nil\nend\n end\nfiles_to_metadata = {}\nAssignmentFile.where(:assignment_id => params[:assignment_id].to_i).map do\n af.file_name\n end.each do\n files_to_metadata[file_name] = { :num_lines => ([]) }\n end\nBackupMetadatum.where(:course => Course.find_by(:id => params[:course_id].to_i).okpy_endpoint, :assignment => Course.find_by(:id => params[:course_id].to_i).assignments.find_by(:id => params[:assignment_id].to_i).okpy_endpoint, :student_email => Course.find_by(:id => params[:course_id].to_i).students.find_by(:id => params[:user_id].to_i).email).order(:created).filter_map do\n if backup.file_contents_location.present? and backup.autograder_output_location.present? then\n  backup.file_contents_location\nelse\n  nil\nend\n end.each do\n AssignmentFile.where(:assignment_id => params[:assignment_id].to_i).map do\n af.file_name\n end.each do\n backup_file_metadatum = BackupFileMetadatum.find_by(:file_contents_location => file_contents_location, :file_name => file_name)\nif BackupFileMetadatum.find_by(:file_contents_location => file_contents_location, :file_name => file_name).nil? then\n  [BackupFileMetadatum.find_by(:file_contents_location => file_contents_location, :file_name => file_name).num_lines]\nend\n end\n end\n{ :json => ({ :course_id => params[:course_id].to_i, :assignment_id => params[:assignment_id].to_i, :user_id => params[:user_id].to_i, :files_to_metadata => ({ file_name => ({ :num_lines => ([]) }) }) }), :status => :ok }\n end, {})",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "Api::BackupFileMetadataController",
-        "method": "show"
-      },
-      "user_input": "params[:user_id]",
-      "confidence": "Weak",
-      "cwe_id": [
-        22
-      ],
-      "note": "Ignoring this warning since we are not using the parameters the user gives us to render a template"
     }
   ],
   "brakeman_version": "7.1.1"
