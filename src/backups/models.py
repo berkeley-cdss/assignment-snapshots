@@ -101,7 +101,7 @@ class UnlockMessage(OkPyMessage):
         return f"{directory}/unlock.json"
 
     def write(self, directory):
-        with open(GradingMessage.location(directory), "w") as f:
+        with open(UnlockMessage.location(directory), "w") as f:
             json.dump(self.contents, f, indent=2)
 
 
