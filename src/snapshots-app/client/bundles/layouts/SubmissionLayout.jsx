@@ -211,12 +211,36 @@ function SubmissionLayout() {
     return history.reduce((total, currQuestion) => total + (currQuestion.solved ? 1 : 0), 0);
   }
 
+  function getTotalQuestionsUnsolved(history) {
+    return history.reduce((total, currQuestion) => total + (currQuestion.solved ? 0 : 1), 0);
+  }
+
+  function getTotalAttempts(history) {
+    return history.reduce((total, currQuestion) => total + currQuestion.attempts, 0);
+  }
+
   const numQuestionsSolved = React.useMemo(() => {
     if (backups.length === 0) {
       return [];
     }
 
     return backups.map((backup) => getTotalQuestionsSolved(backup.history));
+  }, [backups]);
+
+  const numQuestionsUnsolved = React.useMemo(() => {
+    if (backups.length === 0) {
+      return [];
+    }
+
+    return backups.map((backup) => getTotalQuestionsUnsolved(backup.history));
+  }, [backups]);
+
+  const numAttempts = React.useMemo(() => {
+    if (backups.length === 0) {
+      return [];
+    }
+
+    return backups.map((backup) => getTotalAttempts(backup.history));
   }, [backups]);
 
   function handleBackupSelect(selectedBackupIndex) {
@@ -381,6 +405,8 @@ function SubmissionLayout() {
                 backupCreatedTimestamps={backupCreatedTimestamps}
                 fileMetadata={filesToMetadata[file]}
                 numQuestionsSolved={numQuestionsSolved}
+                numQuestionsUnsolved={numQuestionsUnsolved}
+                numAttempts={numAttempts}
               />
             )}
           </RightSidebar>
