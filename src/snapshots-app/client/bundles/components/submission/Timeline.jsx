@@ -2,25 +2,71 @@ import React from "react";
 
 import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
+import LockOpenIcon from "@mui/icons-material/LockOpen";
+import DoneIcon from "@mui/icons-material/Done";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import { Tooltip } from "@mui/material";
 
-// TODO add icons based on backup status
-// import ErrorIcon from "@mui/icons-material/Error";
-// import DoneIcon from "@mui/icons-material/Done";
-// import LoopIcon from "@mui/icons-material/Loop";
+function TimelineButton({ backup, selected, index, handleBackupSelect }) {
+  const date = new Date(backup.created);
+  const formattedDate = date.toLocaleString("en-US", {
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  });
+
+  const numPassedTests = backup.unlock ? null : backup.grading_message_questions
+    .map((gmq) => gmq.passed)
+    .reduce((a, b) => a + b, 0);
+  const numFailedTests = backup.unlock ? null : backup.grading_message_questions
+    .map((gmq) => gmq.failed)
+    .reduce((a, b) => a + b, 0);
+  const numLockedTests = backup.unlock ? null : backup.grading_message_questions
+    .map((gmq) => gmq.locked)
+    .reduce((a, b) => a + b, 0);
+
+  function getTooltipTitle() {
+    if (backup.unlock) {
+      return "Unlocking test";
+    } else {
+      if (numFailedTests === 0 && numLockedTests === 0) {
+        return `All ${numPassedTests} tests passed`;
+      } else {
+        return `${numPassedTests} tests passed, ${numFailedTests} tests failed, ${numLockedTests} tests locked`;
+      }
+    }
+  }
+
+  function getBackupStatusIcon(backup, selected) {
+    if (backup.unlock) {
+      return <LockOpenIcon color={selected ? "white" : "secondary"} />;
+    } else {
+      if (numFailedTests === 0 && numLockedTests === 0) {
+        return <DoneIcon color={selected ? "white" : "success"} />;
+      } else {
+        return <ErrorOutlineIcon color={selected ? "white" : "error"} />;
+      }
+    }
+  }
+
+  return (
+    <Tooltip title={getTooltipTitle()} placement="right">
+      <Button
+        key={backup.id}
+        variant={selected ? "contained" : "outlined"}
+        onClick={() => handleBackupSelect(index)}
+        startIcon={getBackupStatusIcon(backup, selected)}
+      >
+        {formattedDate}
+      </Button>
+    </Tooltip>
+  );
+}
 
 function Timeline({ backups, selectedBackup, handleBackupSelect }) {
-  // const buttons = [
-  //   <Button variant={variant0} onClick={handleClick0} key="one">
-  //     04/09/25 09:00 AM PST <ErrorIcon sx={{ marginLeft: "10px" }} />
-  //   </Button>,
-  //   <Button variant={variant1} onClick={handleClick1} key="two">
-  //     04/09/25 10:00 AM PST <LoopIcon sx={{ marginLeft: "10px" }} />
-  //   </Button>,
-  //   <Button variant={variant2} onClick={handleClick2} key="three">
-  //     04/09/25 11:00 AM PST <DoneIcon sx={{ marginLeft: "10px" }} />
-  //   </Button>,
-  // ];
-
   return (
     <div>
       <div style={{ fontSize: "1.5rem" }}>Timeline</div>
@@ -29,27 +75,14 @@ function Timeline({ backups, selectedBackup, handleBackupSelect }) {
         aria-label="Vertical button group"
         style={{ width: "100%" }}
       >
-        {backups.map((backup, index) => {
-          const isSelected = index === selectedBackup;
-          const date = new Date(backup.created);
-          const formattedDate = date.toLocaleString("en-US", {
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-            hour12: true,
-          });
-          return (
-            <Button
-              key={backup.id}
-              variant={isSelected ? "contained" : "outlined"}
-              onClick={() => handleBackupSelect(index)}
-            >
-              {formattedDate}
-            </Button>
-          );
-        })}
+        {backups.map((backup, index) => (
+          <TimelineButton
+            backup={backup}
+            selected={index === selectedBackup}
+            index={index}
+            handleBackupSelect={handleBackupSelect}
+          />
+        ))}
       </ButtonGroup>
     </div>
   );
