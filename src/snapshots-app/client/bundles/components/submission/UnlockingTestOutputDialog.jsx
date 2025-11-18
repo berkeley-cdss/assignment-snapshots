@@ -63,7 +63,16 @@ function UnlockingTestCase({
   );
 }
 
-function UnlockingTestOutputDialog({ open, onClose, unlockingTestCases }) {
+function UnlockingTestOutputDialog({
+  open,
+  onClose,
+  unlockingTestCases,
+  questionCliNames,
+}) {
+  const okpyCliQuestions = questionCliNames
+    .map((questionName) => `-q ${questionName} -u`)
+    .join(" ");
+
   return (
     <Dialog
       open={open}
@@ -73,11 +82,14 @@ function UnlockingTestOutputDialog({ open, onClose, unlockingTestCases }) {
     >
       <DialogTitle id="unlocking-test-output-dialog-title">
         Unlocking Test Output
+      </DialogTitle>
+      <DialogContent id="unlocking-test-output-dialog-description">
         <div style={{ color: "gray", fontSize: "0.8rem" }}>
           <em>In chronological order of completion</em>
         </div>
-      </DialogTitle>
-      <DialogContent id="unlocking-test-output-dialog-description">
+        <div style={{ fontFamily: "Menlo", paddingBottom: "1rem" }}>
+          {`$ python3 ok ${okpyCliQuestions}`}
+        </div>
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           {unlockingTestCases.map((testCase) => (
             <>

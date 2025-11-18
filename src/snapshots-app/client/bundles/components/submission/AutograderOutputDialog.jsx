@@ -5,7 +5,16 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import { Typography } from "@mui/material";
 
-function AutograderOutputDialog({ open, onClose, autograderOutput }) {
+function AutograderOutputDialog({
+  open,
+  onClose,
+  autograderOutput,
+  questionCliNames,
+}) {
+  const okpyCliQuestions = questionCliNames
+    .map((questionName) => `-q ${questionName}`)
+    .join(" ");
+
   return (
     <Dialog
       open={open}
@@ -26,6 +35,7 @@ function AutograderOutputDialog({ open, onClose, autograderOutput }) {
             fontSize: "0.8rem",
           }}
         >
+          <div>$ python3 ok {okpyCliQuestions}</div>
           {autograderOutput}
         </Typography>
       </DialogContent>
