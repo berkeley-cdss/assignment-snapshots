@@ -38,7 +38,7 @@ const LeftSidebar = styled("aside")(({ theme }) => ({
 
 const MainContent = styled("main")(({ theme }) => ({
   flex: "5 0 0",
-  padding: theme.spacing(3),
+  padding: theme.spacing(2),
   minWidth: 0,
 }));
 
@@ -384,15 +384,6 @@ function SubmissionLayout() {
     return null;
   }
 
-  function displayDiff() {
-    return (
-      backups.length > 0 &&
-      code !== "" &&
-      file !== "" &&
-      prevFileContents !== null
-    );
-  }
-
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       {backups.length === 0 ? (
@@ -412,9 +403,6 @@ function SubmissionLayout() {
             {/* Main Content Area */}
             <div
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-start",
                 marginBottom: "1rem",
               }}
             >
@@ -423,10 +411,8 @@ function SubmissionLayout() {
                 <InfoTooltip info={FILE_VIEWER_TOOLTIP_INFO} placement="top" />
               </div>
               <div
-                style={{ display: "flex", gap: "1rem", alignItems: "center" }}
+                style={{ display: "flex", gap: "1rem", alignItems: "center", justifyContent: 'space-between' }}
               >
-                {/* TODO diff viewer? */}
-
                 {getOutputButton()}
 
                 <FormGroup sx={{ marginRight: -2 }}>
@@ -442,9 +428,9 @@ function SubmissionLayout() {
                   ></FormControlLabel>
                 </FormGroup>
 
-                {/* NOTE: there is currently a bug in git-diff-view package where if the current and prev file contents are equal it will error */}
-
-                {selectedBackup !== 0 && code === "" && prevFileContents === "" ? (
+                {selectedBackup !== 0 &&
+                code === "" &&
+                prevFileContents === "" ? (
                   <CircularProgress />
                 ) : (
                   <Tooltip title="Diff this file with previous backup">
@@ -453,7 +439,12 @@ function SubmissionLayout() {
                       size="small"
                       aria-label="view diff between these files and the files in another backup"
                       onClick={() => setDiffViewerOpen(true)}
-                      disabled={selectedBackup === 0 || code === "" || prevFileContents === "" || prevFileContents === code}
+                      disabled={
+                        selectedBackup === 0 ||
+                        code === "" ||
+                        prevFileContents === "" ||
+                        prevFileContents === code
+                      }
                     >
                       <DifferenceIcon />
                     </IconButton>
@@ -534,7 +525,6 @@ function SubmissionLayout() {
 
       {getOutputDialog()}
 
-      {/* NOTE: there is currently a bug in git-diff-view package where if the current and prev file contents are equal it will error */}
       <DiffViewer
         open={diffViewerOpen}
         onClose={() => setDiffViewerOpen(false)}

@@ -15,52 +15,48 @@ function DiffViewer({
   currentFileContents,
   selectedFile,
 }) {
-  console.log("prev contents");
-  console.log(prevFileContents);
-
-  console.log("curr contents");
-  console.log(currentFileContents);
-
-
-
   const diffFile = React.useMemo(() => {
-    if (prevFileContents === "" || currentFileContents === "" || prevFileContents === currentFileContents) {
-    return null;
-  }
+    // NOTE: there is currently a bug in git-diff-view package
+    // where if the current and prev file contents are equal it will error
+    if (
+      prevFileContents === "" ||
+      currentFileContents === "" ||
+      prevFileContents === currentFileContents
+    ) {
+      return null;
+    }
 
     // TODO don't hardcode language
-  const data = {
-    oldFile: {
-      fileName: selectedFile,
-      content: prevFileContents,
-      fileLang: "python",
-    },
-    newFile: {
-      fileName: selectedFile,
-      content: currentFileContents,
-      fileLang: "python",
-    },
-  };
+    const data = {
+      oldFile: {
+        fileName: selectedFile,
+        content: prevFileContents,
+        fileLang: "python",
+      },
+      newFile: {
+        fileName: selectedFile,
+        content: currentFileContents,
+        fileLang: "python",
+      },
+    };
 
-  const file = generateDiffFile(
-    data?.oldFile?.fileName || "",
-    data?.oldFile?.content || "",
-    data?.newFile?.fileName || "",
-    data?.newFile?.content || "",
-    data?.oldFile?.fileLang || "",
-    data?.newFile?.fileLang || "",
-  );
+    const file = generateDiffFile(
+      data?.oldFile?.fileName || "",
+      data?.oldFile?.content || "",
+      data?.newFile?.fileName || "",
+      data?.newFile?.content || "",
+      data?.oldFile?.fileLang || "",
+      data?.newFile?.fileLang || "",
+    );
 
-  // TODO light/dark mode
-  file.initTheme("light");
-  file.init();
-  file.buildSplitDiffLines();
-  file.buildUnifiedDiffLines();
+    // TODO light/dark mode
+    file.initTheme("light");
+    file.init();
+    file.buildSplitDiffLines();
+    file.buildUnifiedDiffLines();
 
-  return file;
+    return file;
   }, [selectedFile, currentFileContents, prevFileContents]);
-
-
 
   return (
     <Dialog
