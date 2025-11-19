@@ -35,7 +35,7 @@ class Api::BackupFileMetadataController < ApplicationController
       backup_metadata = BackupMetadatum.where(course: course.okpy_endpoint, assignment: assignment.okpy_endpoint, student_email: student.email).order(:created)
       file_contents_locations = backup_metadata.filter_map do |backup|
         # Only backups with student code file contents will be included in the timeline UI
-        if backup.file_contents_location.present?
+        if backup.file_contents_location.present? and (backup.grading_location.present? or backup.unlock_location.present?)
           backup.file_contents_location
         else
           nil

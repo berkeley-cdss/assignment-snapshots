@@ -396,11 +396,5 @@ def backup_file_metadata(
         print(f"Finished computing num lines in {database} in {end - start} seconds")
 
 
-@app.command()
-def query():
-    """Not implemented yet"""
-    pass
-
-
 if __name__ == "__main__":
     app()

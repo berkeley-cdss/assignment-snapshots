@@ -66,15 +66,14 @@ INSERT INTO okpy_messages VALUES
 (:id, :type, :description)
 """
 
+# NOTE: UNIQUE (file_contents_location, line_number, message, code) fails if column location different
 CREATE_LINT_ERRORS_TABLE_CMD = """
 CREATE TABLE lint_errors (
 	file_contents_location TEXT NOT NULL,
 	line_number INTEGER NOT NULL,
 	message TEXT NOT NULL,
 	code TEXT NOT NULL, -- lint error code
-	url TEXT, -- lint error URL for more information
-
-	UNIQUE (file_contents_location, line_number, message, code)
+	url TEXT -- lint error URL for more information
 );
 """
 
@@ -134,7 +133,6 @@ CREATE TABLE unlock_message_cases (
     question_timestamp TEXT NOT NULL, -- ISO8601 string
     answer_timestamp TEXT NOT NULL, -- ISO8601 string
 
-	PRIMARY KEY (backup_id, question_timestamp),
 	FOREIGN KEY (backup_id) REFERENCES backup_metadata(backup_id)
 );
 """
