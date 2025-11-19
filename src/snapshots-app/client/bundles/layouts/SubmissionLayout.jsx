@@ -401,17 +401,18 @@ function SubmissionLayout() {
           {/* TODO make width more responsive */}
           <MainContent>
             {/* Main Content Area */}
-            <div
-              style={{
-                marginBottom: "1rem",
-              }}
-            >
+            <div style={{ marginBottom: "1rem" }}>
               <div style={{ fontSize: "1.5rem" }}>
                 File Viewer{" "}
                 <InfoTooltip info={FILE_VIEWER_TOOLTIP_INFO} placement="top" />
               </div>
               <div
-                style={{ display: "flex", gap: "1rem", alignItems: "center", justifyContent: 'space-between' }}
+                style={{
+                  display: "flex",
+                  gap: "1rem",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
               >
                 {getOutputButton()}
 
