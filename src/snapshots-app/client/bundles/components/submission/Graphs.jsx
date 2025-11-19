@@ -35,10 +35,12 @@ function AssignmentProblems({ history, allProblemDisplayNames, numSolved }) {
       {getIcon(problemDisplayName)} {problemDisplayName}
     </div>
   ));
-  
+
   return (
     <div style={{ paddingTop: "1rem", paddingBottom: "1rem" }}>
-      <div style={{ fontWeight: "bold" }}>Assignment Progress ({Math.round(getPercentSolved())}% solved)</div>
+      <div style={{ fontWeight: "bold" }}>
+        Assignment Progress ({Math.round(getPercentSolved())}% solved)
+      </div>
       <div>{problems}</div>
     </div>
   );

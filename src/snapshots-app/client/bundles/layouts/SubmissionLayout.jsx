@@ -57,7 +57,9 @@ function SubmissionLayout() {
   const [selectedBackup, setSelectedBackup] = React.useState(0);
   const [files, setFiles] = React.useState([]);
   const [file, setFile] = React.useState("");
-  const [allProblemDisplayNames, setAllProblemDisplayNames] = React.useState([]);
+  const [allProblemDisplayNames, setAllProblemDisplayNames] = React.useState(
+    [],
+  );
 
   const [code, setCode] = React.useState("");
   const [autograderOutput, setAutograderOutput] = React.useState("");
