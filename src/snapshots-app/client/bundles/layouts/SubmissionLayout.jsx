@@ -57,6 +57,9 @@ function SubmissionLayout() {
   const [selectedBackup, setSelectedBackup] = React.useState(0);
   const [files, setFiles] = React.useState([]);
   const [file, setFile] = React.useState("");
+  const [allProblemDisplayNames, setAllProblemDisplayNames] = React.useState(
+    [],
+  );
 
   const [code, setCode] = React.useState("");
   const [autograderOutput, setAutograderOutput] = React.useState("");
@@ -95,6 +98,7 @@ function SubmissionLayout() {
         setSelectedBackup(0);
         setFiles(responseData.assignment_file_names);
         setFile(responseData.assignment_file_names[0]);
+        setAllProblemDisplayNames(responseData.assignment_problem_names);
       });
   }, [routeParams, setBackups]);
 
@@ -439,7 +443,7 @@ function SubmissionLayout() {
           </MainContent>
           <RightSidebar sx={{ display: { xs: "none", sm: "block" } }}>
             {/* Right Sidebar Content Area */}
-            {filesToMetadata === null || file === "" ? (
+            {filesToMetadata === null || file === "" || backups.length === 0 ? (
               <CircularProgress />
             ) : (
               <Graphs
@@ -449,6 +453,9 @@ function SubmissionLayout() {
                 numQuestionsSolved={numQuestionsSolved}
                 numQuestionsUnsolved={numQuestionsUnsolved}
                 numAttempts={numAttempts}
+                currBackupHistory={backups[selectedBackup].history}
+                allProblemDisplayNames={allProblemDisplayNames}
+                selectedBackup={selectedBackup}
               />
             )}
           </RightSidebar>

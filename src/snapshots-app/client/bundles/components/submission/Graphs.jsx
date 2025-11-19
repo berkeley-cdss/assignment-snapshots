@@ -2,6 +2,49 @@ import React from "react";
 
 import { LineChart } from "@mui/x-charts/LineChart";
 import InfoTooltip from "../common/InfoTooltip";
+import DoneIcon from "@mui/icons-material/Done";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import { Tooltip } from "@mui/material";
+
+function AssignmentProblems({ history, allProblemDisplayNames, numSolved }) {
+  function getIcon(problemDisplayName) {
+    const problemData = history.find(
+      (p) => p.display_name === problemDisplayName,
+    );
+    if (problemData !== undefined && problemData.solved) {
+      return (
+        <Tooltip title="Solved" placement="left">
+          <DoneIcon color="success" />
+        </Tooltip>
+      );
+    } else {
+      return (
+        <Tooltip title="Unsolved" placement="left">
+          <ErrorOutlineIcon color="error" />
+        </Tooltip>
+      );
+    }
+  }
+
+  function getPercentSolved() {
+    return (numSolved / allProblemDisplayNames.length) * 100;
+  }
+
+  const problems = allProblemDisplayNames.map((problemDisplayName) => (
+    <div>
+      {getIcon(problemDisplayName)} {problemDisplayName}
+    </div>
+  ));
+
+  return (
+    <div style={{ paddingTop: "1rem", paddingBottom: "1rem" }}>
+      <div style={{ fontWeight: "bold" }}>
+        Assignment Progress ({Math.round(getPercentSolved())}% solved)
+      </div>
+      <div>{problems}</div>
+    </div>
+  );
+}
 
 function Graphs({
   file,
@@ -10,6 +53,9 @@ function Graphs({
   numQuestionsSolved,
   numQuestionsUnsolved,
   numAttempts,
+  currBackupHistory,
+  allProblemDisplayNames,
+  selectedBackup,
 }) {
   const dates = backupCreatedTimestamps.map(
     (dateString) => new Date(dateString),
@@ -43,6 +89,11 @@ function Graphs({
         Assignment Insights{" "}
         <InfoTooltip info={GRAPHS_TOOLTIP_INFO} placement="top" />
       </div>
+      <AssignmentProblems
+        history={currBackupHistory}
+        allProblemDisplayNames={allProblemDisplayNames}
+        numSolved={numQuestionsSolved[selectedBackup]}
+      />
       <LineChart
         xAxis={xAxis}
         series={[

@@ -3,4 +3,5 @@ class Assignment < ApplicationRecord
                                  message: "An assignment with this name already exists for this course." }
   belongs_to :course
   has_many :assignment_files
+  has_many :assignment_problems
 end

@@ -32,7 +32,7 @@ function FileViewer({ code, language, lightMode, lintErrors }) {
         <Typography
           variant="body2"
           component="pre"
-          style={{ margin: 0, whiteSpace: "pre-wrap", overflowX: 'auto' }}
+          style={{ margin: 0, whiteSpace: "pre-wrap", overflowX: "auto" }}
         >
           <div
             style={{
@@ -63,7 +63,10 @@ function FileViewer({ code, language, lightMode, lintErrors }) {
                   >
                     <div style={{ display: "table-cell", paddingRight: 5 }}>
                       {isLineHighlighted ? (
-                        <Tooltip title="Click to view lint error" placement="left">
+                        <Tooltip
+                          title="Click to view lint error"
+                          placement="left"
+                        >
                           <IconButton
                             aria-label="view lint error for this line"
                             size="small"

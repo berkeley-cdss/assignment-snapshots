@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_18_074729) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_18_234456) do
   create_table "analytics_messages", primary_key: "backup_id", id: :string, force: :cascade do |t|
     t.boolean "unlock", null: false
     t.json "question_cli_names"
@@ -21,9 +21,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_18_074729) do
   create_table "assignment_files", force: :cascade do |t|
     t.integer "assignment_id", null: false
     t.string "file_name", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
     t.index ["assignment_id"], name: "index_assignment_files_on_assignment_id"
+  end
+
+  create_table "assignment_problems", force: :cascade do |t|
+    t.integer "assignment_id", null: false
+    t.string "display_name", null: false
+    t.index ["assignment_id"], name: "index_assignment_problems_on_assignment_id"
   end
 
   create_table "assignments", force: :cascade do |t|
@@ -144,6 +148,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_18_074729) do
 
   add_foreign_key "analytics_messages", "backup_metadata", column: "backup_id", primary_key: "backup_id"
   add_foreign_key "assignment_files", "assignments"
+  add_foreign_key "assignment_problems", "assignments"
   add_foreign_key "assignments", "courses"
   add_foreign_key "enrollments", "courses"
   add_foreign_key "enrollments", "users"
