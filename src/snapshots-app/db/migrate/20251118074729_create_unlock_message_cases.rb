@@ -1,6 +1,6 @@
 class CreateUnlockMessageCases < ActiveRecord::Migration[8.0]
   def change
-    create_table :unlock_message_cases, id: false, primary_key: [ :backup_id, :question_timestamp ] do |t|
+    create_table :unlock_message_cases, id: false do |t|
       t.string :backup_id, null: false
       t.boolean :correct, null: false
       t.string :prompt, null: false
