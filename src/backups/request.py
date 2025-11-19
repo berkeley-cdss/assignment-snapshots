@@ -128,6 +128,7 @@ def get_backups_for_all_users_all_assignments(
     email_to_responses = {}  # key: email, value: list of all responses
 
     for email in emails:
+        print(f"Getting all backups for {email}")
         responses = get_backups_for_all_assignments(
             course_endpoint,
             email,
