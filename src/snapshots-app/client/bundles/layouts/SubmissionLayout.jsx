@@ -2,7 +2,7 @@ import React from "react";
 import { styled } from "@mui/material/styles";
 import Toolbar from "@mui/material/Toolbar";
 import Box from "@mui/material/Box";
-import { MenuItem, Select } from "@mui/material";
+import { MenuItem, Select, Tooltip } from "@mui/material";
 import { useAtom } from "jotai";
 import CircularProgress from "@mui/material/CircularProgress";
 import Switch from "@mui/material/Switch";
@@ -16,6 +16,7 @@ import IconButton from "@mui/material/IconButton";
 import Button from "@mui/material/Button";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { FormControl, InputLabel } from "@mui/material";
+import DifferenceIcon from "@mui/icons-material/Difference";
 
 import FileViewer from "../components/submission/FileViewer";
 import Graphs from "../components/submission/Graphs";
@@ -23,6 +24,7 @@ import Timeline from "../components/submission/Timeline";
 import AutograderOutputDialog from "../components/submission/AutograderOutputDialog";
 import UnlockingTestOutputDialog from "../components/submission/UnlockingTestOutputDialog";
 import InfoTooltip from "../components/common/InfoTooltip";
+import DiffViewer from "../components/submission/DiffViewer";
 import { backupsAtom } from "../state/atoms";
 
 // TODO minWidth: 0 prevent main content from stretching out to sidebars, but this seems rather hacky?
@@ -36,7 +38,7 @@ const LeftSidebar = styled("aside")(({ theme }) => ({
 
 const MainContent = styled("main")(({ theme }) => ({
   flex: "5 0 0",
-  padding: theme.spacing(3),
+  padding: theme.spacing(2),
   minWidth: 0,
 }));
 
@@ -73,6 +75,9 @@ function SubmissionLayout() {
   const [state, copyToClipboard] = useCopyToClipboard();
 
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+
+  const [diffViewerOpen, setDiffViewerOpen] = React.useState(false);
+  const [prevFileContents, setPrevFileContents] = React.useState("");
 
   const FILE_VIEWER_TOOLTIP_INFO =
     "View the code file(s) and OkPy output for this particular backup";
@@ -207,6 +212,33 @@ function SubmissionLayout() {
       });
   }, [routeParams, backups, selectedBackup, file]);
 
+  // Fetch previous backup file contents
+  React.useEffect(() => {
+    if (selectedBackup === 0 || backups.length === 0 || file === "") {
+      return;
+    }
+
+    const queryParams = new URLSearchParams();
+    queryParams.append(
+      "object_key",
+      `${backups[selectedBackup - 1].file_contents_location}/${file}`,
+    );
+
+    fetch(`/api/files?${queryParams}`, {
+      method: "GET",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((responseData) => {
+        setPrevFileContents(responseData.file_contents);
+        console.log("prev file contents set", responseData.file_contents);
+      });
+  }, [backups, selectedBackup, file]);
+
   const backupCreatedTimestamps = React.useMemo(() => {
     if (backups.length === 0) {
       return [];
@@ -266,6 +298,7 @@ function SubmissionLayout() {
     setCode("");
     setAutograderOutput("");
     setFilesToMetadata(null);
+    setPrevFileContents("");
   }
 
   function getLanguage(file) {
@@ -368,26 +401,22 @@ function SubmissionLayout() {
           {/* TODO make width more responsive */}
           <MainContent>
             {/* Main Content Area */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-start",
-                marginBottom: "1rem",
-              }}
-            >
+            <div style={{ marginBottom: "1rem" }}>
               <div style={{ fontSize: "1.5rem" }}>
                 File Viewer{" "}
                 <InfoTooltip info={FILE_VIEWER_TOOLTIP_INFO} placement="top" />
               </div>
               <div
-                style={{ display: "flex", gap: "1rem", alignItems: "center" }}
+                style={{
+                  display: "flex",
+                  gap: "1rem",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
               >
-                {/* TODO diff viewer? */}
-
                 {getOutputButton()}
 
-                <FormGroup>
+                <FormGroup sx={{ marginRight: -2 }}>
                   <FormControlLabel
                     control={
                       <Switch
@@ -400,14 +429,39 @@ function SubmissionLayout() {
                   ></FormControlLabel>
                 </FormGroup>
 
-                <IconButton
-                  color="primary"
-                  size="small"
-                  aria-label="copy code to clipboard"
-                  onClick={copyCode}
-                >
-                  <ContentCopyIcon />
-                </IconButton>
+                {selectedBackup !== 0 &&
+                code === "" &&
+                prevFileContents === "" ? (
+                  <CircularProgress />
+                ) : (
+                  <Tooltip title="Diff this file with previous backup">
+                    <IconButton
+                      color="primary"
+                      size="small"
+                      aria-label="view diff between these files and the files in another backup"
+                      onClick={() => setDiffViewerOpen(true)}
+                      disabled={
+                        selectedBackup === 0 ||
+                        code === "" ||
+                        prevFileContents === "" ||
+                        prevFileContents === code
+                      }
+                    >
+                      <DifferenceIcon />
+                    </IconButton>
+                  </Tooltip>
+                )}
+
+                <Tooltip title="Copy code">
+                  <IconButton
+                    color="primary"
+                    size="small"
+                    aria-label="copy code to clipboard"
+                    onClick={copyCode}
+                  >
+                    <ContentCopyIcon />
+                  </IconButton>
+                </Tooltip>
 
                 <FormControl>
                   <InputLabel id="file-select-label">File</InputLabel>
@@ -419,6 +473,7 @@ function SubmissionLayout() {
                     onChange={(event) => {
                       setFile(event.target.value);
                       setCode("");
+                      setPrevFileContents("");
                     }}
                   >
                     {files.map((file) => (
@@ -470,6 +525,15 @@ function SubmissionLayout() {
       />
 
       {getOutputDialog()}
+
+      <DiffViewer
+        open={diffViewerOpen}
+        onClose={() => setDiffViewerOpen(false)}
+        prevBackup={backups[selectedBackup - 1]}
+        currentFileContents={code}
+        selectedFile={file}
+        prevFileContents={prevFileContents}
+      />
     </Box>
   );
 }
