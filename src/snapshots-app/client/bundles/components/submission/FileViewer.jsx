@@ -28,11 +28,11 @@ function FileViewer({ code, language, lightMode, lintErrors }) {
 
   return (
     <div>
-      <Paper elevation={3} sx={{ padding: 2, borderRadius: 1 }}>
+      <Paper elevation={3} sx={{ padding: 2 }}>
         <Typography
           variant="body2"
           component="pre"
-          style={{ margin: 0, whiteSpace: "pre-wrap" }}
+          style={{ margin: 0, whiteSpace: "pre-wrap", overflowX: "auto" }}
         >
           <div
             style={{
@@ -59,12 +59,14 @@ function FileViewer({ code, language, lightMode, lintErrors }) {
                       backgroundColor: isLineHighlighted
                         ? "rgba(255, 0, 0, 0.2)"
                         : "transparent",
-                      overflowX: "auto",
                     }}
                   >
                     <div style={{ display: "table-cell", paddingRight: 5 }}>
                       {isLineHighlighted ? (
-                        <Tooltip title="Click to view lint error">
+                        <Tooltip
+                          title="Click to view lint error"
+                          placement="left"
+                        >
                           <IconButton
                             aria-label="view lint error for this line"
                             size="small"

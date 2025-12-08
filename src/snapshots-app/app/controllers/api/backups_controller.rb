@@ -27,6 +27,7 @@ class Api::BackupsController < ApplicationController
     # TODO error if student doesn't have any backups for this assignment and course
 
     assignment_file_names = AssignmentFile.where(assignment_id: assignment_id).map { |af| af.file_name }
+    assignment_problem_names = AssignmentProblem.where(assignment_id: assignment_id).map { |ap| ap.display_name }
     backup_metadata = BackupMetadatum.where(course: course.okpy_endpoint, assignment: assignment.okpy_endpoint, student_email: student.email).order(:created)
     backups = backup_metadata.filter_map do |backup|
       analytics = AnalyticsMessage.find(backup.backup_id)
@@ -57,6 +58,6 @@ class Api::BackupsController < ApplicationController
       }
     end
 
-    render json: { "course_id": course_id, "assignment_id": assignment_id, "user_id": user_id, "assignment_file_names": assignment_file_names, "backups": backups }, status: :ok
+    render json: { "course_id": course_id, "assignment_id": assignment_id, "user_id": user_id, "assignment_file_names": assignment_file_names, "assignment_problem_names": assignment_problem_names, "backups": backups }, status: :ok
   end
 end

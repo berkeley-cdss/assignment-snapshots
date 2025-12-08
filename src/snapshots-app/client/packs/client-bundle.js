@@ -38,5 +38,3 @@ ReactOnRails.register({
   Course,
   Assignment,
 });
-
-// TODO rename this file to client-bundle?

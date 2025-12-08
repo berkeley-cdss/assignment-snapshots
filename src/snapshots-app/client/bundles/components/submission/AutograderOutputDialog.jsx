@@ -11,9 +11,17 @@ function AutograderOutputDialog({
   autograderOutput,
   questionCliNames,
 }) {
-  const okpyCliQuestions = questionCliNames
-    .map((questionName) => `-q ${questionName}`)
-    .join(" ");
+  function getOkpyCommand() {
+    if (questionCliNames === null) {
+      return "python3 ok";
+    } else {
+      const okpyCliQuestions = questionCliNames
+        .map((questionName) => `-q ${questionName}`)
+        .join(" ");
+
+      return `python3 ok ${okpyCliQuestions}`;
+    }
+  }
 
   return (
     <Dialog
@@ -35,7 +43,7 @@ function AutograderOutputDialog({
             fontSize: "0.8rem",
           }}
         >
-          <div>$ python3 ok {okpyCliQuestions}</div>
+          <div>$ {getOkpyCommand()}</div>
           {autograderOutput}
         </Typography>
       </DialogContent>
