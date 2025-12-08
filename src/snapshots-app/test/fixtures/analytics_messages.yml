@@ -1,15 +1,40 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
+alice_ants_analytics_1:
   backup_id: abc123
   unlock: false
   question_cli_names:
+    - "00"
   question_display_names:
-  history: ""
+    - "Problem 0"
+  history:
+    - display_name: "Problem 0"
+      attempts: 1
+      solved: true
 
-two:
+alice_ants_analytics_2:
   backup_id: def456
   unlock: false
   question_cli_names:
+    - "01"
   question_display_names:
-  history: ""
+    - "Problem 1"
+  history:
+    - display_name: "Problem 0"
+      attempts: 1
+      solved: true
+    - display_name: "Problem 1"
+      attempts: 5
+      solved: false
+
+bob_maps_analytics_1:
+  backup_id: aaa111
+  unlock: true
+  question_cli_names:
+    - "00"
+  question_display_names:
+    - "Problem 0"
+  history:
+    - display_name: "Problem 0"
+      attempts: 2
+      solved: false

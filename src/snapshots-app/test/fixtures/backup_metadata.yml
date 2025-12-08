@@ -14,6 +14,7 @@ alice_ants_1:
   submitted: false
   file_contents_location: cal/cs61a/fa25/ants/abc123/abc123
   autograder_output_location: cal/cs61a/fa25/ants/abc123/abc123/autograder_output.txt
+  grading_location: cal/cs61a/fa25/ants/abc123/abc123/grading.json
 
 alice_ants_2:
   backup_id: def456
@@ -25,6 +26,7 @@ alice_ants_2:
   submitted: false
   file_contents_location: cal/cs61a/fa25/ants/abc123/def456
   autograder_output_location: cal/cs61a/fa25/ants/abc123/def456/autograder_output.txt
+  grading_location: cal/cs61a/fa25/ants/abc123/def456/grading.json
 
 bob_maps:
   backup_id: aaa111
@@ -34,5 +36,6 @@ bob_maps:
   student_email: b.dylan@berkeley.edu
   is_late: false
   submitted: false
-  file_contents_location: cal/cs61a/fa25/ants/def456/aaa111
-  autograder_output_location: cal/cs61a/fa25/ants/def456/aaa111/autograder_output.txt
+  file_contents_location: cal/cs88/fa25/maps/def456/aaa111
+  autograder_output_location: cal/cs88/fa25/maps/def456/aaa111/autograder_output.txt
+  unlock_location: cal/cs88/fa25/maps/def456/aaa111/unlock.json
