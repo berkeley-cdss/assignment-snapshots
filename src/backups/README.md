@@ -8,6 +8,9 @@
 4. Create a `.env` file (follow the `.env-template`):
     - Update the `.env` file with your [OkPy access token](https://okpy.github.io/documentation/ok-api.html#ok-server-api-authentication). You must have staff permissions for the course you want to query and you must periodically re-request your token.
 
+> [!NOTE]
+> In VS Code, you may need to [select your Python interpreter manually](https://github.com/astral-sh/uv/issues/8706#issuecomment-3070696514) to get language features in your editor.
+
 ## Commands
 
 ```sh
