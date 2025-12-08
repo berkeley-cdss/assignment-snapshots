@@ -30,22 +30,22 @@ user = {
 }
 
 courses = [
-  # {
-  #   dept: "DATA",
-  #   code: "C88C",
-  #   name: "Computational Structures in Data Science",
-  #   term: 1, # spring
-  #   year: 2025,
-  #   okpy_endpoint: "cal/cs88/sp25"
-  # }
   {
-    dept: "CS",
-    code: "61A",
-    name: "Structure and Interpretation of Computer Programs",
+    dept: "DATA",
+    code: "C88C",
+    name: "Computational Structures in Data Science",
     term: 3, # fall
     year: 2025,
-    okpy_endpoint: "cal/cs61a/fa25"
+    okpy_endpoint: "cal/cs88/fa25"
   }
+  # {
+  #   dept: "CS",
+  #   code: "61A",
+  #   name: "Structure and Interpretation of Computer Programs",
+  #   term: 3, # fall
+  #   year: 2025,
+  #   okpy_endpoint: "cal/cs61a/fa25"
+  # }
 ]
 
 assignments = [
@@ -80,9 +80,35 @@ assignments = [
   #           ]
   #   # course: data c88c
   # }
+
+  # CS 61A ants
+  # {
+  #   name: "Ants",
+  #   due_date: "2025-10-23 23:59:00",
+  #   okpy_endpoint: "ants",
+  #   files: [ "ants.py" ],
+  #   problems: [
+  #               "Problem 1",
+  #               "Problem 2",
+  #               "Problem 3",
+  #               "Problem 4",
+  #               "Problem 5",
+  #               "Problem 6",
+  #               "Problem 7",
+  #               "Problem 8a",
+  #               "Problem 8b",
+  #               "Problem 8c",
+  #               "Problem 9",
+  #               "Problem 10",
+  #               "Problem 11",
+  #               "Problem 12"
+  #           ]
+  # }
+
+  # DATA C88C ants
   {
     name: "Ants",
-    due_date: "2025-10-23 23:59:00",
+    due_date: "2025-11-25 23:59:00",
     okpy_endpoint: "ants",
     files: [ "ants.py" ],
     problems: [
@@ -101,26 +127,27 @@ assignments = [
                 "Problem 11",
                 "Problem 12"
             ]
-    # course: cs 61a
   }
 ]
 
-cs61a_hashes = [
-  "58a8a808",
-  "c71d6456",
-  "efb1a47d",
-  "ceb1d039",
-  "914da4aa",
-  "2bd5306a",
-  "ff8a7b8d",
-  "ab96e782",
-  "a29adbd5",
-  "537ab9c4",
-  "9c092a35",
-  "90cfed97",
-  "620ee0eb",
-  "483b88d6"
-]
+# cs61a_hashes = [
+#   "58a8a808",
+#   "c71d6456",
+#   "efb1a47d",
+#   "ceb1d039",
+#   "914da4aa",
+#   "2bd5306a",
+#   "ff8a7b8d",
+#   "ab96e782",
+#   "a29adbd5",
+#   "537ab9c4",
+#   "9c092a35",
+#   "90cfed97",
+#   "620ee0eb",
+#   "483b88d6"
+# ]
+c88c_hashes = ['7dcfb139', 'cf7b9cab', '88e94290']
+student_email_hashes = c88c_hashes
 
 # TODO figure out email vs email_hash
 students = [
@@ -157,7 +184,7 @@ def create_fake_student(hash)
   }
 end
 
-cs61a_hashes.each do |hash|
+student_email_hashes.each do |hash|
   students << create_fake_student(hash)
 end
 
