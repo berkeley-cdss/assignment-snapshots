@@ -24,6 +24,15 @@ python3 main.py request
 # Given the .json dump, store the file contents of the backups
 # locally and also write the backup metadata to a sqlite database
 python3 main.py store
+
+# Compute lint_errors table given .json output of running
+# ruff linter on backup files
+python3 main.py lint
+
+# Compute num_lines table given that backup files
+# have been stored already. This table stores the number of lines
+# for each file in each backup
+python3 main.py backup-file-metadata
 ```
 
 Run `--help` with any of the commands for more information.
@@ -35,22 +44,34 @@ CLI arguments will override anything in the config.
 
 ## Dumping database from OkPy Backups CLI into Rails database
 
+1. Run backups CLI command to update `$OUTPUT_DB_NAME.db`
+2. Create .sql dump of output db (run command below)
+3. Update .sql dump:
+    1. Remove `../../data/private/` prefix from paths
+    2. Remove/comment out `CREATE TABLE` statements since that will interfere with the Rails db migrations
+4. Optional if not done already: Create corresponding Rails model(s) as needed
+5. Run `rails db:migrate:reset`. **DANGER THIS WILL RESET (e.g. delete everything) AND RE-MIGRATE THE RAILS DB.**
+6. Run command below to execute commands from output .sql dump into Rails development.sqlite3 db
+7. Run `rails db:seed` to seed db with "hardcoded" seed data
+
+<!-- TODO documentation for ruff and lint commands -->
+
 1. Create a `.sql` file dump of the OkPy Backups database (after you have run the `request` and `store` commands):
 ```sh
 # Replace $OUTPUT_DB_NAME and $OUTPUT_DUMP_NAME with values of your choice
 sqlite3 data/private/$OUTPUT_DB_NAME.db .dump > data/private/$OUTPUT_DUMP_NAME.sql
 ```
-2. Add the dump data into your Rails (development) database:
+1. Add the dump data into your Rails (development) database:
 ```sh
 # Replace $OUTPUT_DUMP_NAME with value from step 1
 sqlite3 src/snapshots-app/storage/development.sqlite3 < data/private/$OUTPUT_DUMP_NAME.sql
 ```
-3. Generate models for the tables:
+1. Generate models for the tables:
 ```sh
 rails generate model BackupMetadatum
 rails generate model OkpyMessage
 ```
-4. Verify that your data has been loaded properly:
+1. Verify that your data has been loaded properly:
 ```
 # Open the rails console
 $ rails c
