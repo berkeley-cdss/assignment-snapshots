@@ -1,11 +1,7 @@
 .venv/
 .env
 
-request-output.txt
-store-output.txt
-
-# Sensitive data
-data/private/
-
 __pycache__/
 *.pyc
+
+.ruff_cache/
