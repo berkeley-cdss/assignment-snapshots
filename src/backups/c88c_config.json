@@ -18,7 +18,7 @@
         "in_roster": "",
         "out_roster": "../../data/private/c88c_fa25_emails.txt",
         "dump": "../../data/private/c88c_fa25_output.json",
-        "database": "../../data/private/c88c_fa25_db.db",
+        "database": "../../data/private/c88c_fa25.db",
         "lint_json": "../../data/private/c88c_fa25_lint_errors.json"
     },
     "deidentify": true

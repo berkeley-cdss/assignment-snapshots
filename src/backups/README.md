@@ -60,6 +60,7 @@ CLI arguments will override anything in the config.
 1. Run backups CLI command(s) to create or update `$OUTPUT_DB_NAME.db`
 2. Create `.sql` dump of output `.db` file. Replace `$OUTPUT_DB_NAME` and `$OUTPUT_DUMP_NAME` with values of your choice:
 ```sh
+cd $REPO_ROOT
 sqlite3 data/private/$OUTPUT_DB_NAME.db .dump > data/private/$OUTPUT_DUMP_NAME.sql
 ```
 3. Update `.sql` dump:
@@ -68,9 +69,10 @@ sqlite3 data/private/$OUTPUT_DB_NAME.db .dump > data/private/$OUTPUT_DUMP_NAME.s
 4. Optional if not done already: [Generate corresponding Rails model(s)](https://guides.rubyonrails.org/command_line.html#generating-models) as needed, e.g. `rails generate model <model_name> <column_name:data_type> ...`
 > [!CAUTION]
 > THE FOLLOWING STEP WILL RESET (e.g. delete everything) AND RE-MIGRATE THE RAILS DB. BE CAREFUL!
-5. Run `rails db:migrate:reset`.
+5. Run `cd src/snapshots-app` and `rails db:migrate:reset`.
 6. Run command below to execute commands from output `.sql` dump into the Rails app `development.sqlite3` database. Replace `$OUTPUT_DUMP_NAME` with the same value from steps 1 and 2:
 ```sh
+cd $REPO_ROOT
 sqlite3 src/snapshots-app/storage/development.sqlite3 < data/private/$OUTPUT_DUMP_NAME.sql
 ```
 7. Run `rails db:seed` to seed the Rails database with "hardcoded" seed data

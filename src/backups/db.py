@@ -69,6 +69,7 @@ INSERT INTO okpy_messages VALUES
 # NOTE: UNIQUE (file_contents_location, line_number, message, code) fails if column location different
 CREATE_LINT_ERRORS_TABLE_CMD = """
 CREATE TABLE lint_errors (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
 	file_contents_location TEXT NOT NULL,
 	line_number INTEGER NOT NULL,
 	message TEXT NOT NULL,
@@ -137,8 +138,9 @@ CREATE TABLE unlock_message_cases (
 );
 """
 
+# NOTE: Have to explicitly list columns since id is autoincremented
 INSERT_LINT_ERROR_CMD = """
-INSERT INTO lint_errors VALUES (
+INSERT INTO lint_errors (file_contents_location, line_number, message, code, url) VALUES (
     :file_contents_location,
     :line_number,
     :message,
