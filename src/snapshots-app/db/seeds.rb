@@ -146,7 +146,7 @@ assignments = [
 #   "620ee0eb",
 #   "483b88d6"
 # ]
-c88c_hashes = ['7dcfb139', 'cf7b9cab', '88e94290']
+c88c_hashes = [ '7dcfb139', 'cf7b9cab', '88e94290' ]
 student_email_hashes = c88c_hashes
 
 # TODO figure out email vs email_hash
