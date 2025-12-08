@@ -99,7 +99,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_18_234456) do
     t.integer "failed", null: false
   end
 
-  create_table "lint_errors", id: false, force: :cascade do |t|
+  create_table "lint_errors", force: :cascade do |t|
     t.string "file_contents_location", null: false
     t.integer "line_number", null: false
     t.string "message", null: false

@@ -39,16 +39,16 @@ To quit the server press `Ctrl + C`. You may need to do this twice (not sure why
 
 ```sh
 # Run tests
-bin/rake
+rake
 
 # Run brakeman (scan for common Rails vulnerabilities)
-bin/brakeman
+brakeman
 
 # Run Ruby linter and autocorrect violations
 rubocop --autocorrect
 
 # Run Prettier (formats HTML/CSS/JS files) and autocorrect violations
-prettier . --write
+npx prettier client/ --write
 ```
 
 ## Directory Structure

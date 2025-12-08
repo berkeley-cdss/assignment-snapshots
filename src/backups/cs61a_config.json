@@ -1,0 +1,25 @@
+{
+    "okpy_api": {
+        "course_endpoint": "cal/cs61a/fa25",
+        "limit": 150,
+        "offset": 0
+    },
+    "course": {
+        "lab_start": 5,
+        "lab_end": 0,
+        "hw_start": 5,
+        "hw_end": 0,
+        "projects": ["ants"],
+        "assignment_files": {
+            "ants": ["ants.py"]
+        }
+    },
+    "data": {
+        "in_roster": "",
+        "out_roster": "../../data/private/cs61a_emails.txt",
+        "dump": "../../data/private/cs61a_output.json",
+        "database": "../../data/private/cs61a_db.db",
+        "lint_json": "../../data/private/cs61a_lint.json"
+    },
+    "deidentify": true
+}
