@@ -36,6 +36,6 @@ bob_maps:
   student_email: b.dylan@berkeley.edu
   is_late: false
   submitted: false
-  file_contents_location: cal/cs61a/fa25/ants/def456/aaa111
-  autograder_output_location: cal/cs61a/fa25/ants/def456/aaa111/autograder_output.txt
-  unlock_location: cal/cs61a/fa25/ants/def456/aaa111/unlock.json
+  file_contents_location: cal/cs88/fa25/maps/def456/aaa111
+  autograder_output_location: cal/cs88/fa25/maps/def456/aaa111/autograder_output.txt
+  unlock_location: cal/cs88/fa25/maps/def456/aaa111/unlock.json

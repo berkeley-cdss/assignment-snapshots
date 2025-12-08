@@ -11,16 +11,16 @@ alice_ants_metadata_2:
   num_lines: 350
 
 bob_maps_utils_metadata:
-  file_contents_location: cal/cs61a/fa25/ants/def456/aaa111
+  file_contents_location: cal/cs88/fa25/maps/def456/aaa111
   file_name: utils.py
   num_lines: 50
 
 bob_maps_abstractions_metadata:
-  file_contents_location: cal/cs61a/fa25/ants/def456/aaa111
+  file_contents_location: cal/cs88/fa25/maps/def456/aaa111
   file_name: abstractions.py
   num_lines: 90
 
 bob_maps_recommend_metadata:
-  file_contents_location: cal/cs61a/fa25/ants/def456/aaa111
+  file_contents_location: cal/cs88/fa25/maps/def456/aaa111
   file_name: recommend.py
   num_lines: 250
