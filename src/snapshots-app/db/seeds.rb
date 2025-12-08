@@ -99,10 +99,10 @@ assignments = [
                 "Problem 9",
                 "Problem 10",
                 "Problem 11",
-                "Problem 12",
+                "Problem 12"
             ]
     # course: cs 61a
-  },
+  }
 ]
 
 cs61a_hashes = [
@@ -119,7 +119,7 @@ cs61a_hashes = [
   "9c092a35",
   "90cfed97",
   "620ee0eb",
-  "483b88d6",
+  "483b88d6"
 ]
 
 # TODO figure out email vs email_hash
