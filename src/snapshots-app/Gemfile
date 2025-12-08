@@ -67,3 +67,7 @@ gem "shakapacker", "= 8.3"
 gem "aws-sdk-s3"
 
 gem "faker"
+
+# NOTE: Need this gem because of this issue:
+# https://stackoverflow.com/questions/79790531/how-to-handle-seahorseclientnetworkingerror-with-certificate-verify-failed-e
+gem "openssl", "3.3.1"
