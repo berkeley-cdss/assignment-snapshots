@@ -4,12 +4,25 @@ one:
   backup_id: abc123
   unlock: false
   question_cli_names:
+    - "01"
   question_display_names:
-  history: ""
+    - "Problem 1"
+  history:
+    - display_name: "Problem 0"
+      attempts: 1
+      solved: true
+    - display_name: "Problem 1"
+      attempts: 5
+      solved: false
 
 two:
   backup_id: def456
-  unlock: false
+  unlock: true
   question_cli_names:
+    - "00"
   question_display_names:
-  history: ""
+    - "Problem 0"
+  history:
+    - display_name: "Problem 0"
+      attempts: 1
+      solved: false
