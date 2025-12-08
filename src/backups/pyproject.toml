@@ -1,0 +1,10 @@
+[project]
+name = "okpy-backups"
+version = "0.1.0"
+requires-python = ">=3.11.5"
+dependencies = [
+    "python-dotenv>=1.2.1",
+    "requests>=2.32.5",
+    "ruff>=0.14.8",
+    "typer>=0.20.0",
+]

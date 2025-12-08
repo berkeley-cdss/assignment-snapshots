@@ -9,7 +9,8 @@ and probably works for other recent versions of Python as well.
 To run the script, run python3 main.py
 """
 
-from dotenv import dotenv_values
+from dotenv import load_dotenv
+import os
 import json
 import shutil
 from time import time
@@ -172,7 +173,7 @@ def request(
     assert dump.endswith(".json"), "dump must be the path to a .json file"
 
     # make HTTP requests to okpy server to get backups for everyone and all assignments
-    env_vars = dotenv_values("../../.env")
+    load_dotenv()
 
     if timeit:
         start = time()
@@ -180,7 +181,7 @@ def request(
     email_to_responses = get_backups_for_all_users_all_assignments(
         emails,
         course_endpoint,
-        env_vars["OKPY_TOKEN"],
+        os.environ["OKPY_TOKEN"],
         lab_start,
         lab_end,
         hw_start,
