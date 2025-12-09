@@ -6,7 +6,7 @@ function Footer() {
   return (
     <div
       style={{
-        position: "fixed",
+        // position: "fixed",
         bottom: 0,
         width: "100%",
         color: "#808080",
