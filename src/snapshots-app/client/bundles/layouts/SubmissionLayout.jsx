@@ -34,12 +34,14 @@ const LeftSidebar = styled("aside")(({ theme }) => ({
   borderRight: `1px solid ${theme.palette.divider}`,
   padding: theme.spacing(2),
   minWidth: 0,
+  overflowY: "auto",
 }));
 
 const MainContent = styled("main")(({ theme }) => ({
   flex: "5 0 0",
   padding: theme.spacing(2),
   minWidth: 0,
+  overflowY: "auto",
 }));
 
 const RightSidebar = styled("aside")(({ theme }) => ({
@@ -47,11 +49,13 @@ const RightSidebar = styled("aside")(({ theme }) => ({
   borderLeft: `1px solid ${theme.palette.divider}`,
   padding: theme.spacing(2),
   minWidth: 0,
+  overflowY: "auto",
 }));
 
 const ContentWrapper = styled(Box)({
   display: "flex",
   flexGrow: 1,
+  maxHeight: "100vh",
 });
 
 function SubmissionLayout() {
@@ -99,7 +103,7 @@ function SubmissionLayout() {
         return response.json();
       })
       .then((responseData) => {
-        setBackups(responseData.backups);
+        setBackups(responseData.backups.toReversed());
         setSelectedBackup(0);
         setFiles(responseData.assignment_file_names);
         setFile(responseData.assignment_file_names[0]);
@@ -449,6 +453,11 @@ function SubmissionLayout() {
                     >
                       <DifferenceIcon />
                     </IconButton>
+
+                    {selectedBackup === 0 ||
+                        code === "" ||
+                        prevFileContents === "" ||
+                        prevFileContents === code ? "No diff available" : "Diff available"}
                   </Tooltip>
                 )}
 

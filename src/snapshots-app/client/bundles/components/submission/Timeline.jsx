@@ -9,6 +9,12 @@ import { Tooltip } from "@mui/material";
 import InfoTooltip from "../common/InfoTooltip";
 
 function TimelineButton({ backup, selected, index, handleBackupSelect }) {
+  function getQuestionsWorkedOn() {
+    return backup.question_display_names.join(" ");
+
+
+  }
+
   function getNumPassedTests() {
     if (backup.unlock) {
       return backup.unlock_message_cases
@@ -44,21 +50,23 @@ function TimelineButton({ backup, selected, index, handleBackupSelect }) {
   }
 
   function getTooltipTitle() {
+    const questions = getQuestionsWorkedOn();
+
     if (backup.unlock) {
       if (numFailedTests === 0) {
         if (numPassedTests > 0) {
-          return `All ${numPassedTests} unlocking tests passed`;
+          return `Worked on: ${questions}. All ${numPassedTests} unlocking tests passed`;
         } else {
-          return `Ran unlocking command but no test data`;
+          return `Ran unlocking command for ${questions} but there was no test data`;
         }
       } else {
-        return `${numPassedTests} unlocking tests passed, ${numFailedTests} unlocking tests failed`;
+        return `Worked on: ${questions}. ${numPassedTests} unlocking tests passed, ${numFailedTests} unlocking tests failed`;
       }
     } else {
       if (numFailedTests === 0 && numLockedTests === 0) {
-        return `All ${numPassedTests} coding tests passed`;
+        return `Worked on: ${questions}. All ${numPassedTests} coding tests passed`;
       } else {
-        return `${numPassedTests} coding tests passed, ${numFailedTests} coding tests failed, ${numLockedTests} coding tests locked`;
+        return `Worked on: ${questions}. ${numPassedTests} coding tests passed, ${numFailedTests} coding tests failed, ${numLockedTests} coding tests locked`;
       }
     }
   }
