@@ -11,7 +11,7 @@ class Api::FilesControllerTest < ActionDispatch::IntegrationTest
 
   test "should respond with 404 Not Found if file name unknown" do
     object_key = "unknown/path/to/file.txt"
-    dummy_s3_context = OpenStruct.new(params: { key: object_key })
+    dummy_s3_context = OpenStruct.new(params: { key: object_key, use_aws: true })
 
     # Mock AWS S3 client
     Aws::S3::Client.any_instance
@@ -19,7 +19,7 @@ class Api::FilesControllerTest < ActionDispatch::IntegrationTest
       .with(bucket: S3_BUCKET_NAME, key: object_key)
       .raises(Aws::S3::Errors::NoSuchKey.new(dummy_s3_context, "The specified key does not exist."))
 
-    get "/api/files", params: { object_key: object_key }
+    get "/api/files", params: { object_key: object_key, use_aws: true }
     assert_response :missing
   end
 
@@ -33,7 +33,7 @@ class Api::FilesControllerTest < ActionDispatch::IntegrationTest
         .with(bucket: S3_BUCKET_NAME, key: object_key)
         .returns(OpenStruct.new(body: StringIO.new(file_contents[i])))
 
-      get "/api/files", params: { object_key: object_key }
+      get "/api/files", params: { object_key: object_key, use_aws: true }
 
       assert_response :success
       assert_equal(@response.parsed_body["file_contents"], file_contents[i])
