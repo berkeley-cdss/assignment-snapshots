@@ -1,7 +1,5 @@
 require "aws-sdk-s3"
 
-# TODO: update tests
-
 S3_BUCKET_NAME = "ucb-assignment-snapshots-eae254943a2c4f51bef67654e99560dd"
 S3_BUCKET_REGION = "us-west-2"
 
