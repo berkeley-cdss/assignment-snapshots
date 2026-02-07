@@ -18,13 +18,39 @@ class Api::FilesController < ApplicationController
       return
     end
 
-    cache_key = "s3_file:#{object_key}"
-    cached_response = Rails.cache.fetch(cache_key, expires_in: CACHE_TTL) do
-      Rails.logger.info("Cache MISS for cache_key #{cache_key}. Fetching from S3...")
-      fetch_file_from_s3(object_key)
+    use_aws = params[:use_aws]
+
+    if !use_aws.present?
+      Rails.logger.info("No use_aws parameter provided, defaulting to false")
+      use_aws = false
+    elsif use_aws == "true"
+      Rails.logger.info("use_aws parameter was 'true', using AWS to fetch file")
+      use_aws = true
+    elsif use_aws == "false"
+      Rails.logger.info("use_aws parameter was 'false', using local file")
+      use_aws = false
+    else
+      error = "Invalid value for optional use_aws parameter: #{use_aws}. Expected 'true' or 'false'."
+      Rails.logger.error(error)
+      render json: { "error": error }, status: :bad_request
+      return
     end
 
-    render cached_response
+    if use_aws
+      cache_key = "s3_file:#{object_key}"
+      cached_response = Rails.cache.fetch(cache_key, expires_in: CACHE_TTL) do
+        Rails.logger.info("Cache MISS for cache_key #{cache_key}. Fetching from S3...")
+        fetch_file_from_s3(object_key)
+      end
+      render cached_response
+    else
+      cache_key = "local_file:#{object_key}"
+      cached_response = Rails.cache.fetch(cache_key, expires_in: CACHE_TTL) do
+        Rails.logger.info("Cache MISS for cache_key #{cache_key}. Fetching from local file system...")
+        fetch_file_from_local(object_key)
+      end
+      render cached_response
+    end
   end
 
   private
@@ -60,6 +86,18 @@ class Api::FilesController < ApplicationController
     else
       Rails.logger.error(error)
       { json: { "error": error }, status: status }
+    end
+  end
+
+  def fetch_file_from_local(object_key)
+    file_path = Rails.root.join("../../data/private/#{object_key}")
+    if File.exist?(file_path)
+      file_contents = File.read(file_path)
+      { json: { "object_key": object_key, "file_contents": file_contents }, status: :ok }
+    else
+      error = "File not found at path: #{file_path}"
+      Rails.logger.error(error)
+      { json: { "error": error }, status: :not_found }
     end
   end
 end
