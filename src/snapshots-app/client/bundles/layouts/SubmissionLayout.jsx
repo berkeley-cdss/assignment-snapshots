@@ -405,7 +405,16 @@ function SubmissionLayout() {
           {/* TODO make width more responsive */}
           <MainContent>
             {/* Main Content Area */}
-            <div style={{ marginBottom: "1rem" }}>
+            <div
+            style={{
+              position: "sticky",
+              top: -20,
+              zIndex: 10,
+              background: "white",
+              paddingBottom: "1rem",
+              marginBottom: "1rem",
+            }}
+>
               <div style={{ fontSize: "1.5rem" }}>
                 File Viewer{" "}
                 <InfoTooltip info={FILE_VIEWER_TOOLTIP_INFO} placement="top" />
