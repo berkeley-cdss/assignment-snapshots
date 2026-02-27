@@ -79,6 +79,18 @@ Visit [http://localhost:3000](http://localhost:3000) and see your React On Rails
 
 To quit the server press `Ctrl + C`. **You may need to do this twice (not sure why)**.
 
+> [!WARNING]
+> If you ran the server, quit it, ran it again, and then you get this error message:
+> ```
+> overmind: It looks like Overmind is already running. If it's not, remove ./.overmind.sock and try again.`
+> ```
+> The fix is to do what it says and remove the `.overmind.sock` file, e.g. run this in your terminal:
+> ```
+> rm .overmind.sock
+> ```
+> Alternatively, see [this comment](https://github.com/DarthSim/overmind/issues/186#issuecomment-2992177408)
+> for a workaround. See also [assignment-snapshots#67](https://github.com/berkeley-cdss/assignment-snapshots/issues/67).
+
 ## Common Development Commands
 
 ```sh
@@ -91,7 +103,7 @@ brakeman
 # Run Ruby linter and autocorrect violations
 rubocop --autocorrect
 
-# Run Prettier (formats HTML/CSS/JS files) and autocorrect violations
+# Run Prettier (formats HTML/CSS/JS files in the client directory) and autocorrect violations
 npx prettier client/ --write
 ```
 
