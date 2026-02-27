@@ -413,6 +413,8 @@ function SubmissionLayout() {
               background: "white",
               paddingBottom: "1rem",
               marginBottom: "1rem",
+              paddingLeft: "1rem",
+              paddingRight: "1rem",
             }}
 >
               <div style={{ fontSize: "1.5rem" }}>
