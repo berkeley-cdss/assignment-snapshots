@@ -28,7 +28,15 @@ function FileViewer({ code, language, lightMode, lintErrors }) {
 
   return (
     <div>
-      <div style={{ paddingBottom: '1rem' }}>There are {lintErrors.length} lint errors in this file.</div>
+      <div
+        style={{
+          paddingBottom: "1rem",
+          paddingRight: "1rem",
+          paddingLeft: "1rem",
+        }}
+      >
+        There are {lintErrors.length} lint errors in this file.
+      </div>
       <Paper elevation={3} sx={{ padding: 2 }}>
         <Typography
           variant="body2"

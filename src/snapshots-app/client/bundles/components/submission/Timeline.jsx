@@ -11,8 +11,6 @@ import InfoTooltip from "../common/InfoTooltip";
 function TimelineButton({ backup, selected, index, handleBackupSelect }) {
   function getQuestionsWorkedOn() {
     return backup.question_display_names.join(" ");
-
-
   }
 
   function getNumPassedTests() {
