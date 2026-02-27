@@ -46,7 +46,15 @@ function UnlockingTestCase({
         )}
       </div>
 
-      <div style={{ fontWeight: "bold", fontFamily: "Menlo", whiteSpace: "pre-wrap" }}>{prompt}</div>
+      <div
+        style={{
+          fontWeight: "bold",
+          fontFamily: "Menlo",
+          whiteSpace: "pre-wrap",
+        }}
+      >
+        {prompt}
+      </div>
 
       <div style={{ fontFamily: "Menlo" }}>
         {studentAnswer.map((answer) => (

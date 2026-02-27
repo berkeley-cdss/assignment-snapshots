@@ -406,17 +406,17 @@ function SubmissionLayout() {
           <MainContent>
             {/* Main Content Area */}
             <div
-            style={{
-              position: "sticky",
-              top: -20,
-              zIndex: 10,
-              background: "white",
-              paddingBottom: "1rem",
-              marginBottom: "1rem",
-              paddingLeft: "1rem",
-              paddingRight: "1rem",
-            }}
->
+              style={{
+                position: "sticky",
+                top: -20,
+                zIndex: 10,
+                background: "white",
+                paddingBottom: "1rem",
+                marginBottom: "1rem",
+                paddingLeft: "1rem",
+                paddingRight: "1rem",
+              }}
+            >
               <div style={{ fontSize: "1.5rem" }}>
                 File Viewer{" "}
                 <InfoTooltip info={FILE_VIEWER_TOOLTIP_INFO} placement="top" />
@@ -466,9 +466,11 @@ function SubmissionLayout() {
                     </IconButton>
 
                     {selectedBackup === 0 ||
-                        code === "" ||
-                        prevFileContents === "" ||
-                        prevFileContents === code ? "No diff available" : "Diff available"}
+                    code === "" ||
+                    prevFileContents === "" ||
+                    prevFileContents === code
+                      ? "No diff available"
+                      : "Diff available"}
                   </Tooltip>
                 )}
 
