@@ -5,11 +5,11 @@
 1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/)
 2. `cd` into this directory (`src/backups`)
 3. Run `uv sync` to install dependencies and create the virtual environment (`.venv/`)
-4. Create a `.env` file (follow the `.env-template`):
+4. **Optional**, only if you wish to run the `request` command to request OkPy backups: Create** a `.env` file (follow the `.env-template`):
     - Update the `.env` file with your [OkPy access token](https://okpy.github.io/documentation/ok-api.html#ok-server-api-authentication). You must have staff permissions for the course you want to query and you must periodically re-request your token.
 
 > [!NOTE]
-> In VS Code, you may need to [select your Python interpreter manually](https://github.com/astral-sh/uv/issues/8706#issuecomment-3070696514) to get language features in your editor.
+> In VS Code, you may need to [select your Python interpreter manually](https://github.com/astral-sh/uv/issues/8706#issuecomment-3070696514) to get language features in your editor. Alternatively, open the [`src/backups`](.) directory in its own VS Code window so that VS Code can detect the correct environment (`.venv`).
 
 ## Commands
 
@@ -53,30 +53,37 @@ Run `--help` with any of the commands for more information.
 Create a configuration file to save yourself the effort of typing a bunch of CLI arguments.
 An example can be found in [src/backups/backup_config.json](src/backups/backup_config.json).
 All fields are required (e.g. they must either be provided in the config or via the CLI).
-CLI arguments will override anything in the config.
+If you provide both a config and CLI arguments, the CLI arguments will override anything in the config.
 
 ## Dumping database from OkPy Backups CLI into Rails database
 
-1. Run backups CLI command(s) to create or update `$OUTPUT_DB_NAME.db`
-2. Create `.sql` dump of output `.db` file. Replace `$OUTPUT_DB_NAME` and `$OUTPUT_DUMP_NAME` with values of your choice:
+1. **Optional if not done already:** Run backups CLI command(s) in this directory to create or update `$OUTPUT_DB_NAME.db`. If you are an internal contributor working with the toy data from `data.zip`, skip this step.
+2. Create `.sql` dump of output `.db` file. Replace `$OUTPUT_DB_NAME` and `$OUTPUT_DUMP_NAME` with values of your choice **in the root directory** of the repository:
 ```sh
-cd $REPO_ROOT
 sqlite3 data/private/$OUTPUT_DB_NAME.db .dump > data/private/$OUTPUT_DUMP_NAME.sql
 ```
-3. Update `.sql` dump:
-    1. Remove `../../data/private/` prefix from paths
-    2. Remove/comment out `CREATE TABLE` statements since that will interfere with the Rails database migrations
-4. Optional if not done already: [Generate corresponding Rails model(s)](https://guides.rubyonrails.org/command_line.html#generating-models) as needed, e.g. `rails generate model <model_name> <column_name:data_type> ...`
+3. Update `data/private/$OUTPUT_DUMP_NAME.sql`:
+    1. Remove `../../data/private/` prefix from paths. **IMPORTANT:** Make sure you are removing the trailing `/`.
+    2. Remove/comment out `CREATE TABLE` statements since that will interfere with the Rails database migrations (Rails will already handle table creation on its own end, so if you have a duplicate `CREATE TABLE` statement Rails will error).
+4. **Optional if not done already:** [Generate corresponding Rails model(s)](https://guides.rubyonrails.org/command_line.html#generating-models) **in the `src/snapshots-app` directory** by running the following command. If you are an internal contributor working with the toy data from `data.zip`, skip this step.
+```sh
+rails generate model <model_name> <column_name:data_type> ...
+```
 > [!CAUTION]
 > THE FOLLOWING STEP WILL RESET (e.g. delete everything) AND RE-MIGRATE THE RAILS DB. BE CAREFUL!
-5. Run `cd src/snapshots-app` and `rails db:migrate:reset`.
-6. Run command below to execute commands from output `.sql` dump into the Rails app `development.sqlite3` database. Replace `$OUTPUT_DUMP_NAME` with the same value from steps 1 and 2:
+5. Run the following command **in the `src/snapshots-app` directory**:
 ```sh
-cd $REPO_ROOT
+rails db:migrate:reset
+```
+6. Run the following command **in the root directory** of the repository to execute commands from output `.sql` dump into the Rails app `development.sqlite3` database. Replace `$OUTPUT_DUMP_NAME` with the same value from steps 1 and 2:
+```sh
 sqlite3 src/snapshots-app/storage/development.sqlite3 < data/private/$OUTPUT_DUMP_NAME.sql
 ```
-7. Run `rails db:seed` to seed the Rails database with "hardcoded" seed data
-8. Verify that your data has been loaded properly in the rails console by using [the `ActiveRecord` query interface](https://guides.rubyonrails.org/active_record_querying.html#retrieving-objects-from-the-database) for example:
+7. Run the following command **in the `src/snapshots-app` directory** to seed the Rails database with hardcoded initial data:
+```sh
+rails db:seed
+```
+8. Verify that your data has been loaded properly in the Rails console by using [the `ActiveRecord` query interface](https://guides.rubyonrails.org/active_record_querying.html#retrieving-objects-from-the-database). For example, run the following commands **in the `src/snapshots-app` directory**:
 ```sh
 $ rails c
 snapshots-app(dev)> BackupMetadatum.all # view data and check it looks correct, press q to exit long list
