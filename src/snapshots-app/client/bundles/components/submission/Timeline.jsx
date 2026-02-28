@@ -11,8 +11,6 @@ import InfoTooltip from "../common/InfoTooltip";
 function TimelineButton({ backup, selected, index, handleBackupSelect }) {
   function getQuestionsWorkedOn() {
     return backup.question_display_names.join(" ");
-
-
   }
 
   function getNumPassedTests() {
@@ -113,6 +111,18 @@ function TimelineButton({ backup, selected, index, handleBackupSelect }) {
 function Timeline({ backups, selectedBackup, handleBackupSelect }) {
   const TIMELINE_TOOLTIP_INFO =
     "A timeline of this student's OkPy backups. A backup is formed every time they run unlocking or coding tests for a particular question.";
+
+  const prevArrow = () => {
+    if (selectedBackup > 0) {
+      handleBackupSelect(selectedBackup - 1);
+    }
+  };
+
+  const nextArrow = () => {
+    if (selectedBackup < backups.length - 1) {
+      handleBackupSelect(selectedBackup + 1);
+    }
+  };
 
   return (
     <div>
