@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
@@ -111,6 +111,34 @@ function TimelineButton({ backup, selected, index, handleBackupSelect }) {
 function Timeline({ backups, selectedBackup, handleBackupSelect }) {
   const TIMELINE_TOOLTIP_INFO =
     "A timeline of this student's OkPy backups. A backup is formed every time they run unlocking or coding tests for a particular question.";
+
+  const prevArrow = () => {
+    if (selectedBackup > 0) {
+      handleBackupSelect(selectedBackup - 1);
+    }
+  };
+
+  const nextArrow = () => {
+    if (selectedBackup < backups.length - 1) {
+      handleBackupSelect(selectedBackup + 1);
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "ArrowLeft") {
+        prevArrow();
+      } else if (event.key === "ArrowRight") {
+        nextArrow();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [selectedBackup, backups]);
 
   return (
     <div>
