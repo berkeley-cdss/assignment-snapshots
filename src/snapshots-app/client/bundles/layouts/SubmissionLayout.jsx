@@ -239,7 +239,6 @@ function SubmissionLayout() {
       })
       .then((responseData) => {
         setPrevFileContents(responseData.file_contents);
-        console.log("prev file contents set", responseData.file_contents);
       });
   }, [backups, selectedBackup, file]);
 
