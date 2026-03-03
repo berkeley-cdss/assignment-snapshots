@@ -8,6 +8,8 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import Tooltip from "@mui/material/Tooltip";
 import Divider from "@mui/material/Divider";
 
+import { getOkpyCommand } from "./utils";
+
 function UnlockingTestCase({
   testCaseId,
   prompt,
@@ -77,10 +79,6 @@ function UnlockingTestOutputDialog({
   unlockingTestCases,
   questionCliNames,
 }) {
-  const okpyCliQuestions = questionCliNames
-    .map((questionName) => `-q ${questionName} -u`)
-    .join(" ");
-
   return (
     <Dialog
       open={open}
@@ -96,7 +94,7 @@ function UnlockingTestOutputDialog({
           <em>In chronological order of completion</em>
         </div>
         <div style={{ fontFamily: "Menlo", paddingBottom: "1rem" }}>
-          {`$ python3 ok ${okpyCliQuestions}`}
+          {`$ ${getOkpyCommand(questionCliNames, true)}`}
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           {unlockingTestCases.map((testCase) => (
