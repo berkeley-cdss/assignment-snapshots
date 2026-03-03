@@ -1,2 +1,4 @@
 # Sensitive data
 data/private/
+
+.DS_Store
