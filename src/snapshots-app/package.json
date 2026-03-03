@@ -22,6 +22,7 @@
     "@emotion/styled": "^11.14.0",
     "@git-diff-view/file": "^0.0.26",
     "@git-diff-view/react": "^0.0.26",
+    "@monaco-editor/react": "^4.8.0-rc.3",
     "@mui/icons-material": "^7.0.2",
     "@mui/material": "^7.0.2",
     "@mui/x-charts": "^7.28.0",
