@@ -205,19 +205,34 @@ function Timeline({ backups, selectedBackup, handleBackupSelect }) {
     };
   }, [selectedBackup, backups]);
 
+  function newWorksession(prevCreated, currCreated) {
+    if (prevCreated === null) {
+      return true;
+    }
+
+    const prevDate = new Date(prevCreated);
+    const currDate = new Date(currCreated);
+    const timeDiff = Math.abs(currDate - prevDate);
+    const minutesDiff = timeDiff / (1000 * 60);
+    return minutesDiff >= 30;
+  }
+
   const groupedBackups = useMemo(() => {
     const grouped = [];
     let prevQuestionCliNames = null;
     let prevUnlock = null;
+    let prevCreated = null;
 
     for (const backup of backups) {
       if (
         !areArraysEqual(backup.question_cli_names, prevQuestionCliNames) ||
-        backup.unlock !== prevUnlock
+        backup.unlock !== prevUnlock ||
+        newWorksession(prevCreated, backup.created)
       ) {
         grouped.push([backup]);
         prevQuestionCliNames = backup.question_cli_names;
         prevUnlock = backup.unlock;
+        prevCreated = backup.created;
       } else {
         grouped[grouped.length - 1].push(backup);
       }
