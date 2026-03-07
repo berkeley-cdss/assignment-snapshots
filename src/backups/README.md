@@ -55,6 +55,30 @@ An example can be found in [src/backups/backup_config.json](src/backups/backup_c
 All fields are required (e.g. they must either be provided in the config or via the CLI).
 If you provide both a config and CLI arguments, the CLI arguments will override anything in the config.
 
+## Uploading backup files to AWS S3
+
+Once you have run the `store` command, there should be files within the `data/private/` directory that you can [upload
+to AWS S3](https://docs.aws.amazon.com/AmazonS3/latest/userguide/upload-objects.html)
+to be retrieved later by the web app. We recommend one of two methods:
+
+1. Manually upload files to the S3 console (fast if you have < 10 files to upload, **very slow** otherwise)
+2. Automatically upload files through the AWS CLI
+
+For both methods, you can refer to the documentation linked above. To save yourself some reading, here is an example
+of the commands you would need to run for method 2, assuming you have [already configured and authenticated through the AWS CLI](https://github.com/berkeley-cdss/assignment-snapshots/tree/main/src/snapshots-app#aws-s3-configuration-and-authentication):
+
+1. `cd` into the folder that you want to upload, replacing `$FILE_PATH` with your desired path, e.g. `cal/cs88/fa25/ants`:
+```sh
+cd data/private/$FILE_PATH
+```
+2. Run the following command to synchronize the contents of the folder you are currently inside to the folder in our AWS S3 bucket, replacing `$BUCKET_NAME` with your desired bucket (`ucb-assignment-snapshots-eae254943a2c4f51bef67654e99560dd`) and `$FILE_PATH` with your desired path, e.g. `cal/cs88/fa25/ants`:
+```sh
+aws s3 sync . s3://$BUCKET_NAME/$FILE_PATH
+```
+
+> [!NOTE]
+> We recommend keeping the `$FILE_PATH` the same for steps 1-2 above for consistency, although technically they can differ.
+
 ## Dumping database from OkPy Backups CLI into Rails database
 
 1. **Optional if not done already:** Run backups CLI command(s) in this directory to create or update `$OUTPUT_DB_NAME.db`. If you are an internal contributor working with the toy data from `data.zip`, skip this step.

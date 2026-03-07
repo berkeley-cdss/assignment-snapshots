@@ -51,6 +51,7 @@ def create_backup_and_write_messages(
     backup: dict,
     path_prefix: str,
     conn: sqlite3.Connection,
+    deidentify: bool,
 ):
     backup_id = backup["id"]
     created = backup["created"]
@@ -85,7 +86,7 @@ def create_backup_and_write_messages(
             continue
 
         msg_class = MESSAGE_KIND_TO_CLASS[kind]
-        msg_obj = msg_class(msg["contents"])
+        msg_obj = msg_class(msg["contents"], deidentify)
         msg_obj.write(directory)
 
         if kind == "autograder_output":
@@ -368,6 +369,7 @@ def responses_to_backups(
                         backup_dict,
                         path_prefix,
                         conn,
+                        deidentify,
                     )
                     insert_backup_metadata_record(conn, backup)
                     num_backups += 1

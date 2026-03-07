@@ -1,4 +1,5 @@
 import json
+import re
 
 
 class Backup:
@@ -36,8 +37,9 @@ class Backup:
 
 
 class OkPyMessage:
-    def __init__(self, contents):
+    def __init__(self, contents, deidentify: bool):
         self.contents = contents
+        self.deidentify = deidentify
 
 
 class AutograderOutputMessage(OkPyMessage):
@@ -45,9 +47,29 @@ class AutograderOutputMessage(OkPyMessage):
     def location(directory):
         return f"{directory}/autograder_output.txt"
 
+    @staticmethod
+    def redact_stack_trace(ag_output: str):
+        """
+        This method is important for deidentification purposes.
+        Often the username on a student's computer is their real name or something similar,
+        so we redact it from the autograder output if it occurs since some autograder output
+        will have stack traces.
+        """
+        # (?<=Users[\\/]) is a positive lookbehind - we look for
+        # the first thing after 'Users/' (Mac) or 'Users\' (Windows)
+        # ([^\/\\]+) matches the actual username (any characters until the next slash)
+        username_pattern = r"(?<=Users[\\/])([^\/\\ ]+)"
+
+        # Redact the captured username group
+        return re.sub(username_pattern, "[redacted]", ag_output, flags=re.IGNORECASE)
+
     def write(self, directory):
         with open(AutograderOutputMessage.location(directory), "w") as f:
-            f.write(self.contents)
+            if self.deidentify:
+                output = AutograderOutputMessage.redact_stack_trace(self.contents)
+            else:
+                output = self.contents
+            f.write(output)
 
 
 class GradingMessage(OkPyMessage):
