@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 
 import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
@@ -7,6 +7,11 @@ import DoneIcon from "@mui/icons-material/Done";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { Tooltip } from "@mui/material";
 import InfoTooltip from "../common/InfoTooltip";
+import Snackbar from "@mui/material/Snackbar";
+
+import { useCopyToClipboard } from "react-use";
+
+import { getOkpyCommand, areArraysEqual } from "./utils";
 
 function TimelineButton({ backup, selected, index, handleBackupSelect }) {
   function getQuestionsWorkedOn() {
@@ -108,9 +113,69 @@ function TimelineButton({ backup, selected, index, handleBackupSelect }) {
   );
 }
 
+function TimelineButtonGroup({
+  backups,
+  selectedBackup,
+  handleBackupSelect,
+  absoluteStartIndex,
+  setIsSnackbarOpen,
+}) {
+  const [_, copyOkpyCommand] = useCopyToClipboard();
+  const okpyCommand = getOkpyCommand(
+    backups[0].question_cli_names,
+    backups[0].unlock,
+  );
+  const onClickCommand = () => {
+    copyOkpyCommand(okpyCommand);
+    setIsSnackbarOpen(true);
+  };
+
+  return (
+    <div>
+      <div
+        style={{
+          whiteSpace: "pre-wrap",
+          fontFamily: "Menlo",
+          fontSize: "0.8rem",
+          cursor: "pointer",
+          marginBottom: "0.5rem",
+        }}
+        onClick={onClickCommand}
+      >
+        {okpyCommand}
+      </div>
+
+      <ButtonGroup
+        orientation="vertical"
+        aria-label="Vertical button group"
+        style={{ width: "100%" }}
+      >
+        {backups.map((backup, relativeIndex) => (
+          <TimelineButton
+            backup={backup}
+            selected={relativeIndex + absoluteStartIndex === selectedBackup}
+            index={relativeIndex + absoluteStartIndex}
+            handleBackupSelect={handleBackupSelect}
+          />
+        ))}
+      </ButtonGroup>
+    </div>
+  );
+}
+
 function Timeline({ backups, selectedBackup, handleBackupSelect }) {
   const TIMELINE_TOOLTIP_INFO =
-    "A timeline of this student's OkPy backups. A backup is formed every time they run unlocking or coding tests for a particular question.";
+    "A timeline of this student's OkPy backups. A backup is formed every time they run unlocking or coding tests for a particular question. You can use the left and right arrow keys to navigate.";
+
+  const [isSnackbarOpen, setIsSnackbarOpen] = React.useState(false);
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setIsSnackbarOpen(false);
+  };
 
   const prevArrow = () => {
     if (selectedBackup > 0) {
@@ -140,25 +205,76 @@ function Timeline({ backups, selectedBackup, handleBackupSelect }) {
     };
   }, [selectedBackup, backups]);
 
+  function newWorksession(prevCreated, currCreated) {
+    if (prevCreated === null) {
+      return true;
+    }
+
+    const prevDate = new Date(prevCreated);
+    const currDate = new Date(currCreated);
+    const timeDiff = Math.abs(currDate - prevDate);
+    const minutesDiff = timeDiff / (1000 * 60);
+    return minutesDiff >= 30;
+  }
+
+  const groupedBackups = useMemo(() => {
+    const grouped = [];
+    let prevQuestionCliNames = null;
+    let prevUnlock = null;
+    let prevCreated = null;
+
+    for (const backup of backups) {
+      if (
+        !areArraysEqual(backup.question_cli_names, prevQuestionCliNames) ||
+        backup.unlock !== prevUnlock ||
+        newWorksession(prevCreated, backup.created)
+      ) {
+        grouped.push([backup]);
+        prevQuestionCliNames = backup.question_cli_names;
+        prevUnlock = backup.unlock;
+        prevCreated = backup.created;
+      } else {
+        grouped[grouped.length - 1].push(backup);
+      }
+    }
+
+    return grouped;
+  }, [backups]);
+
+  function getTimelineButtonGroups() {
+    const buttonGroups = [];
+    let absoluteStartIndex = 0;
+
+    for (const backupGroup of groupedBackups) {
+      buttonGroups.push(
+        <TimelineButtonGroup
+          backups={backupGroup}
+          selectedBackup={selectedBackup}
+          handleBackupSelect={handleBackupSelect}
+          absoluteStartIndex={absoluteStartIndex}
+          setIsSnackbarOpen={setIsSnackbarOpen}
+        />,
+      );
+      absoluteStartIndex += backupGroup.length;
+    }
+
+    return buttonGroups;
+  }
+
   return (
     <div>
       <div style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>
         Timeline <InfoTooltip info={TIMELINE_TOOLTIP_INFO} placement="top" />
       </div>
-      <ButtonGroup
-        orientation="vertical"
-        aria-label="Vertical button group"
-        style={{ width: "100%" }}
-      >
-        {backups.map((backup, index) => (
-          <TimelineButton
-            backup={backup}
-            selected={index === selectedBackup}
-            index={index}
-            handleBackupSelect={handleBackupSelect}
-          />
-        ))}
-      </ButtonGroup>
+      <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+        {getTimelineButtonGroups()}
+      </div>
+      <Snackbar
+        open={isSnackbarOpen}
+        autoHideDuration={1000}
+        onClose={handleSnackbarClose}
+        message="Command copied to clipboard!"
+      />
     </div>
   );
 }
