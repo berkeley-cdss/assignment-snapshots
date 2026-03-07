@@ -10,7 +10,10 @@ class Api::LintErrorsControllerTest < ActionDispatch::IntegrationTest
 
   def assert_lint_error_structure(error_json, expected_fixture)
     assert_equal expected_fixture.file_contents_location, error_json["file_contents_location"]
-    assert_equal expected_fixture.line_number, error_json["line_number"]
+    assert_equal expected_fixture.start_location_row, error_json["start_location_row"]
+    assert_equal expected_fixture.start_location_col, error_json["start_location_col"]
+    assert_equal expected_fixture.end_location_row, error_json["end_location_row"]
+    assert_equal expected_fixture.end_location_col, error_json["end_location_col"]
     assert_equal expected_fixture.message, error_json["message"]
     assert_equal expected_fixture.code, error_json["code"]
     assert_equal expected_fixture.url, error_json["url"]
