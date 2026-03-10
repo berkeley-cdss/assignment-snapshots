@@ -144,6 +144,17 @@ function Timeline({ backups, selectedBackup, handleBackupSelect }) {
     <div>
       <div style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>
         Timeline <InfoTooltip info={TIMELINE_TOOLTIP_INFO} placement="top" />
+        <div style={{ marginRight: "auto" }}>
+          <button
+            onClick={prevArrow}
+            title="Previous snapshot (left arrow key)"
+          >
+            ←
+          </button>
+          <button onClick={nextArrow} title="Next snapshot (right arrow key)">
+            →
+          </button>
+        </div>
       </div>
       <ButtonGroup
         orientation="vertical"
