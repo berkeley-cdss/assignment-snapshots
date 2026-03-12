@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo } from "react";
 
+import IconButton from '@mui/material/IconButton';
 import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
@@ -279,15 +280,15 @@ function Timeline({ backups, selectedBackup, handleBackupSelect }) {
             title="Next snapshot (left arrow key)"
             placement="top"
           >
-            <button onClick={prevArrow} style={{ marginRight: "6px" }}>
+            <IconButton onClick={prevArrow}>
               <ArrowBackIcon />
-            </button>
+            </IconButton>
           </Tooltip>
 
           <Tooltip title="Previous snapshot (right arrow key)" placement="top">
-            <button onClick={nextArrow}>
+            <IconButton onClick={nextArrow}>
               <ArrowForwardIcon />
-            </button>
+            </IconButton>
           </Tooltip>
         </div>
       </div>
