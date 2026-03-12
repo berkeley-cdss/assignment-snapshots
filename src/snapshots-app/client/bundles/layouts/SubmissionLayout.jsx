@@ -513,6 +513,11 @@ function SubmissionLayout() {
                 language={getLanguage(file)}
                 lightMode={lightMode}
                 lintErrors={lintErrors}
+                // NOTE: This is needed so that the FileViewer component
+                // re-mounts after DiffViewer dialog closes, otherwise
+                // error occurs because Monaco editor ref gets disposed
+                // when DiffViewer dialog opens
+                key={`${file}-${diffViewerOpen}`}
               />
             )}
 
