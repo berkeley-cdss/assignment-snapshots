@@ -1,10 +1,13 @@
 import React, { useEffect, useMemo } from "react";
 
+import IconButton from "@mui/material/IconButton";
 import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
 import DoneIcon from "@mui/icons-material/Done";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { Tooltip } from "@mui/material";
 import InfoTooltip from "../common/InfoTooltip";
 import Snackbar from "@mui/material/Snackbar";
@@ -165,7 +168,7 @@ function TimelineButtonGroup({
 
 function Timeline({ backups, selectedBackup, handleBackupSelect }) {
   const TIMELINE_TOOLTIP_INFO =
-    "A timeline of this student's OkPy backups. A backup is formed every time they run unlocking or coding tests for a particular question. You can use the left and right arrow keys to navigate.";
+    "A timeline of this student's OkPy backups, most recent backup first. A backup is formed every time they run unlocking or coding tests for a particular question.";
 
   const [isSnackbarOpen, setIsSnackbarOpen] = React.useState(false);
 
@@ -260,8 +263,31 @@ function Timeline({ backups, selectedBackup, handleBackupSelect }) {
 
   return (
     <div>
-      <div style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>
-        Timeline <InfoTooltip info={TIMELINE_TOOLTIP_INFO} placement="top" />
+      <div
+        style={{
+          fontSize: "1.5rem",
+          marginBottom: "1rem",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <div>
+          Timeline <InfoTooltip info={TIMELINE_TOOLTIP_INFO} placement="top" />
+        </div>
+        <div>
+          <Tooltip title="Next snapshot (left arrow key)" placement="top">
+            <IconButton onClick={prevArrow}>
+              <ArrowBackIcon />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Previous snapshot (right arrow key)" placement="top">
+            <IconButton onClick={nextArrow}>
+              <ArrowForwardIcon />
+            </IconButton>
+          </Tooltip>
+        </div>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
         {getTimelineButtonGroups()}

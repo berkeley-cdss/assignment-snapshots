@@ -13,12 +13,7 @@ import { DiffEditor } from "@monaco-editor/react";
 // TODO I have been accidentally relying on this import for styling the entire website
 import "@git-diff-view/react/styles/diff-view.css";
 
-function DiffViewer({
-  open,
-  onClose,
-  prevFileContents,
-  currentFileContents,
-}) {
+function DiffViewer({ open, onClose, prevFileContents, currentFileContents }) {
   const editorRef = useRef(null);
 
   const onDiffEditorMount = (editor, monaco) => {
@@ -49,9 +44,11 @@ function DiffViewer({
     >
       <DialogTitle id="diff-viewer-dialog-title">Diff Viewer</DialogTitle>
       <DialogContent>
-        <ButtonGroup sx={{
-          marginBottom: "1rem",
-        }}>
+        <ButtonGroup
+          sx={{
+            marginBottom: "1rem",
+          }}
+        >
           <Button
             size="small"
             variant="outlined"
