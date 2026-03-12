@@ -214,7 +214,10 @@ def insert_backup_metadata_record(conn: sqlite3.Connection, backup: Backup):
 def insert_lint_error_record(conn: sqlite3.Connection, lint_error: LintError):
     data = {
         "file_contents_location": lint_error.file_contents_location,
-        "line_number": lint_error.line_number,
+        "start_location_row": lint_error.start_location_row,
+        "start_location_col": lint_error.start_location_col,
+        "end_location_row": lint_error.end_location_row,
+        "end_location_col": lint_error.end_location_col,
         "message": lint_error.message,
         "code": lint_error.code,
         "url": lint_error.url,
@@ -380,6 +383,9 @@ def lint_output_to_lint_errors(lint_output: list) -> List[LintError]:
         lint_error = LintError(
             error["filename"].removeprefix(FILENAME_PREFIX),
             error["location"]["row"],
+            error["location"]["column"],
+            error["end_location"]["row"],
+            error["end_location"]["column"],
             error["message"],
             error["code"],
             error["url"],
