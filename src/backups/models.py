@@ -141,13 +141,19 @@ class LintError:
     def __init__(
         self,
         file_contents_location: str,
-        line_number: int,
+        start_location_row: int,
+        start_location_col: int,
+        end_location_row: int,
+        end_location_col: int,
         message: str,
         code: str,
         url: str | None = None,
     ):
         self.file_contents_location = file_contents_location
-        self.line_number = line_number
+        self.start_location_row = start_location_row
+        self.start_location_col = start_location_col
+        self.end_location_row = end_location_row
+        self.end_location_col = end_location_col
         self.message = message
         self.code = code
         self.url = url

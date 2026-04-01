@@ -1,18 +1,24 @@
-import React from "react";
+import React, { useEffect, useMemo } from "react";
 
+import IconButton from "@mui/material/IconButton";
 import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
 import DoneIcon from "@mui/icons-material/Done";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { Tooltip } from "@mui/material";
 import InfoTooltip from "../common/InfoTooltip";
+import Snackbar from "@mui/material/Snackbar";
+
+import { useCopyToClipboard } from "react-use";
+
+import { getOkpyCommand, areArraysEqual } from "./utils";
 
 function TimelineButton({ backup, selected, index, handleBackupSelect }) {
   function getQuestionsWorkedOn() {
     return backup.question_display_names.join(" ");
-
-
   }
 
   function getNumPassedTests() {
@@ -110,29 +116,188 @@ function TimelineButton({ backup, selected, index, handleBackupSelect }) {
   );
 }
 
-function Timeline({ backups, selectedBackup, handleBackupSelect }) {
-  const TIMELINE_TOOLTIP_INFO =
-    "A timeline of this student's OkPy backups. A backup is formed every time they run unlocking or coding tests for a particular question.";
+function TimelineButtonGroup({
+  backups,
+  selectedBackup,
+  handleBackupSelect,
+  absoluteStartIndex,
+  setIsSnackbarOpen,
+}) {
+  const [_, copyOkpyCommand] = useCopyToClipboard();
+  const okpyCommand = getOkpyCommand(
+    backups[0].question_cli_names,
+    backups[0].unlock,
+  );
+  const onClickCommand = () => {
+    copyOkpyCommand(okpyCommand);
+    setIsSnackbarOpen(true);
+  };
 
   return (
     <div>
-      <div style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>
-        Timeline <InfoTooltip info={TIMELINE_TOOLTIP_INFO} placement="top" />
+      <div
+        style={{
+          whiteSpace: "pre-wrap",
+          fontFamily: "Menlo",
+          fontSize: "0.8rem",
+          cursor: "pointer",
+          marginBottom: "0.5rem",
+        }}
+        onClick={onClickCommand}
+      >
+        {okpyCommand}
       </div>
+
       <ButtonGroup
         orientation="vertical"
         aria-label="Vertical button group"
         style={{ width: "100%" }}
       >
-        {backups.map((backup, index) => (
+        {backups.map((backup, relativeIndex) => (
           <TimelineButton
             backup={backup}
-            selected={index === selectedBackup}
-            index={index}
+            selected={relativeIndex + absoluteStartIndex === selectedBackup}
+            index={relativeIndex + absoluteStartIndex}
             handleBackupSelect={handleBackupSelect}
           />
         ))}
       </ButtonGroup>
+    </div>
+  );
+}
+
+function Timeline({ backups, selectedBackup, handleBackupSelect }) {
+  const TIMELINE_TOOLTIP_INFO =
+    "A timeline of this student's OkPy backups, most recent backup first. A backup is formed every time they run unlocking or coding tests for a particular question.";
+
+  const [isSnackbarOpen, setIsSnackbarOpen] = React.useState(false);
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setIsSnackbarOpen(false);
+  };
+
+  const prevArrow = () => {
+    if (selectedBackup > 0) {
+      handleBackupSelect(selectedBackup - 1);
+    }
+  };
+
+  const nextArrow = () => {
+    if (selectedBackup < backups.length - 1) {
+      handleBackupSelect(selectedBackup + 1);
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "ArrowLeft") {
+        prevArrow();
+      } else if (event.key === "ArrowRight") {
+        nextArrow();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [selectedBackup, backups]);
+
+  function newWorksession(prevCreated, currCreated) {
+    if (prevCreated === null) {
+      return true;
+    }
+
+    const prevDate = new Date(prevCreated);
+    const currDate = new Date(currCreated);
+    const timeDiff = Math.abs(currDate - prevDate);
+    const minutesDiff = timeDiff / (1000 * 60);
+    return minutesDiff >= 30;
+  }
+
+  const groupedBackups = useMemo(() => {
+    const grouped = [];
+    let prevQuestionCliNames = null;
+    let prevCreated = null;
+
+    for (const backup of backups) {
+      if (
+        !areArraysEqual(backup.question_cli_names, prevQuestionCliNames) ||
+        newWorksession(prevCreated, backup.created)
+      ) {
+        grouped.push([backup]);
+        prevQuestionCliNames = backup.question_cli_names;
+        prevCreated = backup.created;
+      } else {
+        grouped[grouped.length - 1].push(backup);
+      }
+    }
+
+    return grouped;
+  }, [backups]);
+
+  function getTimelineButtonGroups() {
+    const buttonGroups = [];
+    let absoluteStartIndex = 0;
+
+    for (const backupGroup of groupedBackups) {
+      buttonGroups.push(
+        <TimelineButtonGroup
+          backups={backupGroup}
+          selectedBackup={selectedBackup}
+          handleBackupSelect={handleBackupSelect}
+          absoluteStartIndex={absoluteStartIndex}
+          setIsSnackbarOpen={setIsSnackbarOpen}
+        />,
+      );
+      absoluteStartIndex += backupGroup.length;
+    }
+
+    return buttonGroups;
+  }
+
+  return (
+    <div>
+      <div
+        style={{
+          fontSize: "1.5rem",
+          marginBottom: "1rem",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <div>
+          Timeline <InfoTooltip info={TIMELINE_TOOLTIP_INFO} placement="top" />
+        </div>
+        <div>
+          <Tooltip title="Next snapshot (left arrow key)" placement="top">
+            <IconButton onClick={prevArrow}>
+              <ArrowBackIcon />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Previous snapshot (right arrow key)" placement="top">
+            <IconButton onClick={nextArrow}>
+              <ArrowForwardIcon />
+            </IconButton>
+          </Tooltip>
+        </div>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+        {getTimelineButtonGroups()}
+      </div>
+      <Snackbar
+        open={isSnackbarOpen}
+        autoHideDuration={1000}
+        onClose={handleSnackbarClose}
+        message="Command copied to clipboard!"
+      />
     </div>
   );
 }

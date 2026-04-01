@@ -1,62 +1,37 @@
-import React from "react";
+import React, { useRef } from "react";
 
-import { DiffView } from "@git-diff-view/react";
-import { generateDiffFile } from "@git-diff-view/file";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
+import { ButtonGroup, Button } from "@mui/material";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 
+import { DiffEditor } from "@monaco-editor/react";
+
+// TODO uninstall git-diff-view once this is removed
+// TODO I have been accidentally relying on this import for styling the entire website
 import "@git-diff-view/react/styles/diff-view.css";
 
-function DiffViewer({
-  open,
-  onClose,
-  prevFileContents,
-  currentFileContents,
-  selectedFile,
-}) {
-  const diffFile = React.useMemo(() => {
-    // NOTE: there is currently a bug in git-diff-view package
-    // where if the current and prev file contents are equal it will error
-    if (
-      prevFileContents === "" ||
-      currentFileContents === "" ||
-      prevFileContents === currentFileContents
-    ) {
-      return null;
-    }
+function DiffViewer({ open, onClose, prevFileContents, currentFileContents }) {
+  const editorRef = useRef(null);
 
-    // TODO don't hardcode language
-    const data = {
-      oldFile: {
-        fileName: selectedFile,
-        content: prevFileContents,
-        fileLang: "python",
-      },
-      newFile: {
-        fileName: selectedFile,
-        content: currentFileContents,
-        fileLang: "python",
-      },
-    };
+  const onDiffEditorMount = (editor, monaco) => {
+    editorRef.current = editor;
 
-    const file = generateDiffFile(
-      data?.oldFile?.fileName || "",
-      data?.oldFile?.content || "",
-      data?.newFile?.fileName || "",
-      data?.newFile?.content || "",
-      data?.oldFile?.fileLang || "",
-      data?.newFile?.fileLang || "",
-    );
+    // once diff is computed, jump to the first diff
+    editor.onDidUpdateDiff(() => {
+      editorRef.current.goToDiff("next");
+    });
+  };
 
-    // TODO light/dark mode
-    file.initTheme("light");
-    file.init();
-    file.buildSplitDiffLines();
-    file.buildUnifiedDiffLines();
+  const goToNextDiff = () => {
+    editorRef.current.goToDiff("next");
+  };
 
-    return file;
-  }, [selectedFile, currentFileContents, prevFileContents]);
+  const goToPreviousDiff = () => {
+    editorRef.current.goToDiff("previous");
+  };
 
   return (
     <Dialog
@@ -69,7 +44,46 @@ function DiffViewer({
     >
       <DialogTitle id="diff-viewer-dialog-title">Diff Viewer</DialogTitle>
       <DialogContent>
-        <DiffView diffFile={diffFile} />
+        <ButtonGroup
+          sx={{
+            marginBottom: "1rem",
+          }}
+        >
+          <Button
+            size="small"
+            variant="outlined"
+            startIcon={<ArrowUpwardIcon />}
+            onClick={goToPreviousDiff}
+          >
+            Previous Change
+          </Button>
+          <Button
+            size="small"
+            variant="outlined"
+            endIcon={<ArrowDownwardIcon />}
+            onClick={goToNextDiff}
+          >
+            Next Change
+          </Button>
+        </ButtonGroup>
+        <DiffEditor
+          height="100vh"
+          original={prevFileContents}
+          modified={currentFileContents}
+          language="python"
+          onMount={onDiffEditorMount}
+          // https://github.com/suren-atoyan/monaco-react/issues/647#issuecomment-2897027817
+          keepCurrentOriginalModel={true}
+          keepCurrentModifiedModel={true}
+          options={{
+            readOnly: true,
+            domReadOnly: true,
+            renderLineHighlight: "all",
+            renderWhitespace: "all",
+            rulers: [80],
+            scrollBeyondLastLine: false,
+          }}
+        />
       </DialogContent>
     </Dialog>
   );

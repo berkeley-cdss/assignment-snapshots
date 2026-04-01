@@ -1,141 +1,168 @@
-import React from "react";
+import React, { useRef, useMemo, useEffect } from "react";
 
-import { Typography, Paper, Link } from "@mui/material";
-import { CodeBlock } from "react-code-block"; // TODO uninstall react-code-blocks?
-import { themes } from "prism-react-renderer";
-import Tooltip from "@mui/material/Tooltip";
-import IconButton from "@mui/material/IconButton";
-import ErrorIcon from "@mui/icons-material/Error";
-import Dialog from "@mui/material/Dialog";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
+import { ButtonGroup, Button } from "@mui/material";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+
+import Editor, { useMonaco } from "@monaco-editor/react";
 
 import "./FileViewer.css";
 
 function FileViewer({ code, language, lightMode, lintErrors }) {
-  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const editorRef = useRef(null);
+  const monaco = useMonaco();
+  const [editorMounted, setEditorMounted] = React.useState(false);
+  const [lineIndex, setLineIndex] = React.useState(0);
 
-  const [selectedLintError, setSelectedLintError] = React.useState(null);
+  const beginProblemLines = useMemo(() => {
+    const lines = [];
+    for (const [lineNumber, line] of code.split("\n").entries()) {
+      if (line.includes("# BEGIN Problem")) {
+        lines.push(lineNumber + 1);
+      }
+    }
+    return lines;
+  }, [code]);
 
-  const lines = lintErrors.map((error) => error.line_number);
+  useEffect(() => {
+    if (!monaco || !editorRef.current) return;
 
-  function handleClickLintError(lineNumber) {
-    const error = lintErrors.find((error) => error.line_number === lineNumber);
-    setSelectedLintError(error);
-    setIsDialogOpen(true);
+    const model = editorRef.current.getModel();
+
+    const errors = lintErrors.map((error) => ({
+      code: {
+        value: error.code,
+        target: monaco.Uri.parse(error.url),
+      },
+      startLineNumber: error.start_location_row,
+      startColumn: error.start_location_col,
+      endLineNumber: error.end_location_row,
+      endColumn: error.end_location_col,
+      message: error.message,
+      severity: monaco.MarkerSeverity.Error,
+    }));
+
+    monaco.editor.setModelMarkers(model, "snapshots-app", errors);
+  }, [lintErrors, monaco, editorRef, editorMounted]);
+
+  function onEditorMount(editor, monaco) {
+    editorRef.current = editor;
+    setEditorMounted(true);
   }
 
-  return (
-    <div>
-      <div style={{ paddingBottom: '1rem' }}>There are {lintErrors.length} lint errors in this file.</div>
-      <Paper elevation={3} sx={{ padding: 2 }}>
-        <Typography
-          variant="body2"
-          component="pre"
-          style={{ margin: 0, whiteSpace: "pre-wrap", overflowX: "auto" }}
-        >
-          <div
-            style={{
-              fontFamily: "Menlo",
-            }}
-          >
-            <CodeBlock
-              code={code}
-              language={language}
-              // NOTE: this theme only affects certain tokens in the code but not the ones with "token plain"
-              // class, so I had to manually set the color for those in FileViewer.css
-              theme={lightMode ? themes.vsLight : themes.vsDark}
-              lines={lines}
-              style={{ display: "table" }}
-            >
-              {/* NOTE: Background color derived from https://github.com/FormidableLabs/prism-react-renderer/tree/master/packages/prism-react-renderer/src/themes */}
-              <CodeBlock.Code
-                style={{ backgroundColor: lightMode ? "#ffffff" : "#1E1E1E" }}
-              >
-                {({ isLineHighlighted, lineNumber }) => (
-                  <div
-                    style={{
-                      display: "table-row",
-                      backgroundColor: isLineHighlighted
-                        ? "rgba(255, 0, 0, 0.2)"
-                        : "transparent",
-                    }}
-                  >
-                    <div style={{ display: "table-cell", paddingRight: 5 }}>
-                      {isLineHighlighted ? (
-                        <Tooltip
-                          title="Click to view lint error"
-                          placement="left"
-                        >
-                          <IconButton
-                            aria-label="view lint error for this line"
-                            size="small"
-                            color="error"
-                            onClick={() => handleClickLintError(lineNumber)}
-                          >
-                            <ErrorIcon fontSize="inherit" />
-                          </IconButton>
-                        </Tooltip>
-                      ) : null}
-                    </div>
-                    <CodeBlock.LineNumber
-                      className="noselect"
-                      style={{
-                        display: "table-cell",
-                        color: lightMode ? "black" : "white",
-                        paddingRight: 10,
-                      }}
-                    />
-                    <CodeBlock.LineContent style={{ display: "table-cell" }}>
-                      {/* NOTE: class name is used in FileViewer.css */}
-                      <CodeBlock.Token
-                        className={lightMode ? "light" : "dark"}
-                      />
-                    </CodeBlock.LineContent>
-                  </div>
-                )}
-              </CodeBlock.Code>
-            </CodeBlock>
-          </div>
-        </Typography>
-      </Paper>
+  function nextBeginProblemLine() {
+    if (beginProblemLines.length === 0) return;
+    const temp = lineIndex;
+    // Wrap around to the beginning
+    const nextIndex = (lineIndex + 1) % beginProblemLines.length;
+    setLineIndex(nextIndex);
+    goToLine(beginProblemLines[temp]);
+  }
 
-      <Dialog
-        open={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
+  function prevBeginProblemLine() {
+    if (beginProblemLines.length === 0) return;
+    const temp = lineIndex;
+    // Wrap around to the end
+    const nextIndex =
+      (lineIndex - 1 + beginProblemLines.length) % beginProblemLines.length;
+    setLineIndex(nextIndex);
+    goToLine(beginProblemLines[temp]);
+  }
+
+  function goToLine(lineNumber) {
+    if (editorRef.current) {
+      // Centers the line in the viewport
+      editorRef.current.revealLineInCenter(lineNumber);
+
+      // Moves the cursor to that line
+      editorRef.current.setPosition({ lineNumber: lineNumber, column: 1 });
+
+      // Focuses the editor
+      editorRef.current.focus();
+    }
+  }
+
+  const jumpToNextError = () => {
+    if (editorRef.current) {
+      editorRef.current.trigger("snapshots-app", "editor.action.marker.next");
+    }
+  };
+
+  const jumpToPrevError = () => {
+    if (editorRef.current) {
+      editorRef.current.trigger("snapshots-app", "editor.action.marker.prev");
+    }
+  };
+
+  return (
+    <>
+      {/* TODO fix alignment and scroll */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginBottom: "1rem",
+        }}
       >
-        <DialogTitle id="alert-dialog-title">
-          {selectedLintError !== null
-            ? `Lint error on line ${selectedLintError.line_number}`
-            : ""}
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            {selectedLintError !== null ? (
-              <div>
-                <div style={{ fontFamily: "Menlo" }}>
-                  {selectedLintError.code}: {selectedLintError.message}
-                </div>
-                <div>
-                  <Link
-                    href={selectedLintError.url}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Learn more
-                  </Link>
-                </div>
-              </div>
-            ) : (
-              ""
-            )}
-          </DialogContentText>
-        </DialogContent>
-      </Dialog>
-    </div>
+        <ButtonGroup>
+          <Button
+            size="small"
+            variant="outlined"
+            disabled={beginProblemLines.length === 0}
+            startIcon={<ArrowUpwardIcon />}
+            onClick={prevBeginProblemLine}
+          >
+            Previous Problem
+          </Button>
+          <Button
+            size="small"
+            variant="outlined"
+            disabled={beginProblemLines.length === 0}
+            endIcon={<ArrowDownwardIcon />}
+            onClick={nextBeginProblemLine}
+          >
+            Next Problem
+          </Button>
+        </ButtonGroup>
+
+        <ButtonGroup>
+          <Button
+            size="small"
+            variant="outlined"
+            disabled={lintErrors.length === 0}
+            startIcon={<ArrowUpwardIcon />}
+            onClick={jumpToPrevError}
+          >
+            Previous Lint Error
+          </Button>
+          <Button
+            size="small"
+            variant="outlined"
+            disabled={lintErrors.length === 0}
+            endIcon={<ArrowDownwardIcon />}
+            onClick={jumpToNextError}
+          >
+            Next Lint Error
+          </Button>
+        </ButtonGroup>
+      </div>
+
+      <Editor
+        defaultLanguage={language}
+        defaultValue={code}
+        theme={lightMode ? "light" : "vs-dark"}
+        onMount={onEditorMount}
+        options={{
+          renderValidationDecorations: "on",
+          domReadOnly: true,
+          readOnly: true,
+          renderLineHighlight: "all",
+          renderWhitespace: "all",
+          rulers: [80],
+          scrollBeyondLastLine: false,
+        }}
+      />
+    </>
   );
 }
 
