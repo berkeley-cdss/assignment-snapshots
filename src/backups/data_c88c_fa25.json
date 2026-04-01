@@ -1,0 +1,25 @@
+{
+    "okpy_api": {
+        "course_endpoint": "cal/cs88/fa25",
+        "limit": 150,
+        "offset": 0
+    },
+    "course": {
+        "lab_start": 1,
+        "lab_end": 0,
+        "hw_start": 1,
+        "hw_end": 0,
+        "projects": ["ants"],
+        "assignment_files": {
+            "ants": ["ants.py"]
+        }
+    },
+    "data": {
+        "in_roster": "../../data/private/data_c88c_fa25_roster.csv",
+        "out_roster": "../../data/private/data_c88c_fa25_emails.txt",
+        "dump": "../../data/private/data_c88c_fa25_output.json",
+        "database": "../../data/private/data_c88c_fa25.db",
+        "lint_json": "../../data/private/data_c88c_fa25_lint_errors.json"
+    },
+    "deidentify": true
+}
