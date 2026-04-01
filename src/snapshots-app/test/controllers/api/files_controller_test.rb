@@ -9,9 +9,9 @@ class Api::FilesControllerTest < ActionDispatch::IntegrationTest
   known_files = [ "utils.py", "abstractions.py", "recommend.py", "autograder_output.txt" ]
   file_contents = [ "foo", "bar", "baz", "qux" ]
 
-  test "should respond with 404 Not Found if file name unknown" do
+  test "should respond with 404 Not Found if file name unknown and use_aws is true" do
     object_key = "unknown/path/to/file.txt"
-    dummy_s3_context = OpenStruct.new(params: { key: object_key })
+    dummy_s3_context = OpenStruct.new(params: { key: object_key, use_aws: true })
 
     # Mock AWS S3 client
     Aws::S3::Client.any_instance
@@ -19,11 +19,11 @@ class Api::FilesControllerTest < ActionDispatch::IntegrationTest
       .with(bucket: S3_BUCKET_NAME, key: object_key)
       .raises(Aws::S3::Errors::NoSuchKey.new(dummy_s3_context, "The specified key does not exist."))
 
-    get "/api/files", params: { object_key: object_key }
+    get "/api/files", params: { object_key: object_key, use_aws: true }
     assert_response :missing
   end
 
-  test "should respond with 200 OK and file contents if file name is known" do
+  test "should respond with 200 OK and file contents if file name is known and use_aws is true" do
     for i in 0...known_files.size
       object_key = "cal/cs88/sp25/maps/abc123/def456/#{known_files[i]}"
 
@@ -32,6 +32,60 @@ class Api::FilesControllerTest < ActionDispatch::IntegrationTest
         .stubs(:get_object)
         .with(bucket: S3_BUCKET_NAME, key: object_key)
         .returns(OpenStruct.new(body: StringIO.new(file_contents[i])))
+
+      get "/api/files", params: { object_key: object_key, use_aws: true }
+
+      assert_response :success
+      assert_equal(@response.parsed_body["file_contents"], file_contents[i])
+    end
+  end
+
+  test "should respond with 404 Not Found if file name unknown and use_aws is false" do
+    object_key = "unknown/path/to/file.txt"
+
+    # Mock File.exist? to return false for the unknown file path
+    File.stubs(:exist?).with(Rails.root.join("../../data/private/#{object_key}")).returns(false)
+
+    get "/api/files", params: { object_key: object_key, use_aws: false }
+    assert_response :missing
+  end
+
+  test "should respond with 200 OK and file contents if file name is known and use_aws is false" do
+    for i in 0...known_files.size
+      object_key = "cal/cs88/sp25/maps/abc123/def456/#{known_files[i]}"
+
+      # Mock File.exist? to return true for the known file path
+      File.stubs(:exist?).with(Rails.root.join("../../data/private/#{object_key}")).returns(true)
+
+      # Mock File.read to return the expected file contents for the known file path
+      File.stubs(:read).with(Rails.root.join("../../data/private/#{object_key}")).returns(file_contents[i])
+
+      get "/api/files", params: { object_key: object_key, use_aws: false }
+
+      assert_response :success
+      assert_equal(@response.parsed_body["file_contents"], file_contents[i])
+    end
+  end
+
+  test "should respond with 404 Not Found if file name unknown and use_aws is not provided" do
+    object_key = "unknown/path/to/file.txt"
+
+    # Mock File.exist? to return false for the unknown file path
+    File.stubs(:exist?).with(Rails.root.join("../../data/private/#{object_key}")).returns(false)
+
+    get "/api/files", params: { object_key: object_key }
+    assert_response :missing
+  end
+
+  test "should respond with 200 OK and file contents if file name is known and use_aws is not provided" do
+    for i in 0...known_files.size
+      object_key = "cal/cs88/sp25/maps/abc123/def456/#{known_files[i]}"
+
+      # Mock File.exist? to return true for the known file path
+      File.stubs(:exist?).with(Rails.root.join("../../data/private/#{object_key}")).returns(true)
+
+      # Mock File.read to return the expected file contents for the known file path
+      File.stubs(:read).with(Rails.root.join("../../data/private/#{object_key}")).returns(file_contents[i])
 
       get "/api/files", params: { object_key: object_key }
 

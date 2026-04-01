@@ -239,7 +239,6 @@ function SubmissionLayout() {
       })
       .then((responseData) => {
         setPrevFileContents(responseData.file_contents);
-        console.log("prev file contents set", responseData.file_contents);
       });
   }, [backups, selectedBackup, file]);
 
@@ -405,7 +404,18 @@ function SubmissionLayout() {
           {/* TODO make width more responsive */}
           <MainContent>
             {/* Main Content Area */}
-            <div style={{ marginBottom: "1rem" }}>
+            <div
+              style={{
+                position: "sticky",
+                top: -20,
+                zIndex: 10,
+                background: "white",
+                paddingBottom: "1rem",
+                marginBottom: "1rem",
+                paddingLeft: "1rem",
+                paddingRight: "1rem",
+              }}
+            >
               <div style={{ fontSize: "1.5rem" }}>
                 File Viewer{" "}
                 <InfoTooltip info={FILE_VIEWER_TOOLTIP_INFO} placement="top" />
@@ -455,9 +465,11 @@ function SubmissionLayout() {
                     </IconButton>
 
                     {selectedBackup === 0 ||
-                        code === "" ||
-                        prevFileContents === "" ||
-                        prevFileContents === code ? "No diff available" : "Diff available"}
+                    code === "" ||
+                    prevFileContents === "" ||
+                    prevFileContents === code
+                      ? "No diff available"
+                      : "Diff available"}
                   </Tooltip>
                 )}
 
@@ -500,6 +512,11 @@ function SubmissionLayout() {
                 language={getLanguage(file)}
                 lightMode={lightMode}
                 lintErrors={lintErrors}
+                // NOTE: This is needed so that the FileViewer component
+                // re-mounts after DiffViewer dialog closes, otherwise
+                // error occurs because Monaco editor ref gets disposed
+                // when DiffViewer dialog opens
+                key={`${file}-${diffViewerOpen}`}
               />
             )}
 

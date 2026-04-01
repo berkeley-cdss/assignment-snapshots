@@ -71,7 +71,10 @@ CREATE_LINT_ERRORS_TABLE_CMD = """
 CREATE TABLE lint_errors (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
 	file_contents_location TEXT NOT NULL,
-	line_number INTEGER NOT NULL,
+	start_location_row INTEGER NOT NULL,
+    start_location_col INTEGER NOT NULL,
+    end_location_row INTEGER NOT NULL,
+    end_location_col INTEGER NOT NULL,
 	message TEXT NOT NULL,
 	code TEXT NOT NULL, -- lint error code
 	url TEXT -- lint error URL for more information
@@ -140,9 +143,12 @@ CREATE TABLE unlock_message_cases (
 
 # NOTE: Have to explicitly list columns since id is autoincremented
 INSERT_LINT_ERROR_CMD = """
-INSERT INTO lint_errors (file_contents_location, line_number, message, code, url) VALUES (
+INSERT INTO lint_errors (file_contents_location, start_location_row, start_location_col, end_location_row, end_location_col, message, code, url) VALUES (
     :file_contents_location,
-    :line_number,
+    :start_location_row,
+    :start_location_col,
+    :end_location_row,
+    :end_location_col,
     :message,
     :code,
     :url

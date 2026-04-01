@@ -5,24 +5,14 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import { Typography } from "@mui/material";
 
+import { getOkpyCommand } from "./utils";
+
 function AutograderOutputDialog({
   open,
   onClose,
   autograderOutput,
   questionCliNames,
 }) {
-  function getOkpyCommand() {
-    if (questionCliNames === null) {
-      return "python3 ok";
-    } else {
-      const okpyCliQuestions = questionCliNames
-        .map((questionName) => `-q ${questionName}`)
-        .join(" ");
-
-      return `python3 ok ${okpyCliQuestions}`;
-    }
-  }
-
   return (
     <Dialog
       open={open}
@@ -43,7 +33,7 @@ function AutograderOutputDialog({
             fontSize: "0.8rem",
           }}
         >
-          <div>$ {getOkpyCommand()}</div>
+          <div>$ {getOkpyCommand(questionCliNames, false)}</div>
           {autograderOutput}
         </Typography>
       </DialogContent>

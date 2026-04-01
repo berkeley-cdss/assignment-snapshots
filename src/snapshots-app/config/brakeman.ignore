@@ -7,7 +7,7 @@
       "check_name": "Render",
       "message": "Render path contains parameter value",
       "file": "app/controllers/api/files_controller.rb",
-      "line": 27,
+      "line": 43,
       "link": "https://brakemanscanner.org/docs/warning_types/dynamic_render_path/",
       "code": "render(action => Rails.cache.fetch(\"s3_file:#{params[:object_key]}\", :expires_in => 1.hour) do\n Rails.logger.info(\"Cache MISS for cache_key #{\"s3_file:#{params[:object_key]}\"}. Fetching from S3...\")\nfetch_file_from_s3(params[:object_key])\n end, {})",
       "render_path": null,
@@ -22,6 +22,29 @@
         22
       ],
       "note": "Ignored because we are not rendering a Rails route using the S3 object key"
+    },
+    {
+      "warning_type": "Dynamic Render Path",
+      "warning_code": 15,
+      "fingerprint": "e4d4b0f837fe344a4abdfe1ba734bb527c621b06ba25b0401df30afd72f5954c",
+      "check_name": "Render",
+      "message": "Render path contains parameter value",
+      "file": "app/controllers/api/files_controller.rb",
+      "line": 50,
+      "link": "https://brakemanscanner.org/docs/warning_types/dynamic_render_path/",
+      "code": "render(action => Rails.cache.fetch(\"local_file:#{params[:object_key]}\", :expires_in => 1.hour) do\n Rails.logger.info(\"Cache MISS for cache_key #{\"local_file:#{params[:object_key]}\"}. Fetching from local file system...\")\nfetch_file_from_local(params[:object_key])\n end, {})",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Api::FilesController",
+        "method": "show"
+      },
+      "user_input": "params[:object_key]",
+      "confidence": "Weak",
+      "cwe_id": [
+        22
+      ],
+      "note": ""
     },
     {
       "warning_type": "Dynamic Render Path",

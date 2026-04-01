@@ -101,7 +101,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_18_234456) do
 
   create_table "lint_errors", force: :cascade do |t|
     t.string "file_contents_location", null: false
-    t.integer "line_number", null: false
+    t.integer "start_location_row", null: false
+    t.integer "start_location_col", null: false
+    t.integer "end_location_row", null: false
+    t.integer "end_location_col", null: false
     t.string "message", null: false
     t.string "code", null: false
     t.string "url"
