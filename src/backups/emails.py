@@ -12,7 +12,7 @@ def read_emails(roster: str) -> List[str]:
     Read emails from a .csv file representing the student roster for a course
 
     Args:
-        roster (str): path to roster file, which must be a csv containing a column called 'Email'
+        roster (str): path to roster file, which must be a csv containing a column called 'Email' or 'email'
 
     Returns:
         List[str]: list of students' email addresses
@@ -22,8 +22,14 @@ def read_emails(roster: str) -> List[str]:
     with open(roster, "r", newline="") as f:
         reader = csv.DictReader(f)
         for row in reader:
-            assert "Email" in row, 'csv must contain column "Email"'
-            emails.append(row["Email"])
+            if "Email" not in row and "email" not in row:
+                raise ValueError("roster csv must contain column 'Email' or 'email'")
+            if "Email" in row and "email" in row:
+                raise ValueError("roster csv contains both 'Email' and 'email' columns, can't resolve ambiguity")
+            elif "Email" in row:
+                emails.append(row["Email"])
+            else:
+                emails.append(row["email"])
     return emails
 
 
