@@ -5,6 +5,7 @@ to the OkPy server to retrieve student backups
 
 import requests
 from typing import List, Dict
+from tqdm import tqdm
 
 BASE_URL = "https://okpy.org/api/v3"
 
@@ -42,9 +43,11 @@ def get_backups(
         "limit": limit,
         "offset": offset,
     }
+    headers = {'Accept': 'application/json', 'User-Agent': 'Mozilla/5.0'}
     return requests.get(
         BASE_URL + api_endpoint,
         params=params,
+        headers=headers,
     )
 
 
@@ -85,20 +88,24 @@ def get_backups_for_all_assignments(
 
     for assignment_name in all_names:
         assignment_endpoint = f"{course_endpoint}/{assignment_name}"
-        response = get_backups(
-            assignment_endpoint,
-            email,
-            access_token,
-            limit,
-            offset,
-        )
 
-        if not response.ok:
-            print(
-                f"Response for user {email}, assignment {assignment_name} did not have OK status code: {response}"
+        try:
+            response = get_backups(
+                assignment_endpoint,
+                email,
+                access_token,
+                limit,
+                offset,
             )
 
-        all_responses[assignment_name] = response.json()
+            if not response.ok:
+                print(
+                    f"Response for user {email}, assignment {assignment_name} did not have OK status code: {response}"
+                )
+
+            all_responses[assignment_name] = response.json()
+        except Exception as e:
+            print(f"Exception {type(e)} {e} was raised when getting backup for {email}, skipping")
 
     return all_responses
 
@@ -127,8 +134,7 @@ def get_backups_for_all_users_all_assignments(
     emails = read_all_emails(emails_file)
     email_to_responses = {}  # key: email, value: list of all responses
 
-    for email in emails:
-        print(f"Getting all backups for {email}")
+    for email in tqdm(emails, unit='student'):
         responses = get_backups_for_all_assignments(
             course_endpoint,
             email,
