@@ -9,6 +9,7 @@ import Course from "./pages/Course";
 import Assignment from "./pages/Assignment";
 import Header from "./components/common/Header";
 import Footer from "./components/common/Footer";
+import TabsLayout from "./layouts/TabsLayout";
 
 function App() {
   return (
@@ -26,6 +27,11 @@ function App() {
         <Route
           path="/courses/:courseId/assignments/:assignmentId/students/:studentId"
           element={<SubmissionLayout />}
+        />
+        {/* TODO make this a real route later */}
+        <Route
+          path="/tabs"
+          element={<TabsLayout />}
         />
       </Routes>
 
