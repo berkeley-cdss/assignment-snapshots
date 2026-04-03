@@ -1,0 +1,25 @@
+{
+    "okpy_api": {
+        "course_endpoint": "cal/cs88/sp24",
+        "limit": 150,
+        "offset": 0
+    },
+    "course": {
+        "lab_start": 1,
+        "lab_end": 0,
+        "hw_start": 1,
+        "hw_end": 0,
+        "projects": ["ants"],
+        "assignment_files": {
+            "ants": ["ants.py"]
+        }
+    },
+    "data": {
+        "in_roster": "../../data/private/out/datac88c/sp24/roster.csv",
+        "out_roster": "../../data/private/out/datac88c/sp24/emails.txt",
+        "dump": "../../data/private/out/datac88c/sp24/okpy_api_output.json",
+        "database": "../../data/private/out/datac88c/sp24/snapshots.db",
+        "lint_json": "../../data/private/out/datac88c/sp24/lint_errors.json"
+    },
+    "deidentify": true
+}
