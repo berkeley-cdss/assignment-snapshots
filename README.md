@@ -18,7 +18,7 @@ git clone git@github.com:berkeley-cdss/assignment-snapshots.git
     1. AWS access is only granted to internal UC Berkeley contributors. See internal [onboarding documentation](https://docs.google.com/document/d/1KhpRW0GYBY-HRSRG8b6z3EbRSFQJaqVPPUsha_puY2I/edit?tab=t.0).
     2. When you run the `./bin/dev` command, you should only be able to view the home page with the Login button. If you click the button, it will error until you have done the next step.
 4. To get started with some toy development data **if you are on the IRB protocol** (internal contributors only):
-    1. Replace the `data` directory with the contents of this zip file (unzip it first): [data.zip](https://drive.google.com/file/d/11O9hZ4Fvh8JcTbUuDdtaF5Jv11ZJUWrX/view?usp=drive_link)
+    1. Replace the `data` directory with the contents of this zip file (unzip it first): [data.zip](https://drive.google.com/file/d/1v5MlT2cKcPwxREBDCOsbCAJtv9cedfYI/view?usp=sharing)
     2. Follow the steps in the "[Dumping the database](https://github.com/berkeley-cdss/assignment-snapshots/tree/main/src/backups#dumping-database-from-okpy-backups-cli-into-rails-database)" section of the Backups CLI README to pipe the data from your local data directory into the snapshots Rails development database
 
 ## Repo Structure
