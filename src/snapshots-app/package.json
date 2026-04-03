@@ -24,6 +24,7 @@
     "@git-diff-view/react": "^0.0.26",
     "@monaco-editor/react": "^4.8.0-rc.3",
     "@mui/icons-material": "^7.0.2",
+    "@mui/lab": "^7.0.1-beta.23",
     "@mui/material": "^7.0.2",
     "@mui/x-charts": "^7.28.0",
     "@mui/x-data-grid": "^8.11.3",
