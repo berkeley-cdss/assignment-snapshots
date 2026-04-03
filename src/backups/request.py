@@ -98,12 +98,17 @@ def get_backups_for_all_assignments(
                 offset,
             )
 
+            if response.status_code == 401:
+                raise RuntimeError("OkPy API response had 401 status code. Update your OkPy token in the `.env` file with the result from running `python3 ok --get-token` in any OkPy assignment directory and then try again")
+
             if not response.ok:
                 print(
-                    f"Response for user {email}, assignment {assignment_name} did not have OK status code: {response}"
+                    f"Response for user {email}, assignment {assignment_name} did not have OK status code: {response.status_code}: {response.reason}. {response.text}"
                 )
 
             all_responses[assignment_name] = response.json()
+        except RuntimeError as e:
+            raise e
         except Exception as e:
             print(f"Exception {type(e)} {e} was raised when getting backup for {email}, skipping")
 
