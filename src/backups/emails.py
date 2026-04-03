@@ -25,7 +25,9 @@ def read_emails(roster: str) -> List[str]:
             if "Email" not in row and "email" not in row:
                 raise ValueError("roster csv must contain column 'Email' or 'email'")
             if "Email" in row and "email" in row:
-                raise ValueError("roster csv contains both 'Email' and 'email' columns, can't resolve ambiguity")
+                raise ValueError(
+                    "roster csv contains both 'Email' and 'email' columns, can't resolve ambiguity"
+                )
             elif "Email" in row:
                 emails.append(row["Email"])
             else:

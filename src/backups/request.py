@@ -43,7 +43,7 @@ def get_backups(
         "limit": limit,
         "offset": offset,
     }
-    headers = {'Accept': 'application/json', 'User-Agent': 'Mozilla/5.0'}
+    headers = {"Accept": "application/json", "User-Agent": "Mozilla/5.0"}
     return requests.get(
         BASE_URL + api_endpoint,
         params=params,
@@ -99,7 +99,9 @@ def get_backups_for_all_assignments(
             )
 
             if response.status_code == 401:
-                raise RuntimeError("OkPy API response had 401 status code. Update your OkPy token in the `.env` file with the result from running `python3 ok --get-token` in any OkPy assignment directory and then try again")
+                raise RuntimeError(
+                    "OkPy API response had 401 status code. Update your OkPy token in the `.env` file with the result from running `python3 ok --get-token` in any OkPy assignment directory and then try again"
+                )
 
             if not response.ok:
                 print(
@@ -110,7 +112,9 @@ def get_backups_for_all_assignments(
         except RuntimeError as e:
             raise e
         except Exception as e:
-            print(f"Exception {type(e)} {e} was raised when getting backup for {email}, skipping")
+            print(
+                f"Exception {type(e)} {e} was raised when getting backup for {email}, skipping"
+            )
 
     return all_responses
 
@@ -139,7 +143,7 @@ def get_backups_for_all_users_all_assignments(
     emails = read_all_emails(emails_file)
     email_to_responses = {}  # key: email, value: list of all responses
 
-    for email in tqdm(emails, unit='student'):
+    for email in tqdm(emails, unit="student"):
         responses = get_backups_for_all_assignments(
             course_endpoint,
             email,
