@@ -38,9 +38,13 @@ function BreadcrumbNav() {
   }
 
   function getCourseHumanReadableName(course) {
-    const termCapitalized =
-      course.term.charAt(0).toUpperCase() + course.term.slice(1);
-    return `${course.dept} ${course.code} (${termCapitalized} ${course.year})`;
+    if (course && course.term && course.dept && course.code && course.year) {
+      const termCapitalized =
+        course.term.charAt(0).toUpperCase() + course.term.slice(1);
+      return `${course.dept} ${course.code} (${termCapitalized} ${course.year})`;
+    } else {
+      return "Loading course name";
+    }
   }
 
   function getBreadcrumbs() {
