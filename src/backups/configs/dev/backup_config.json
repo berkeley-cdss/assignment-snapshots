@@ -1,7 +1,7 @@
 {
     "okpy_api": {
         "course_endpoint": "cal/cs88/sp25",
-        "limit": 150,
+        "limit": 5,
         "offset": 0
     },
     "course": {
@@ -9,7 +9,10 @@
         "lab_end": 1,
         "hw_start": 2,
         "hw_end": 2,
-        "projects": ["maps"]
+        "projects": ["maps"],
+        "assignment_files": {
+            "maps": ["utils.py", "abstractions.py", "recommend.py"]
+        }
     },
     "data": {
         "in_roster": "../../data/private/data_c88c_sp25_gradescope_roster.csv",

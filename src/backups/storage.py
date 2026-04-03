@@ -365,17 +365,24 @@ def responses_to_backups(
             if response["code"] == 200:  # skip backups that had an error
                 curr_backups = response["data"]["backups"]
                 for backup_dict in curr_backups:
-                    backup = create_backup_and_write_messages(
-                        course,
-                        assignment,
-                        sha256(student_email) if deidentify else student_email,
-                        backup_dict,
-                        path_prefix,
-                        conn,
-                        deidentify,
-                    )
-                    insert_backup_metadata_record(conn, backup)
-                    num_backups += 1
+                    try:
+                        backup = create_backup_and_write_messages(
+                            course,
+                            assignment,
+                            sha256(student_email) if deidentify else student_email,
+                            backup_dict,
+                            path_prefix,
+                            conn,
+                            deidentify,
+                        )
+                        insert_backup_metadata_record(conn, backup)
+                        num_backups += 1
+                    except FileNotFoundError as e:
+                        # This exception can happen if the file structure is unexpected, for example
+                        # if a student ran OkPy and had nested directories, e.g. "ants/ants.py"
+                        # instead of just "ants.py" being uploaded to OkPy
+                        print(e)
+                        print("Skipping writing this backup to disk and database")
     return num_backups
 
 

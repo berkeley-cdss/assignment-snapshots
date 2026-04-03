@@ -81,12 +81,16 @@ aws s3 sync . s3://$BUCKET_NAME/$FILE_PATH
 
 ## Dumping database from OkPy Backups CLI into Rails database
 
-1. **Optional if not done already:** Run backups CLI command(s) in this directory to create or update `$OUTPUT_DB_NAME.db`. If you are an internal contributor working with the toy data from `data.zip`, skip this step.
-2. Create `.sql` dump of output `.db` file. Replace `$OUTPUT_DB_NAME` and `$OUTPUT_DUMP_NAME` with values of your choice **in the root directory** of the repository:
+1. **Optional if not done already:** Run backups CLI command(s) in this directory to create or update `$OUTPUT_DB_NAME.db`. If you are an internal contributor working with the dev dataset from `data.zip`, skip this step.
+2. Create `.sql` dump of output `.db` file. Replace `$PATH_TO_DB_FILE` and `$PATH_TO_SQL_FILE` with values of your choice **in the root directory** of the repository:
 ```sh
-sqlite3 data/private/$OUTPUT_DB_NAME.db .dump > data/private/$OUTPUT_DUMP_NAME.sql
+# General command
+sqlite3 $PATH_TO_DB_FILE .dump > $PATH_TO_SQL_FILE
+
+# Example using the dev dataset
+sqlite3 data/private/out/dev/c88c_fa25.db .dump > data/private/out/dev/c88c_fa25.sql
 ```
-3. Update `data/private/$OUTPUT_DUMP_NAME.sql`:
+3. Update the SQL file:
     1. Remove `../../data/private/` prefix from paths. **IMPORTANT:** Make sure you are removing the trailing `/`.
     2. Remove/comment out `CREATE TABLE` statements since that will interfere with the Rails database migrations (Rails will already handle table creation on its own end, so if you have a duplicate `CREATE TABLE` statement Rails will error).
 4. **Optional if not done already:** [Generate corresponding Rails model(s)](https://guides.rubyonrails.org/command_line.html#generating-models) **in the `src/snapshots-app` directory** by running the following command. If you are an internal contributor working with the toy data from `data.zip`, skip this step.
@@ -99,9 +103,13 @@ rails generate model <model_name> <column_name:data_type> ...
 ```sh
 rails db:migrate:reset
 ```
-6. Run the following command **in the root directory** of the repository to execute commands from output `.sql` dump into the Rails app `development.sqlite3` database. Replace `$OUTPUT_DUMP_NAME` with the same value from steps 1 and 2:
+6. Run the following command **in the root directory** of the repository to execute commands from output `.sql` dump into the Rails app `development.sqlite3` database. Replace `$PATH_TO_SQL_FILE` with the same value from steps 1 and 2:
 ```sh
-sqlite3 src/snapshots-app/storage/development.sqlite3 < data/private/$OUTPUT_DUMP_NAME.sql
+# General command
+sqlite3 src/snapshots-app/storage/development.sqlite3 < $PATH_TO_SQL_FILE
+
+# Example with dev dataset
+sqlite3 src/snapshots-app/storage/development.sqlite3 < data/private/out/dev/c88c_fa25.sql
 ```
 7. Run the following command **in the `src/snapshots-app` directory** to seed the Rails database with hardcoded initial data:
 ```sh

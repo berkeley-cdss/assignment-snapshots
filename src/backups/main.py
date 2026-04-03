@@ -30,7 +30,7 @@ from storage import (
     store_backup_file_metadata,
 )
 
-DEFAULT_CONFIG_FILE = "backup_config.json"
+DEFAULT_CONFIG_FILE = "configs/dev/backup_config.json"
 
 app = typer.Typer(help="A CLI to retrieve and process OkPy backups")
 
