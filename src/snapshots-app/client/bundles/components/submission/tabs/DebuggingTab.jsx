@@ -20,12 +20,12 @@ import {
   Dangerous,
 } from '@mui/icons-material';
 
-const AutograderSpam = () => <Typography variant="h4">Autograder Spam</Typography>;
-const PrintStatements = () => <Typography variant="h4">Print Statements</Typography>;
-const TestFailures = () => <Typography variant="h4">Test Failures</Typography>;
-const TestRegressions = () => <Typography variant="h4">Test Regressions</Typography>;
-const PseudocodeDetection = () => <Typography variant="h4">Pseudocode Detection</Typography>;
-const Errors = () => <Typography variant="h4">Errors</Typography>;
+import AutograderSpam from "./debugging/AutograderSpam";
+import PrintStatements from "./debugging/PrintStatements";
+import TestFailures from "./debugging/TestFailures";
+import TestRegressions from "./debugging/TestRegressions";
+import PseudocodeDetection from "./debugging/PseudocodeDetection";
+import Errors from "./debugging/Errors";
 
 function DebuggingTab({}) {
   const [activeIndex, setActiveIndex] = useState(0);
