@@ -3,6 +3,8 @@ import { Typography, Box, Paper, Tooltip, IconButton } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 
+import InfoTooltip from "../../../common/InfoTooltip";
+
 const rows = [
   {
     id: 1,
@@ -58,7 +60,7 @@ const formatTimestamp = (dateString) => {
  * Helper to turn millisecond difference into "Xm Ys"
  */
 const formatDuration = (ms) => {
-  if (ms < 0) return '0s';
+  if (ms < 0) return "0s";
   const totalSeconds = Math.floor(ms / 1000);
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
@@ -82,8 +84,8 @@ const AutograderSpam = () => {
       valueFormatter: (value) => formatTimestamp(value),
     },
     {
-      field: 'duration',
-      headerName: 'Duration',
+      field: "duration",
+      headerName: "Duration",
       width: 100,
       valueGetter: (value, row) => {
         const start = new Date(row.startTimestamp).getTime();
@@ -130,9 +132,15 @@ const AutograderSpam = () => {
 
   return (
     <Box sx={{ width: "100%" }}>
-      <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold" }}>
-        Autograder Spam
-      </Typography>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+          Autograder Spam
+        </Typography>
+        <InfoTooltip
+          info="This table shows periods of intense autograder activity within a short time period, which may indicate the student was using the autograder to debug. Click the details icon to jump to that time period in the Timeline tab."
+          placement="right"
+        />
+      </div>
 
       <Paper
         sx={{
