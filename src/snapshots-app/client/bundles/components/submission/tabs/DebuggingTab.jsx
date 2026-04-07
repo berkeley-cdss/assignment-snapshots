@@ -84,11 +84,6 @@ function DebuggingTab({}) {
           }}
         >
           {menuItems[activeIndex].component}
-          <Box sx={{ mt: 2 }}>
-            <Typography color="text.secondary">
-              This is the main display area for {menuItems[activeIndex].text}.
-            </Typography>
-          </Box>
         </Paper>
       </Box>
     </Container>
