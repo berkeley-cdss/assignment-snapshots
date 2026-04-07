@@ -40,7 +40,7 @@ function DebuggingTab({}) {
   ];
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth="xl" sx={{ py: 4 }}>
       <Box sx={{ display: 'flex', gap: 3, minHeight: '80vh' }}>
 
         {/* Left Sidebar */}
