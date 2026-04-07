@@ -163,7 +163,7 @@ const Errors = () => {
 
         {/* Top-Right Sort Toggle Button */}
         <Tooltip
-          title={`Sort errors by frequency (${errorTypeSortDescending ? "Descending" : "Ascending"})`}
+          title={`Sort errors by frequency (Current: ${errorTypeSortDescending ? "Descending" : "Ascending"})`}
         >
           <IconButton
             onClick={toggleSort}
