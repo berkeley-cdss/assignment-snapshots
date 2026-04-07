@@ -342,19 +342,22 @@ const PrintStatements = () => {
         </Box>
 
         <Box sx={{ flexGrow: 1 }}>
-          <DiffEditor
-            height="100%"
-            language="python"
-            original={originalContents}
-            modified={modifiedContents}
-            options={{
-              renderSideBySide: true,
-              readOnly: true,
-              minimap: { enabled: false },
-              fontSize: 13,
-              automaticLayout: true,
-            }}
-          />
+          {selectedId && selectedFileName && (
+            <DiffEditor
+              height="100%"
+              language="python"
+              original={originalContents}
+              modified={modifiedContents}
+              options={{
+                renderSideBySide: true,
+                readOnly: true,
+                fontSize: 13,
+                automaticLayout: true,
+              }}
+              keepCurrentOriginalModel={true}
+              keepCurrentModifiedModel={true}
+            />
+          )}
         </Box>
       </Box>
     </Box>

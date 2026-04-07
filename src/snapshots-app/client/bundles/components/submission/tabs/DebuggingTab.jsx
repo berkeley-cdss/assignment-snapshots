@@ -14,7 +14,6 @@ import {
 import {
   TrendingUp,
   Print,
-  Error,
   SyncProblem,
   Lightbulb,
   Dangerous,
@@ -22,7 +21,6 @@ import {
 
 import AutograderSpam from "./debugging/AutograderSpam";
 import PrintStatements from "./debugging/PrintStatements";
-import TestFailures from "./debugging/TestFailures";
 import TestRegressions from "./debugging/TestRegressions";
 import PseudocodeDetection from "./debugging/PseudocodeDetection";
 import Errors from "./debugging/Errors";
@@ -33,10 +31,9 @@ function DebuggingTab({}) {
   const menuItems = [
     { text: 'Autograder Spam', icon: <TrendingUp />, component: <AutograderSpam /> },
     { text: 'Print Statements', icon: <Print />, component: <PrintStatements /> },
-    { text: 'Test Failures', icon: <Error />, component: <TestFailures /> },
+    { text: 'Errors', icon: <Dangerous />, component: <Errors /> },
     { text: 'Test Regressions', icon: <SyncProblem />, component: <TestRegressions /> },
     { text: 'Pseudocode Detection', icon: <Lightbulb />, component: <PseudocodeDetection /> },
-    { text: 'Errors', icon: <Dangerous />, component: <Errors /> },
   ];
 
   return (
