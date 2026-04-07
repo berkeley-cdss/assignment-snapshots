@@ -29,10 +29,7 @@ function App() {
           element={<SubmissionLayout />}
         />
         {/* TODO make this a real route later */}
-        <Route
-          path="/tabs"
-          element={<TabsLayout />}
-        />
+        <Route path="/tabs" element={<TabsLayout />} />
       </Routes>
 
       <Footer />

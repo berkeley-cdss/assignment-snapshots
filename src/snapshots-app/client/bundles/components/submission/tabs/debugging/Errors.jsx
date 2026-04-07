@@ -93,19 +93,21 @@ const Errors = () => {
       headerName: "Timestamp",
       flex: 1,
       valueFormatter: (value) => formatTimestamp(value),
-      display: 'flex',
+      display: "flex",
     },
     {
       field: "backupId",
       headerName: "Backup ID",
       width: 150,
       renderCell: (params) => (
-        <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+        <Box sx={{ display: "flex", alignItems: "center", height: "100%" }}>
           <Tooltip title="Open in timeline" arrow>
             <Link
               component="button"
               variant="body2"
-              onClick={() => console.log(`Navigating to backup: ${params.value}`)}
+              onClick={() =>
+                console.log(`Navigating to backup: ${params.value}`)
+              }
             >
               {params.value}
             </Link>
@@ -118,13 +120,13 @@ const Errors = () => {
       headerName: "Error Message",
       flex: 2,
       renderCell: (params) => (
-        <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+        <Box sx={{ display: "flex", alignItems: "center", height: "100%" }}>
           <Typography
             variant="body2"
             sx={{
               fontFamily: "monospace",
               color: "#d32f2f",
-              lineHeight: 'normal'
+              lineHeight: "normal",
             }}
           >
             {params.value}
@@ -160,14 +162,24 @@ const Errors = () => {
         </Box>
 
         {/* Top-Right Sort Toggle Button */}
-        <Tooltip title={`Sort errors by frequency (${errorTypeSortDescending ? 'Descending' : 'Ascending'})`}>
-          <IconButton onClick={toggleSort} color="primary" sx={{ border: '1px solid', borderColor: 'divider' }}>
-            {errorTypeSortDescending ? <ArrowDownwardIcon /> : <ArrowUpwardIcon />}
+        <Tooltip
+          title={`Sort errors by frequency (${errorTypeSortDescending ? "Descending" : "Ascending"})`}
+        >
+          <IconButton
+            onClick={toggleSort}
+            color="primary"
+            sx={{ border: "1px solid", borderColor: "divider" }}
+          >
+            {errorTypeSortDescending ? (
+              <ArrowDownwardIcon />
+            ) : (
+              <ArrowUpwardIcon />
+            )}
           </IconButton>
         </Tooltip>
       </Box>
 
-        {/* Error group accordions */}
+      {/* Error group accordions */}
       {sortedGroupedErrors.map(([errorType, errors]) => (
         <Accordion
           key={errorType}
@@ -188,7 +200,8 @@ const Errors = () => {
                 variant="caption"
                 sx={{ color: "text.secondary", ml: 1 }}
               >
-                ({errors.length} {errors.length === 1 ? "occurrence" : "occurrences"})
+                ({errors.length}{" "}
+                {errors.length === 1 ? "occurrence" : "occurrences"})
               </Typography>
             </Box>
           </AccordionSummary>
@@ -196,25 +209,34 @@ const Errors = () => {
           <AccordionDetails
             sx={{
               p: 2,
-              display: 'flex',
-              justifyContent: 'center',
-              backgroundColor: '#fafafa'
+              display: "flex",
+              justifyContent: "center",
+              backgroundColor: "#fafafa",
             }}
           >
-            <Paper sx={{ height: 300, width: "95%", borderRadius: 1, overflow: 'hidden' }}>
+            <Paper
+              sx={{
+                height: 300,
+                width: "95%",
+                borderRadius: 1,
+                overflow: "hidden",
+              }}
+            >
               <DataGrid
                 rows={errors}
                 columns={columns}
                 pageSizeOptions={[5]}
                 initialState={{
                   pagination: { paginationModel: { pageSize: 5 } },
-                  sorting: { sortModel: [{ field: 'timestamp', sort: 'desc' }] },
+                  sorting: {
+                    sortModel: [{ field: "timestamp", sort: "desc" }],
+                  },
                 }}
                 disableRowSelectionOnClick
                 sx={{
-                  '& .MuiDataGrid-cell': {
-                    display: 'flex',
-                    alignItems: 'center',
+                  "& .MuiDataGrid-cell": {
+                    display: "flex",
+                    alignItems: "center",
                   },
                 }}
               />
