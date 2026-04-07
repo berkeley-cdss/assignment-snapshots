@@ -1,10 +1,10 @@
 import React from "react";
 
-import Box from '@mui/material/Box';
-import Tab from '@mui/material/Tab';
-import TabContext from '@mui/lab/TabContext';
-import TabList from '@mui/lab/TabList';
-import TabPanel from '@mui/lab/TabPanel';
+import Box from "@mui/material/Box";
+import Tab from "@mui/material/Tab";
+import TabContext from "@mui/lab/TabContext";
+import TabList from "@mui/lab/TabList";
+import TabPanel from "@mui/lab/TabPanel";
 
 import SummaryTab from "../components/submission/tabs/SummaryTab";
 import StyleTab from "../components/submission/tabs/StyleTab";
@@ -29,9 +29,9 @@ function TabsLayout({}) {
   };
 
   return (
-    <Box sx={{ width: '100%', typography: 'body1' }}>
+    <Box sx={{ width: "100%", typography: "body1" }}>
       <TabContext value={value}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <TabList onChange={handleChange} aria-label="Student submission tabs">
             {TABS.map((tab, idx) => (
               <Tab label={tab.label} value={idx} key={idx} />
