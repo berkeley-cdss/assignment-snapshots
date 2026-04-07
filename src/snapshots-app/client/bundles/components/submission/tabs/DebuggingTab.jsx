@@ -32,8 +32,9 @@ function DebuggingTab({}) {
     { text: 'Autograder Spam', icon: <TrendingUp />, component: <AutograderSpam /> },
     { text: 'Print Statements', icon: <Print />, component: <PrintStatements /> },
     { text: 'Errors', icon: <Dangerous />, component: <Errors /> },
-    { text: 'Test Regressions', icon: <SyncProblem />, component: <TestRegressions /> },
-    { text: 'Pseudocode Detection', icon: <Lightbulb />, component: <PseudocodeDetection /> },
+    // TODO(stretch): implement these pages
+    // { text: 'Test Regressions', icon: <SyncProblem />, component: <TestRegressions /> },
+    // { text: 'Pseudocode Detection', icon: <Lightbulb />, component: <PseudocodeDetection /> },
   ];
 
   return (
