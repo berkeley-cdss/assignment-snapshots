@@ -1,34 +1,15 @@
 import React, { useRef, useState, useMemo } from "react";
 
 import {
-  Box,
-  Container,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Typography,
-  Paper,
-} from "@mui/material";
-import {
-  TrendingUp,
-  Print,
-  SyncProblem,
-  Lightbulb,
-  Dangerous,
-} from "@mui/icons-material";
 
-import AutograderSpam from "./debugging/AutograderSpam";
-import PrintStatements from "./debugging/PrintStatements";
-import TestRegressions from "./debugging/TestRegressions";
-import PseudocodeDetection from "./debugging/PseudocodeDetection";
-import Errors from "./debugging/Errors";
+  Typography
+} from "@mui/material";
+
+
 import FileViewer from "../FileViewer";
 
 // TODO(frontend): organize imports
-import useSubmissionFileData from "../hooks/useSubmissionFileData";
-import { useParams } from "react-router";
+
 import InfoTooltip from "../../common/InfoTooltip";
 
 import {
@@ -45,16 +26,6 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useAtom } from "jotai";
 import { backupsAtom } from "../../../state/atoms";
-
-import { useCopyToClipboard } from "react-use";
-
-import Button from "@mui/material/Button";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-
-
-import AutograderOutputDialog from "../../../components/submission/AutograderOutputDialog";
-import UnlockingTestOutputDialog from "../../../components/submission/UnlockingTestOutputDialog";
-
 
 
 function StyleTab() {
@@ -73,10 +44,7 @@ function StyleTab() {
   
 
   console.log(courseId, assignmentId, studentId);
-  const editorRef = useRef(null);
-  const [expandedCodes, setExpandedCodes] = useState(new Set()); // for accordions
   const [sortBy, setSortBy] = useState("frequency"); 
-  const [filterCode, setFilterCode] = useState(null); // null = show all
 
   // const { courseId, assignmentId, studentId } = useParams(); 
 
@@ -95,14 +63,7 @@ function StyleTab() {
 
   const [lintErrors, setLintErrors] = React.useState([]);
   const [filesToMetadata, setFilesToMetadata] = React.useState(null);
-
-  const [isSnackbarOpen, setIsSnackbarOpen] = React.useState(false);
-  const [state, copyToClipboard] = useCopyToClipboard();
-
-  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-
   const [diffViewerOpen, setDiffViewerOpen] = React.useState(false);
-  const [prevFileContents, setPrevFileContents] = React.useState("");
 
   
 
@@ -268,67 +229,6 @@ function StyleTab() {
       });
   }, [backups, selectedBackup, file]);
 
-  const backupCreatedTimestamps = React.useMemo(() => {
-    if (backups.length === 0) {
-      return [];
-    }
-
-    return backups.map((backup) => backup.created);
-  }, [backups]);
-
-  function getTotalQuestionsSolved(history) {
-    return history.reduce(
-      (total, currQuestion) => total + (currQuestion.solved ? 1 : 0),
-      0,
-    );
-  }
-
-  function getTotalQuestionsUnsolved(history) {
-    return history.reduce(
-      (total, currQuestion) => total + (currQuestion.solved ? 0 : 1),
-      0,
-    );
-  }
-
-  function getTotalAttempts(history) {
-    return history.reduce(
-      (total, currQuestion) => total + currQuestion.attempts,
-      0,
-    );
-  }
-
-  const numQuestionsSolved = React.useMemo(() => {
-    if (backups.length === 0) {
-      return [];
-    }
-
-    return backups.map((backup) => getTotalQuestionsSolved(backup.history));
-  }, [backups]);
-
-  const numQuestionsUnsolved = React.useMemo(() => {
-    if (backups.length === 0) {
-      return [];
-    }
-
-    return backups.map((backup) => getTotalQuestionsUnsolved(backup.history));
-  }, [backups]);
-
-  const numAttempts = React.useMemo(() => {
-    if (backups.length === 0) {
-      return [];
-    }
-
-    return backups.map((backup) => getTotalAttempts(backup.history));
-  }, [backups]);
-
-  function handleBackupSelect(selectedBackupIndex) {
-    setSelectedBackup(selectedBackupIndex);
-    // Set these values to empty so that circular progress shows while loading new contents
-    setCode("");
-    setAutograderOutput("");
-    setFilesToMetadata(null);
-    setPrevFileContents("");
-  }
 
   function getLanguage(file) {
     const extension = file.split(".").pop();
@@ -339,81 +239,6 @@ function StyleTab() {
         throw new Error(`Unsupported file extension: ${extension}`);
     }
   }
-
-  const copyCode = () => {
-    // Logic to copy `code`
-    copyToClipboard(code);
-    setIsSnackbarOpen(true);
-  };
-
-  const handleSnackbarClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setIsSnackbarOpen(false);
-  };
-
-  function getOutputButton() {
-    if (backups.length !== 0) {
-      // TODO not really sure why but sometimes even if a test case is unlocking type, there are no unlock messages.
-      // if this is the case, don't display the "unlocking tests output" button
-      if (
-        backups[selectedBackup].unlock &&
-        backups[selectedBackup].unlock_message_cases.length !== 0
-      ) {
-        return (
-          <Button
-            variant="contained"
-            onClick={() => setIsDialogOpen(true)}
-            startIcon={<VisibilityIcon />}
-          >
-            Unlocking Test Output
-          </Button>
-        );
-      } else if (!backups[selectedBackup].unlock) {
-        return (
-          <Button
-            variant="contained"
-            onClick={() => setIsDialogOpen(true)}
-            startIcon={<VisibilityIcon />}
-          >
-            Autograder Output
-          </Button>
-        );
-      }
-    }
-
-    return null;
-  }
-
-  function getOutputDialog() {
-    if (backups.length !== 0) {
-      if (backups[selectedBackup].unlock) {
-        return (
-          <UnlockingTestOutputDialog
-            open={isDialogOpen}
-            onClose={() => setIsDialogOpen(false)}
-            unlockingTestCases={backups[selectedBackup].unlock_message_cases}
-            questionCliNames={backups[selectedBackup].question_cli_names}
-          />
-        );
-      } else {
-        return (
-          <AutograderOutputDialog
-            open={isDialogOpen}
-            onClose={() => setIsDialogOpen(false)}
-            autograderOutput={autograderOutput}
-            questionCliNames={backups[selectedBackup].question_cli_names}
-          />
-        );
-      }
-    }
-
-    return null;
-  }
-
-  
 
   function getLanguage(file) {
     const extension = file.split(".").pop();

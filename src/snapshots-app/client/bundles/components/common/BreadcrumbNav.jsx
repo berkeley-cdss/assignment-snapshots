@@ -52,12 +52,12 @@ function BreadcrumbNav() {
 
     if (matchesCourseRoute) {
       const course = findById(courses, matchesCourseRoute.params.courseId);
-      if (course) {
+      
       result.push({
         name: getCourseHumanReadableName(course),
         path: `/courses/${matchesCourseRoute.params.courseId}`,
       }); 
-    }
+  
     }
 
     if (matchesAssignmentRoute) {
@@ -65,23 +65,18 @@ function BreadcrumbNav() {
         assignments,
         matchesAssignmentRoute.params.assignmentId,
       );
-      if (assignment) {
       result.push({
         name: assignment.name,
         path: `/courses/${matchesAssignmentRoute.params.courseId}/assignments/${matchesAssignmentRoute.params.assignmentId}`,
       });
     }
-    
-    }
 
     if (matchesStudentRoute) {
       const student = findById(students, matchesStudentRoute.params.studentId);
-      if (student) {
       result.push({
         name: `${student.first_name} ${student.last_name} (${student.student_id})`,
         path: `/courses/${matchesStudentRoute.params.courseId}/assignments/${matchesStudentRoute.params.assignmentId}/students/${matchesStudentRoute.params.studentId}`,
       });
-    }
     }
 
     return result;
