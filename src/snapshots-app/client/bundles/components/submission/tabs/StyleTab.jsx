@@ -97,6 +97,7 @@ function StyleTab() {
   const FILE_VIEWER_TOOLTIP_INFO =
     "View the code file(s) and OkPy output for this particular backup";
 
+    // TODO: update eventually to correctly use params
     const routeParams = React.useMemo(
       () => ({ courseId: "1", assignmentId: "1", studentId: "3" }),
       [],
@@ -415,10 +416,8 @@ function StyleTab() {
 
 
   return (
-    <div style={{ display: "flex", height: "100%" }}>
-      {/* left sidebar */}
-      
-      <div style={{ width: "33%", overflowY: "auto", borderRight: "1px solid #ccc", padding: "1rem" }}>
+    <div style={{ display: "flex", height: "calc(100vh - 160px)", minHeight: 0 }}>
+  <div style={{ width: "33%", overflowY: "auto", borderRight: "1px solid #ccc", padding: "1rem", minHeight: 0 }}>
         {/* sort/filter controls*/}
         <FormControl>
         <InputLabel id="style-sort-label">Sort</InputLabel> 
@@ -446,6 +445,22 @@ function StyleTab() {
           
         }}
       >
+        {code === "" ? (
+              <CircularProgress />
+            ) : (
+              <FileViewer
+                code={code}
+                language={getLanguage(file)}
+                lightMode={lightMode}
+                lintErrors={lintErrors}
+                // NOTE: This is needed so that the FileViewer component
+                // re-mounts after DiffViewer dialog closes, otherwise
+                // error occurs because Monaco editor ref gets disposed
+                // when DiffViewer dialog opens
+                key={`${file}-${diffViewerOpen}`}
+              />
+            )}
+
         
       </div>
     </div>
