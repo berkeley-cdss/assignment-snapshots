@@ -30,6 +30,12 @@ function App() {
         />
         {/* TODO make this a real route later */}
         <Route path="/tabs" element={<TabsLayout />} />
+
+        {/* temp route for StyleTab.  TODO: fix this route later */}
+        <Route
+          path="/courses/:courseId/assignments/:assignmentId/students/:studentId/tabs"
+          element={<TabsLayout />}
+        />
       </Routes>
 
       <Footer />
