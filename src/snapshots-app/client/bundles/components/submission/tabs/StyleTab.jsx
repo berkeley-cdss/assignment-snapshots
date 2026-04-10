@@ -30,7 +30,16 @@ import FileViewer from "../FileViewer";
 import useSubmissionFileData from "../hooks/useSubmissionFileData";
 import { useParams } from "react-router";
 
-import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import {
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 import CircularProgress from "@mui/material/CircularProgress";
 import { useAtom } from "jotai";
@@ -419,7 +428,7 @@ function StyleTab() {
     <div style={{ display: "flex", height: "calc(100vh - 160px)", minHeight: 0 }}>
   <div style={{ width: "33%", overflowY: "auto", borderRight: "1px solid #ccc", padding: "1rem", minHeight: 0 }}>
         {/* sort/filter controls*/}
-        <FormControl>
+        <FormControl fullWidth sx={{ mb: 2 }}>
         <InputLabel id="style-sort-label">Sort</InputLabel> 
         <Select
           labelId="style-sort-label"
@@ -431,11 +440,34 @@ function StyleTab() {
           }}
         >
           <MenuItem value={"frequency"}>Most Frequent</MenuItem>
-          <MenuItem value={"code"}>Code A–Z</MenuItem>
+          <MenuItem value={"code"}>Code A-Z</MenuItem>
         </Select>
       </FormControl>
 
-        {/* TODO: insert accordions */}
+        <Typography variant="subtitle2" sx={{ mb: 1 }}>
+          Lint ({lintErrors.length})
+        </Typography>
+        {lintErrors.length === 0 ? (
+          <Typography variant="body2" color="text.secondary">
+            No lint issues for this file.
+          </Typography>
+        ) : (
+          lintErrors.map((err, index) => (
+            <Accordion key={`${err.code}-${err.start_location_row}-${index}`} disableGutters>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="body2" sx={{ pr: 1 }}>
+                  Line {err.start_location_row}
+                  {err.code ? ` · ${err.code}` : ""}
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
+                  {err.message}
+                </Typography>
+              </AccordionDetails>
+            </Accordion>
+          ))
+        )}
       </div>
 
       <div
