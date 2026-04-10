@@ -27,17 +27,44 @@ import Errors from "./debugging/Errors";
 import FileViewer from "../FileViewer";
 
 
-// TODO: consolidate
-import { FormControl, InputLabel } from "@mui/material";
-import { Select } from "@mui/material";
-import { MenuItem } from "@mui/material";
+import useSubmissionFileData from "../hooks/useSubmissionFileData";
+import { useParams } from "react-router";
+
+import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+
+import CircularProgress from "@mui/material/CircularProgress";
 
 
-function StyleTab({ lintErrors = [], code, language, lightMode }) {
+
+function StyleTab({  language, lightMode }) {
+
+  
+
+
+
   const editorRef = useRef(null);
   const [expandedCodes, setExpandedCodes] = useState(new Set()); // for accordions
   const [sortBy, setSortBy] = useState("frequency"); 
   const [filterCode, setFilterCode] = useState(null); // null = show all
+
+  const { courseId, assignmentId, studentId } = useParams(); 
+
+  const {
+    files,
+    file,
+    setFile,
+    code,
+    lintErrors,
+    loadingBackups,
+    error,
+  } = useSubmissionFileData({ courseId, assignmentId, studentId });
+
+  function getLanguage(file) {
+    if (!file || !file.includes(".")) return "python"; // temporary fallback
+    const extension = file.split(".").pop();
+    if (extension === "py") return "python";
+    return "python"; // or throw with better context
+  }
 
 
   return (
@@ -65,8 +92,25 @@ function StyleTab({ lintErrors = [], code, language, lightMode }) {
         {/* insert accordions */}
       </div>
 
-      <div style={{ width: "67%", padding: "1rem" }}>
-        {/* insert  file viewer  */}
+      <div
+        style={{
+          width: "67%",
+          padding: "1rem",
+          
+        }}
+      >
+        {/* currently loads infinitely */}
+        {loadingBackups || !file || !code ? (
+          <CircularProgress />
+        ) : (
+          <FileViewer
+            code={code}
+            language={getLanguage(file)}
+            lightMode={lightMode}
+            lintErrors={lintErrors}
+            key={`${file}`}
+          />
+        )}
       </div>
     </div>
   );
