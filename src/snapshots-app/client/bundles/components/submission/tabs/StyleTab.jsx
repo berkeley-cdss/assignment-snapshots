@@ -26,9 +26,10 @@ import PseudocodeDetection from "./debugging/PseudocodeDetection";
 import Errors from "./debugging/Errors";
 import FileViewer from "../FileViewer";
 
-
+// TODO(frontend): organize imports
 import useSubmissionFileData from "../hooks/useSubmissionFileData";
 import { useParams } from "react-router";
+import InfoTooltip from "../../common/InfoTooltip";
 
 import {
   FormControl,
@@ -103,17 +104,16 @@ function StyleTab() {
   const [diffViewerOpen, setDiffViewerOpen] = React.useState(false);
   const [prevFileContents, setPrevFileContents] = React.useState("");
 
-  const FILE_VIEWER_TOOLTIP_INFO =
-    "View the code file(s) and OkPy output for this particular backup";
+  
 
-    // TODO: update eventually to correctly use params
+    // TODO: update eventually to correctly use params (rather than hardcoding)
     const routeParams = React.useMemo(
-      () => ({ courseId: "1", assignmentId: "1", studentId: "3" }),
+      () => ({ courseId: "1", assignmentId: "1", studentId: "2" }),
       [],
     );
 
 
-  // TODO: abstract this to useSubmissionFileData hook
+  // TODO(frontend): abstract this to useSubmissionFileData hook
   // Fetch backups
   React.useEffect(() => {
     fetch(
@@ -415,18 +415,30 @@ function StyleTab() {
 
   
 
-
   function getLanguage(file) {
-    if (!file || !file.includes(".")) return "python"; // temporary fallback
     const extension = file.split(".").pop();
-    if (extension === "py") return "python";
-    return "python"; // or throw with better context
+    switch (extension) {
+      case "py":
+        return "python";
+      default:
+        throw new Error(`Unsupported file extension: ${extension}`);
+    }
   }
 
 
   return (
     <div style={{ display: "flex", height: "calc(100vh - 160px)", minHeight: 0 }}>
   <div style={{ width: "33%", overflowY: "auto", borderRight: "1px solid #ccc", padding: "1rem", minHeight: 0 }}>
+       
+  <div style={{ display: "flex", alignItems: "center", gap: 8, paddingBottom: "2rem"}}>
+        <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+          Lint Errors
+        </Typography>
+        <InfoTooltip
+          info="This tab allows you to view details of different lint errors, such as details of where that lint error occured and a preview of what was on that line. Click on a lint error to jump to that position on the file viewer."
+          placement="right"
+        />
+      </div>
         {/* sort/filter controls*/}
         <FormControl fullWidth sx={{ mb: 2 }}>
         <InputLabel id="style-sort-label">Sort</InputLabel> 
@@ -443,6 +455,8 @@ function StyleTab() {
           <MenuItem value={"code"}>Code A-Z</MenuItem>
         </Select>
       </FormControl>
+
+      {/* TODO(frontend): group lint errors by code */}
 
         <Typography variant="subtitle2" sx={{ mb: 1 }}>
           Lint ({lintErrors.length})
