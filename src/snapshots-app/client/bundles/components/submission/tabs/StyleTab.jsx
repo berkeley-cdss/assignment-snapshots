@@ -1,9 +1,6 @@
 import React, { useRef, useState, useMemo } from "react";
 
-import {
-
-  Typography
-} from "@mui/material";
+import { Box, Typography } from "@mui/material";
 
 
 import FileViewer from "../FileViewer";
@@ -43,7 +40,6 @@ function StyleTab() {
   const studentId = 3;
   
 
-  console.log(courseId, assignmentId, studentId);
   const [sortBy, setSortBy] = useState("frequency"); 
 
   // const { courseId, assignmentId, studentId } = useParams(); 
@@ -250,6 +246,24 @@ function StyleTab() {
     }
   }
 
+  const lintErrorsByCode = useMemo(() => {
+    const groups = new Map();
+    for (const err of lintErrors) {
+      const key = err.code ?? "(no code)";
+      if (!groups.has(key)) {
+        groups.set(key, []);
+      }
+      groups.get(key).push(err);
+    }
+    const entries = Array.from(groups.entries());
+    if (sortBy === "frequency") {
+      entries.sort((a, b) => b[1].length - a[1].length);
+    } else {
+      entries.sort((a, b) => a[0].localeCompare(b[0]));
+    }
+    return entries;
+  }, [lintErrors, sortBy]);
+
 
   return (
     <div style={{ display: "flex", height: "calc(100vh - 160px)", minHeight: 0 }}>
@@ -281,8 +295,6 @@ function StyleTab() {
         </Select>
       </FormControl>
 
-      {/* TODO(frontend): group lint errors by code */}
-
         <Typography variant="subtitle2" sx={{ mb: 1 }}>
           Lint ({lintErrors.length})
         </Typography>
@@ -291,18 +303,30 @@ function StyleTab() {
             No lint issues for this file.
           </Typography>
         ) : (
-          lintErrors.map((err, index) => (
-            <Accordion key={`${err.code}-${err.start_location_row}-${index}`} disableGutters>
+          lintErrorsByCode.map(([errorCode, errorsForCode]) => (
+            <Accordion
+              key={errorCode}
+              disableGutters
+            >
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography variant="body2" sx={{ pr: 1 }}>
-                  Line {err.start_location_row}
-                  {err.code ? ` · ${err.code}` : ""}
+                  {errorCode} ({errorsForCode.length})
                 </Typography>
               </AccordionSummary>
               <AccordionDetails>
-                <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
-                  {err.message}
-                </Typography>
+                {errorsForCode.map((err, index) => (
+                  <Box
+                    key={`${err.start_location_row}-${err.start_location_col}-${index}`}
+                    sx={{ mb: index < errorsForCode.length - 1 ? 2 : 0 }}
+                  >
+                    <Typography variant="caption" color="text.secondary" display="block">
+                      Line {err.start_location_row}, col {err.start_location_col}
+                    </Typography>
+                    <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
+                      {err.message}
+                    </Typography>
+                  </Box>
+                ))}
               </AccordionDetails>
             </Accordion>
           ))
