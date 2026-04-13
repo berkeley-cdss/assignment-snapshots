@@ -10,102 +10,119 @@ import {
   Typography,
   Paper,
 } from "@mui/material";
-import { AccessTime, Save, Error, LeaderboardSharp } from "@mui/icons-material";
-import { BarChart } from "@mui/x-charts/BarChart";
+import { AccessTime, Save, Error, LeaderboardSharp, Timer, Check } from "@mui/icons-material";
+
+import StatisticsDashboard from "./debugging/StatisticsDashboard";
 import InfoTooltip from "../../common/InfoTooltip";
 
-const Histogram = ({ title, tooltip, xLabels, data }) => (
-  <Box>
-    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-      <Typography variant="h6">{title}</Typography>
-      <InfoTooltip info={tooltip} />
-    </Box>
-    <BarChart
-      xAxis={[{ scaleType: "band", data: xLabels }]}
-      leftAxis={null}
-      series={[{ data }]}
-      height={300}
-    />
-  </Box>
-);
+// TODO: move graphs from Submission Layout into here
+// TODO: lines added/removed rich git diff chart like encourse
+
+// TODO: problem summaries [subtasks]
+  // TODO: duration plots for problems (see slack)
+  // TODO: number of backups for each problem
+  // TODO: plot time spent on unlocking vs correctness tests for each problem
+
+// TODO: radar plot
 
 function SummaryTab({}) {
   const [activeIndex, setActiveIndex] = useState(0);
 
+  // TOOD: highlight bucket the student is in: https://mui.com/x/react-charts/bars/?_gl=1*1qmfqpr*_up*MQ..*_ga*NTg1ODUwMzMxLjE3NzYwODczMjY.*_ga_5NXDQLC2ZK*czE3NzYwODczMjUkbzEkZzAkdDE3NzYwODczMjUkajYwJGwwJGgw#color-scale
   const menuItems = [
     {
-      text: "Time Taken",
-      icon: <AccessTime />,
-      tooltip: "How long it took to complete the assignment",
+      text: "Score",
+      icon: <LeaderboardSharp />,
       component: (
-        <Histogram
-          title="Time Taken (min)"
+        <StatisticsDashboard
+          title="Score"
           tooltip="Hover over chart for more details"
-          xLabels={["0-10m", "10-20m", "20-30m", "30-40m", "40-50m", "50m+"]}
-          data={[20, 55, 80, 60, 35, 15]}
+          xLabels={["0-10", "10-20", "20-30", "30-40", "40-50", "50-60", "60-70", "70-80", "80-90", "90-100"]}
+          studentValue={25}
+          data={[5, 10, 20, 5, 20, 50, 60, 50, 90, 80]}
+        />
+      ),
+    },
+    {
+      text: "Number of Problems Solved",
+      icon: <Check />,
+      component: (
+        <StatisticsDashboard
+          title="Number of Problems Solved"
+          tooltip="Hover over chart for more details"
+          xLabels={["0-50", "50-100", "100-200", "200-500", "500+"]}
+          studentValue={25}
+          data={[10, 50, 60, 80, 35]}
         />
       ),
     },
     {
       text: "Number of Backups",
       icon: <Save />,
-      tooltip: "Number of backups compared to other students",
       component: (
-        <Histogram
+        <StatisticsDashboard
           title="Number of Backups"
           tooltip="Hover over chart for more details"
           xLabels={["0-50", "50-100", "100-200", "200-500", "500+"]}
+          studentValue={25}
           data={[10, 50, 60, 80, 35]}
         />
       ),
     },
     {
-      text: "Comparative Score",
-      icon: <LeaderboardSharp />,
-      tooltip: "Score on assignment compared to other students",
+      text: "Total Time Spent",
+      icon: <AccessTime />,
+      tooltip: "Timestamp of last backup minus timestamp of first backup",
       component: (
-        <Histogram
-          title="Score Distribution (%)"
+        <StatisticsDashboard
+          title="Total Time Spent (min)"
           tooltip="Hover over chart for more details"
-          xLabels={[
-            "0-10%",
-            "10-20%",
-            "20-30%",
-            "30-40%",
-            "40-50%",
-            "50-60%",
-            "60-70%",
-            "70-80%",
-            "80-90%",
-            "90-100%",
-          ]}
-          data={[5, 10, 20, 5, 20, 50, 60, 50, 90, 80]}
+          xLabels={["0-10", "10-20", "20-30", "30-40", "40-50", "50+"]}
+          studentValue={25}
+          data={[20, 55, 80, 60, 35, 15]}
         />
       ),
     },
     {
-      text: "Common Errors",
-      icon: <Error />,
-      tooltip: "Most common errors for this student",
+      text: "Total Active Time Spent",
+      icon: <Timer />,
+      tooltip: "Total time spent on task. To compute this, we do not count large gaps in activity.",
       component: (
-        <Histogram
-          title="Common Errors"
+        <StatisticsDashboard
+          title="Total Active Time Spent (min)"
           tooltip="Hover over chart for more details"
-          xLabels={["I was not sure what to put for this"]}
-          data={[67]}
+          xLabels={["0-10", "10-20", "20-30", "30-40", "40-50", "50+"]}
+          studentValue={25}
+          data={[20, 55, 80, 60, 35, 15]}
         />
       ),
     },
+
+    {
+      text: "Number of Lint Errors",
+      icon: <Error />,
+      tooltip: "Number of lint errors in the student's final backup",
+      component: (
+        <StatisticsDashboard
+          title="Number of Lint Errors"
+          tooltip="Hover over chart for more details"
+          xLabels={["0-50", "50-100", "100-200", "200-500", "500+"]}
+          studentValue={25}
+          data={[10, 50, 60, 80, 35]}
+        />
+      ),
+    },
+
   ];
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        Summary Stats
-      </Typography>
-      <Typography variant="h6" gutterBottom>
-        Select a stat to learn more.
-      </Typography>
+      <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "2rem" }}>
+        <Typography variant="h4">Summary Statistics</Typography>
+        <InfoTooltip info="Summary statistics about this student's performance on this assignment, with comparisons to other students" />
+      </div>
+
+      {/* TODO: generalize this left sidebar + main area into a component */}
       <Box sx={{ display: "flex", gap: 3, minHeight: "80vh" }}>
         {/* Left Sidebar */}
         <Paper
@@ -131,7 +148,7 @@ function SummaryTab({}) {
                     onClick={(e) => e.stopPropagation()}
                     sx={{ ml: "auto", display: "flex", alignItems: "center" }}
                   >
-                    <InfoTooltip info={item.tooltip} />
+                    {item.tooltip ? <InfoTooltip info={item.tooltip} /> : null}
                   </Box>
                 </ListItemButton>
               </ListItem>
