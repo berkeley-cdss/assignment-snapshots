@@ -10,7 +10,14 @@ import {
   Typography,
   Paper,
 } from "@mui/material";
-import { AccessTime, Save, Error, LeaderboardSharp, Timer, Check } from "@mui/icons-material";
+import {
+  AccessTime,
+  Save,
+  Error,
+  LeaderboardSharp,
+  Timer,
+  Check,
+} from "@mui/icons-material";
 
 import StatisticsDashboard from "./debugging/StatisticsDashboard";
 import InfoTooltip from "../../common/InfoTooltip";
@@ -19,9 +26,9 @@ import InfoTooltip from "../../common/InfoTooltip";
 // TODO: lines added/removed rich git diff chart like encourse
 
 // TODO: problem summaries [subtasks]
-  // TODO: duration plots for problems (see slack)
-  // TODO: number of backups for each problem
-  // TODO: plot time spent on unlocking vs correctness tests for each problem
+// TODO: duration plots for problems (see slack)
+// TODO: number of backups for each problem
+// TODO: plot time spent on unlocking vs correctness tests for each problem
 
 // TODO: radar plot
 
@@ -37,7 +44,18 @@ function SummaryTab({}) {
         <StatisticsDashboard
           title="Score"
           tooltip="Hover over chart for more details"
-          xLabels={["0-10", "10-20", "20-30", "30-40", "40-50", "50-60", "60-70", "70-80", "80-90", "90-100"]}
+          xLabels={[
+            "0-10",
+            "10-20",
+            "20-30",
+            "30-40",
+            "40-50",
+            "50-60",
+            "60-70",
+            "70-80",
+            "80-90",
+            "90-100",
+          ]}
           studentValue={25}
           data={[5, 10, 20, 5, 20, 50, 60, 50, 90, 80]}
         />
@@ -86,7 +104,8 @@ function SummaryTab({}) {
     {
       text: "Total Active Time Spent",
       icon: <Timer />,
-      tooltip: "Total time spent on task. To compute this, we do not count large gaps in activity.",
+      tooltip:
+        "Total time spent on task. To compute this, we do not count large gaps in activity.",
       component: (
         <StatisticsDashboard
           title="Total Active Time Spent (min)"
@@ -112,12 +131,18 @@ function SummaryTab({}) {
         />
       ),
     },
-
   ];
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "2rem" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "1rem",
+          marginBottom: "2rem",
+        }}
+      >
         <Typography variant="h4">Summary Statistics</Typography>
         <InfoTooltip info="Summary statistics about this student's performance on this assignment, with comparisons to other students" />
       </div>
