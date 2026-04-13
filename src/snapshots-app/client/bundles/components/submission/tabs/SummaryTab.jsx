@@ -14,7 +14,7 @@ import { AccessTime, Save, Error, LeaderboardSharp } from "@mui/icons-material";
 import { BarChart } from "@mui/x-charts/BarChart";
 import InfoTooltip from "../../common/InfoTooltip";
 
-const Distribution = ({ title, tooltip, xLabels, data }) => (
+const Histogram = ({ title, tooltip, xLabels, data }) => (
   <Box>
     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
       <Typography variant="h6">{title}</Typography>
