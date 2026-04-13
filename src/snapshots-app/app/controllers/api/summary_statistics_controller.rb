@@ -79,9 +79,35 @@ class Api::SummaryStatisticsController < ApplicationController
     return { "xLabels": bins, "studentValue": student_score, "data": data }
   end
 
-  def get_problems_solved_distribution(course_id, assignment_id, user_id)
-    # TODO implement
-    return {}
+  def get_problems_solved_distribution(course_id, assignment_id, user_id, course, student_email)
+    latest_analytics = get_latest_backups(course_id, assignment_id)
+      .joins("INNER JOIN analytics_messages ON analytics_messages.backup_id = backup_metadata.backup_id")
+      .select("backup_metadata.*, analytics_messages.*")
+
+    student_solved = 0
+    data = []
+
+    latest_analytics.each do |backup|
+      solved = 0
+
+      JSON.parse(backup.history).each do |question|
+        if question["solved"]
+          solved += 1
+        end
+      end
+
+
+      if backup.student_email == student_email
+        student_solved = solved
+      end
+
+      data << solved
+    end
+
+    bin_size = (data.max - data.min) / 10
+    bins = get_bins(data.min, data.max, bin_size)
+
+    return { "xLabels": bins, "studentValue": student_solved, "data": data }
   end
 
   def get_number_of_backups_distribution(course_id, assignment_id, user_id)
@@ -135,7 +161,7 @@ class Api::SummaryStatisticsController < ApplicationController
       "assignment_id": assignment_id,
       "user_id": user_id,
       "score_distribution": get_score_distribution(course_id, assignment_id, user_id, course, student.email),
-      "problems_solved_distribution": get_problems_solved_distribution(course_id, assignment_id, user_id),
+      "problems_solved_distribution": get_problems_solved_distribution(course_id, assignment_id, user_id, course, student.email),
       "number_of_backups_distribution": get_number_of_backups_distribution(course_id, assignment_id, user_id),
       "total_time_spent_distribution": get_total_time_spent_distribution(course_id, assignment_id, user_id),
       "active_time_spent_distribution": get_active_time_spent_distribution(course_id, assignment_id, user_id),
