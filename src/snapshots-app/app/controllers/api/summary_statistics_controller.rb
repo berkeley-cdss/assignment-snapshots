@@ -40,7 +40,7 @@ class Api::SummaryStatisticsController < ApplicationController
     latest_analytics = get_latest_analytics(course_endpoint, assignment_endpoint)
 
     student_score = 0
-    data = [["Student Email", "Score"]]
+    data = [ [ "Student Email", "Score" ] ]
 
     latest_analytics.each do |backup|
       score = 0
@@ -55,7 +55,7 @@ class Api::SummaryStatisticsController < ApplicationController
         student_score = score
       end
 
-      data << [backup.student_email, score]
+      data << [ backup.student_email, score ]
     end
 
     { "studentValue": student_score, "data": data }
@@ -66,7 +66,7 @@ class Api::SummaryStatisticsController < ApplicationController
     latest_analytics = get_latest_analytics(course_endpoint, assignment_endpoint)
 
     student_solved = 0
-    data = [["Student Email", "Problems Solved"]]
+    data = [ [ "Student Email", "Problems Solved" ] ]
 
     latest_analytics.each do |backup|
       solved = 0
@@ -81,7 +81,7 @@ class Api::SummaryStatisticsController < ApplicationController
         student_solved = solved
       end
 
-      data << [backup.student_email, solved]
+      data << [ backup.student_email, solved ]
     end
 
     { "studentValue": student_solved, "data": data }
@@ -97,10 +97,10 @@ class Api::SummaryStatisticsController < ApplicationController
       .select("student_email, COUNT(*) as num_backups")
 
     student_num_backups = 0
-    data = [["Student Email", "Number of Backups"]]
+    data = [ [ "Student Email", "Number of Backups" ] ]
 
     num_backups.each do |backup|
-      data << [backup.student_email, backup.num_backups]
+      data << [ backup.student_email, backup.num_backups ]
 
       if backup.student_email == student_email
         student_num_backups = backup.num_backups
@@ -120,11 +120,11 @@ class Api::SummaryStatisticsController < ApplicationController
       .select("student_email, unixepoch(MAX(created)) - unixepoch(MIN(created)) as total_time_sec")
 
     student_time_spent = 0
-    data = [["Student Email", "Total Time Spent (days)"]]
+    data = [ [ "Student Email", "Total Time Spent (days)" ] ]
 
     timestamps.each do |timestamp|
       time_spent_days = (timestamp.total_time_sec / SEC_PER_MIN / MIN_PER_HOUR / HOUR_PER_DAY).round(2)
-      data << [timestamp.student_email, time_spent_days]
+      data << [ timestamp.student_email, time_spent_days ]
 
       if timestamp.student_email == student_email
         student_time_spent = time_spent_days
@@ -151,12 +151,12 @@ class Api::SummaryStatisticsController < ApplicationController
       .group(:student_email)
 
     # Map the results to hours
-    data = [["Student Email", "Active Time Spent (min)"]]
+    data = [ [ "Student Email", "Active Time Spent (min)" ] ]
     student_active_time_spent = nil
 
     results.each do |row|
       total_min = (row.total_sec / SEC_PER_MIN).round(2)
-      data << [row.student_email, total_min]
+      data << [ row.student_email, total_min ]
       student_active_time_spent = total_min if row.student_email == student_email
     end
 
@@ -174,12 +174,12 @@ class Api::SummaryStatisticsController < ApplicationController
       .select("student_email, COUNT(lint_errors.id) as error_count")
 
     student_lint_errors = 0
-    data = [["Student Email", "Lint Errors"]]
+    data = [ [ "Student Email", "Lint Errors" ] ]
 
     lint_counts.each do |row|
       Rails.logger.info("row: #{row.student_email}, #{row.error_count}")
       count = row.error_count
-      data << [row.student_email, count]
+      data << [ row.student_email, count ]
 
       if row.student_email == student_email
         student_lint_errors = count
