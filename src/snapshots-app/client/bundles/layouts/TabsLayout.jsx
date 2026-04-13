@@ -29,8 +29,8 @@ function TabsLayout() {
     { id: "summary", label: "Summary", component: <SummaryTab /> },
     { id: "style", label: "Style", component: <StyleTab /> },
     { id: "debugging", label: "Debugging", component: <DebuggingTab /> },
-    { id: "design", label: "Design", component: <DesignTab /> },
-    { id: "integrity", label: "Integrity", component: <IntegrityTab /> },
+    // { id: "design", label: "Design", component: <DesignTab /> },
+    // { id: "integrity", label: "Integrity", component: <IntegrityTab /> },
     { id: "timeline", label: "Timeline", component: <SubmissionLayout /> },
   ];
 

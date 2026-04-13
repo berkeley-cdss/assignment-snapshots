@@ -29,6 +29,10 @@ function App() {
           element={<TabsLayout />}
         />
         <Route
+          path="/courses/:courseId/assignments/:assignmentId/students/:studentId/:tabId/:backupId"
+          element={<TabsLayout />}
+        />
+        <Route
           path="/courses/:courseId/assignments/:assignmentId/students/:studentId"
           element={<TabsLayout />}
         />
