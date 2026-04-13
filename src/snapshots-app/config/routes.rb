@@ -20,6 +20,12 @@ Rails.application.routes.draw do
     get "lint_errors", to: "lint_errors#show"
     get "backup_file_metadata/:course_id/:assignment_id/:user_id", to: "backup_file_metadata#show"
     get "summary_statistics/:course_id/:assignment_id/:user_id", to: "summary_statistics#show"
+
+    namespace :debugging, defaults: { format: :json } do
+      get "autograder_spam/:course_id/:assignment_id/:user_id", to: "autograder_spam#show"
+      get "print_statements/:course_id/:assignment_id/:user_id", to: "print_statements#show"
+      get "errors/:course_id/:assignment_id/:user_id", to: "errors#show"
+    end
   end
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

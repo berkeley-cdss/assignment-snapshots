@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -18,106 +18,107 @@ import {
   CheckCircle as CheckCircleIcon,
   Print as PrintIcon,
 } from "@mui/icons-material";
+import { useParams } from "react-router";
 
 import InfoTooltip from "../../../common/InfoTooltip";
 
-const diffData = [
-  {
-    id: 1,
-    problem: "01",
-    timestamp: "2026-04-07T13:00:00Z",
-    passing: false,
-    files: [
-      {
-        name: "sort.py",
-        contents:
-          "def bubble_sort(arr):\n    # TODO: Implement sorting\n    return arr",
-        hasPrint: false,
-      },
-      {
-        name: "utils.py",
-        contents: "def swap(arr, i, j):\n    arr[i], arr[j] = arr[j], arr[i]",
-        hasPrint: false,
-      },
-    ],
-  },
-  {
-    id: 2,
-    problem: "01",
-    timestamp: "2026-04-07T13:05:00Z",
-    passing: false,
-    files: [
-      {
-        name: "sort.py",
-        contents:
-          "def bubble_sort(arr):\n    print(f'Sorting: {arr}')\n    n = len(arr)\n    for i in range(n):\n        for j in range(0, n-i-1):\n            if arr[j] > arr[j+1]:\n                swap(arr, j, j+1)\n    return arr",
-        hasPrint: true,
-      },
-      {
-        name: "utils.py",
-        contents: "def swap(arr, i, j):\n    arr[i], arr[j] = arr[j], arr[i]",
-        hasPrint: false,
-      },
-    ],
-  },
-  {
-    id: 3,
-    problem: "01",
-    timestamp: "2026-04-07T13:10:00Z",
-    passing: true,
-    files: [
-      {
-        name: "sort.py",
-        contents:
-          "def bubble_sort(arr):\n    n = len(arr)\n    for i in range(n):\n        for j in range(0, n-i-1):\n            if arr[j] > arr[j+1]:\n                swap(arr, j, j+1)\n    return arr",
-        hasPrint: false,
-      },
-      {
-        name: "utils.py",
-        contents:
-          "def swap(arr, i, j):\n    # Added bounds checking\n    if i != j:\n        arr[i], arr[j] = arr[j], arr[i]",
-        hasPrint: false,
-      },
-    ],
-  },
-  {
-    id: 4,
-    problem: "02",
-    timestamp: "2026-04-07T14:10:00Z",
-    passing: false,
-    files: [
-      {
-        name: "sort.py",
-        contents: "def quick_sort(arr):\n    return sorted(arr)",
-        hasPrint: false,
-      },
-      {
-        name: "utils.py",
-        contents: "def get_pivot(arr):\n    return arr[0]",
-        hasPrint: false,
-      },
-    ],
-  },
-  {
-    id: 5,
-    problem: "02",
-    timestamp: "2026-04-07T14:15:00Z",
-    passing: true,
-    files: [
-      {
-        name: "sort.py",
-        contents: "def quick_sort(arr):\n    return sorted(arr)",
-        hasPrint: false,
-      },
-      {
-        name: "utils.py",
-        contents:
-          "def get_pivot(arr):\n    p = arr[len(arr)//2]\n    print(f'Pivot selected: {p}')\n    return p",
-        hasPrint: true,
-      },
-    ],
-  },
-];
+// const diffData = [
+//   {
+//     id: 1,
+//     problem: "01",
+//     timestamp: "2026-04-07T13:00:00Z",
+//     passing: false,
+//     files: [
+//       {
+//         name: "sort.py",
+//         contents:
+//           "def bubble_sort(arr):\n    # TODO: Implement sorting\n    return arr",
+//         hasPrint: false,
+//       },
+//       {
+//         name: "utils.py",
+//         contents: "def swap(arr, i, j):\n    arr[i], arr[j] = arr[j], arr[i]",
+//         hasPrint: false,
+//       },
+//     ],
+//   },
+//   {
+//     id: 2,
+//     problem: "01",
+//     timestamp: "2026-04-07T13:05:00Z",
+//     passing: false,
+//     files: [
+//       {
+//         name: "sort.py",
+//         contents:
+//           "def bubble_sort(arr):\n    print(f'Sorting: {arr}')\n    n = len(arr)\n    for i in range(n):\n        for j in range(0, n-i-1):\n            if arr[j] > arr[j+1]:\n                swap(arr, j, j+1)\n    return arr",
+//         hasPrint: true,
+//       },
+//       {
+//         name: "utils.py",
+//         contents: "def swap(arr, i, j):\n    arr[i], arr[j] = arr[j], arr[i]",
+//         hasPrint: false,
+//       },
+//     ],
+//   },
+//   {
+//     id: 3,
+//     problem: "01",
+//     timestamp: "2026-04-07T13:10:00Z",
+//     passing: true,
+//     files: [
+//       {
+//         name: "sort.py",
+//         contents:
+//           "def bubble_sort(arr):\n    n = len(arr)\n    for i in range(n):\n        for j in range(0, n-i-1):\n            if arr[j] > arr[j+1]:\n                swap(arr, j, j+1)\n    return arr",
+//         hasPrint: false,
+//       },
+//       {
+//         name: "utils.py",
+//         contents:
+//           "def swap(arr, i, j):\n    # Added bounds checking\n    if i != j:\n        arr[i], arr[j] = arr[j], arr[i]",
+//         hasPrint: false,
+//       },
+//     ],
+//   },
+//   {
+//     id: 4,
+//     problem: "02",
+//     timestamp: "2026-04-07T14:10:00Z",
+//     passing: false,
+//     files: [
+//       {
+//         name: "sort.py",
+//         contents: "def quick_sort(arr):\n    return sorted(arr)",
+//         hasPrint: false,
+//       },
+//       {
+//         name: "utils.py",
+//         contents: "def get_pivot(arr):\n    return arr[0]",
+//         hasPrint: false,
+//       },
+//     ],
+//   },
+//   {
+//     id: 5,
+//     problem: "02",
+//     timestamp: "2026-04-07T14:15:00Z",
+//     passing: true,
+//     files: [
+//       {
+//         name: "sort.py",
+//         contents: "def quick_sort(arr):\n    return sorted(arr)",
+//         hasPrint: false,
+//       },
+//       {
+//         name: "utils.py",
+//         contents:
+//           "def get_pivot(arr):\n    p = arr[len(arr)//2]\n    print(f'Pivot selected: {p}')\n    return p",
+//         hasPrint: true,
+//       },
+//     ],
+//   },
+// ];
 
 const formatTimestamp = (isoString) => {
   return new Intl.DateTimeFormat("en-US", {
@@ -131,13 +132,22 @@ const formatTimestamp = (isoString) => {
 };
 
 const PrintStatements = () => {
+  const [diffData, setDiffData] = useState([]);
+  const routeParams = useParams();
+
+  useEffect(() => {
+    fetch(`/api/debugging/print_statements/${routeParams.courseId}/${routeParams.assignmentId}/${routeParams.studentId}`,)
+      .then((response) => response.json())
+      .then((responseData) => setDiffData(responseData));
+  }, [routeParams]);
+
   // Sort by timestamp, descending order (Newest first)
   const sortedData = useMemo(
     () =>
       [...diffData].sort(
         (a, b) => new Date(b.timestamp) - new Date(a.timestamp),
       ),
-    [],
+    [diffData],
   );
 
   // Default to the most recent event (first in sorted array)
@@ -284,6 +294,7 @@ const PrintStatements = () => {
                     )}
                   </Button>
 
+                  {/* TODO implement this */}
                   <Tooltip title="Open in Timeline">
                     <IconButton
                       color="primary"
