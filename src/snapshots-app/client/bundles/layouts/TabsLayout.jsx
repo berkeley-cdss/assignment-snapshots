@@ -1,10 +1,8 @@
 import React from "react";
 
-import Box from "@mui/material/Box";
-import Tab from "@mui/material/Tab";
-import TabContext from "@mui/lab/TabContext";
-import TabList from "@mui/lab/TabList";
-import TabPanel from "@mui/lab/TabPanel";
+import { useParams, useNavigate } from "react-router";
+import { Box, Tab } from "@mui/material";
+import { TabContext, TabList, TabPanel } from "@mui/lab";
 
 import SummaryTab from "../components/submission/tabs/SummaryTab";
 import StyleTab from "../components/submission/tabs/StyleTab";
@@ -13,33 +11,50 @@ import DesignTab from "../components/submission/tabs/DesignTab";
 import IntegrityTab from "../components/submission/tabs/IntegrityTab";
 import TimelineTab from "../components/submission/tabs/TimelineTab";
 
-function TabsLayout({}) {
-  const [value, setValue] = React.useState(0);
+function TabsLayout() {
+  const { courseId, assignmentId, studentId, tabId } = useParams();
+  const navigate = useNavigate();
+
+  React.useEffect(() => {
+    if (!tabId) {
+      navigate(
+        `/tabs/${courseId}/assignments/${assignmentId}/students/${studentId}/summary`,
+        { replace: true },
+      );
+    }
+  }, [courseId, assignmentId, studentId, tabId, navigate]);
+
+  // Define tabs with lowercase IDs for the URL
   const TABS = [
-    { label: "Summary", component: <SummaryTab /> },
-    { label: "Style", component: <StyleTab /> },
-    { label: "Debugging", component: <DebuggingTab /> },
-    { label: "Design", component: <DesignTab /> },
-    { label: "Integrity", component: <IntegrityTab /> },
-    { label: "Timeline", component: <TimelineTab /> },
+    { id: "summary", label: "Summary", component: <SummaryTab /> },
+    { id: "style", label: "Style", component: <StyleTab /> },
+    { id: "debugging", label: "Debugging", component: <DebuggingTab /> },
+    { id: "design", label: "Design", component: <DesignTab /> },
+    { id: "integrity", label: "Integrity", component: <IntegrityTab /> },
+    { id: "timeline", label: "Timeline", component: <TimelineTab /> },
   ];
 
+  // Fallback: If URL has no tabId or an invalid one, default to the first tab
+  const activeTab = TABS.find((t) => t.id === tabId) ? tabId : TABS[0].id;
+
   const handleChange = (event, newValue) => {
-    setValue(newValue);
+    navigate(
+      `/tabs/${courseId}/assignments/${assignmentId}/students/${studentId}/${newValue}`,
+    );
   };
 
   return (
     <Box sx={{ width: "100%", typography: "body1" }}>
-      <TabContext value={value}>
+      <TabContext value={activeTab}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <TabList onChange={handleChange} aria-label="Student submission tabs">
-            {TABS.map((tab, idx) => (
-              <Tab label={tab.label} value={idx} key={idx} />
+            {TABS.map((tab) => (
+              <Tab label={tab.label} value={tab.id} key={tab.id} />
             ))}
           </TabList>
         </Box>
-        {TABS.map((tab, idx) => (
-          <TabPanel value={idx} key={idx}>
+        {TABS.map((tab) => (
+          <TabPanel value={tab.id} key={tab.id}>
             {tab.component}
           </TabPanel>
         ))}
