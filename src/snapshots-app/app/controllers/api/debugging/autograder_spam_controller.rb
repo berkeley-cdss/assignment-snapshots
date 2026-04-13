@@ -6,7 +6,9 @@ class Api::Debugging::AutograderSpamController < ApplicationController
     user_id = params[:user_id].to_i
 
     num_backups_threshold = params[:num_backups_threshold].presence&.to_i || 5
-    time_threshold = params[:time_threshold].presence&.to_i || 5
+    time_limit_threshold = params[:time_threshold].presence&.to_i || 5
+
+    session_gap_limit = 15.minutes
 
     course = Course.find_by(id: course_id)
     if course.nil?
@@ -26,8 +28,6 @@ class Api::Debugging::AutograderSpamController < ApplicationController
       return
     end
 
-    # TODO error if student doesn't have any backups for this assignment and course
-
     backups = BackupMetadatum.where(
       course: course.okpy_endpoint,
       assignment: assignment.okpy_endpoint,
@@ -36,17 +36,14 @@ class Api::Debugging::AutograderSpamController < ApplicationController
 
     return render json: [] if backups.empty?
 
+    # Group into sessions. Begin a new session if it's > session_gap_limit since the last backup
     sessions = []
     current_session = nil
-
-    # Threshold for grouping backups into one session
-    gap_threshold = time_threshold.minutes
 
     backups.each do |backup|
       backup_time = Time.zone.parse(backup.created)
 
-      if current_session.nil? || (backup_time - current_session[:end_time] > gap_threshold)
-        # Start a new session
+      if current_session.nil? || (backup_time - current_session[:end_time] > session_gap_limit)
         current_session = {
           id: sessions.length + 1,
           start_time: backup_time,
@@ -57,13 +54,10 @@ class Api::Debugging::AutograderSpamController < ApplicationController
         sessions << current_session
       end
 
-      # Update session metrics
       current_session[:end_time] = backup_time
       current_session[:num_backups] += 1
 
-      # Collect problems from AnalyticsMessage
       if backup.analytics_location
-        # Using the join or association if defined, otherwise direct query
         analytics = AnalyticsMessage.find_by(backup_id: backup.backup_id)
         if analytics&.question_display_names
           analytics.question_display_names.each { |p| current_session[:problems].add(p) }
@@ -71,12 +65,16 @@ class Api::Debugging::AutograderSpamController < ApplicationController
       end
     end
 
-    # Format for JSON output
-    rows = sessions.filter_map do |s|
-      next unless s[:num_backups] >= num_backups_threshold
+    rows = sessions.each_with_index.filter_map do |s, index|
+      duration_minutes = (s[:end_time] - s[:start_time]) / 1.minute
+
+      # cross multiply to avoid float division and potential divide-by-zero
+      is_spam = s[:num_backups] * time_limit_threshold >= num_backups_threshold * duration_minutes
+      
+      next unless is_spam and s[:num_backups] > 1
 
       {
-        id: s[:id],
+        id: index + 1,
         startTimestamp: s[:start_time].iso8601,
         endTimestamp: s[:end_time].iso8601,
         numBackups: s[:num_backups],

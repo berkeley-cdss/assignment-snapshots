@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Typography, Box, Paper, Tooltip, IconButton } from "@mui/material";
+
+import {
+  Typography,
+  Box,
+  Paper,
+  Tooltip,
+  IconButton,
+  TextField,
+  Stack,
+} from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 
@@ -32,12 +41,30 @@ const formatDuration = (ms) => {
 };
 
 const AutograderSpam = () => {
-  // TODO make adjustable
   const [rows, setRows] = useState([]);
-  const [numBackupsThreshold, setNumBackupsThreshold] = useState(5);
-  const [timeThreshold, setTimeThreshold] = useState(5);
+
+  const THRESHOLD_DEFAULT = 1;
+  const [numBackupsThreshold, setNumBackupsThreshold] =
+    useState(THRESHOLD_DEFAULT);
+  const [timeThreshold, setTimeThreshold] = useState(THRESHOLD_DEFAULT);
 
   const routeParams = useParams();
+
+  /**
+   * Validates and updates thresholds to ensure they are positive integers
+   */
+  const handleThresholdChange = (setter) => (e) => {
+    const value = e.target.value;
+    // Allow empty string so user can delete text, otherwise parse and clamp to min 1
+    if (value === "") {
+      setter("");
+      return;
+    }
+    const parsed = parseInt(value, 10);
+    if (!isNaN(parsed)) {
+      setter(Math.max(1, parsed));
+    }
+  };
 
   useEffect(() => {
     const queryParams = {
@@ -105,6 +132,7 @@ const AutograderSpam = () => {
       filterable: false,
       align: "center",
       headerAlign: "center",
+      // TODO implement this
       renderCell: (params) => (
         <Tooltip title="Jump to Timeline">
           <IconButton
@@ -121,21 +149,64 @@ const AutograderSpam = () => {
 
   return (
     <Box sx={{ width: "100%" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <Typography variant="h4" sx={{ fontWeight: "bold" }}>
-          Autograder Spam
+      <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+            Autograder Spam
+          </Typography>
+          <InfoTooltip
+            info="This table shows periods of intense activity. Adjust the thresholds to redefine what constitutes a 'spam session'."
+            placement="right"
+          />
+        </div>
+
+        <Box sx={{ flexGrow: 1 }} />
+      </Stack>
+
+      {/* Threshold Controls */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          flexWrap: "wrap", // Ensures it looks good on smaller screens
+          gap: 1.5, // Consistent spacing between elements
+          mb: 3, // Margin bottom to separate from the table
+          p: 2,
+          bgcolor: "action.hover",
+          borderRadius: 2,
+        }}
+      >
+        <Typography variant="body1">
+          Only include sessions where the # of backups per minute is at least
         </Typography>
-        <InfoTooltip
-          info="This table shows periods of intense autograder activity within a short time period, which may indicate the student was using the autograder to debug. Click the details icon to jump to that time period in the Timeline tab."
-          placement="right"
+
+        <TextField
+          label="Backup(s)"
+          type="number"
+          size="small"
+          value={numBackupsThreshold}
+          onChange={handleThresholdChange(setNumBackupsThreshold)}
+          sx={{ width: 100 }} // Narrowed because numbers are usually small
         />
-      </div>
+
+        <Typography variant="body1">per</Typography>
+
+        <TextField
+          label="Minute(s)"
+          type="number"
+          size="small"
+          value={timeThreshold}
+          onChange={handleThresholdChange(setTimeThreshold)}
+          sx={{ width: 100 }}
+        />
+
+        <Typography variant="body1">minute(s).</Typography>
+      </Box>
 
       <Paper
         sx={{
-          height: 400,
+          height: 500,
           width: "100%",
-          mt: 3,
           boxShadow: 3,
           borderRadius: 2,
         }}
@@ -145,7 +216,7 @@ const AutograderSpam = () => {
           columns={columns}
           initialState={{
             pagination: {
-              paginationModel: { pageSize: 5 },
+              paginationModel: { pageSize: 10 },
             },
             sorting: {
               sortModel: [{ field: "startTimestamp", sort: "desc" }],
