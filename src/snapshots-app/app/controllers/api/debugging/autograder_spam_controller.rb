@@ -1,3 +1,4 @@
+# TODO unit tests
 class Api::Debugging::AutograderSpamController < ApplicationController
   def show
     # Validate params
@@ -27,6 +28,8 @@ class Api::Debugging::AutograderSpamController < ApplicationController
       render json: { "error": "User ID #{user_id} not a student in course ID #{course_id}" }, status: :not_found
       return
     end
+
+    # TODO error if student doesn't have any backups for this assignment and course
 
     backups = BackupMetadatum.where(
       course: course.okpy_endpoint,
@@ -70,7 +73,7 @@ class Api::Debugging::AutograderSpamController < ApplicationController
 
       # cross multiply to avoid float division and potential divide-by-zero
       is_spam = s[:num_backups] * time_limit_threshold >= num_backups_threshold * duration_minutes
-      
+
       next unless is_spam and s[:num_backups] > 1
 
       {

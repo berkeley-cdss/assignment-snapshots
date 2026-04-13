@@ -23,6 +23,7 @@ Rails.application.routes.draw do
 
     namespace :debugging, defaults: { format: :json } do
       get "autograder_spam/:course_id/:assignment_id/:user_id", to: "autograder_spam#show"
+      get "print_statements/:course_id/:assignment_id/:user_id", to: "print_statements#show"
     end
   end
 
