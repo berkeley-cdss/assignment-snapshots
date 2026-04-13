@@ -96,7 +96,7 @@ class Api::Debugging::PrintStatementsController < ApplicationController
         timestamp: backup.created,
         passing: is_passing,
         # TODO don't hardcode this (other assignments may have multiple files)
-        files: [{ name: "ants.py", contents: contents, hasPrint: has_print }],
+        files: [ { name: "ants.py", contents: contents, hasPrint: has_print } ],
         has_print: has_print # internal flag for grouping
       }
     end
@@ -112,13 +112,13 @@ class Api::Debugging::PrintStatementsController < ApplicationController
     # e.g., [1, 2, 5, 6, 7] -> [[1, 2], [5, 6, 7]]
     sessions = []
     if print_indices.any?
-      current_session = [print_indices.first]
+      current_session = [ print_indices.first ]
       print_indices[1..].each do |idx|
         if idx == current_session.last + 1
           current_session << idx
         else
           sessions << current_session
-          current_session = [idx]
+          current_session = [ idx ]
         end
       end
       sessions << current_session
@@ -129,8 +129,8 @@ class Api::Debugging::PrintStatementsController < ApplicationController
     # we don't include the same backup twice.
     final_indices = Set.new
     sessions.each do |session_range|
-      start_idx = [0, session_range.min - 5].max
-      end_idx = [all_data.length - 1, session_range.max + 5].min
+      start_idx = [ 0, session_range.min - 5 ].max
+      end_idx = [ all_data.length - 1, session_range.max + 5 ].min
 
       (start_idx..end_idx).each { |i| final_indices.add(i) }
     end
