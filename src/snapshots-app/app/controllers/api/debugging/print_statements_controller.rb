@@ -77,36 +77,70 @@ class Api::Debugging::PrintStatementsController < ApplicationController
 
     return render json: [] if backups.empty?
 
-    response_data = backups.each_with_index.map do |backup, index|
-      # Backup is considered passing if num failed == 0
+    # Map all backups to their raw data first
+    all_data = backups.each_with_index.map do |backup, index|
       grading = GradingMessageQuestion.where(backup_id: backup.backup_id)
       is_passing = grading.any? && grading.all? { |q| q.failed == 0 }
 
-      # Get the list of problems worked on
       analytics = AnalyticsMessage.find_by(backup_id: backup.backup_id)
-      problem_names = analytics.question_display_names
+      problem_names = analytics&.question_display_names || []
 
-      # Get file contents
       object_key = File.join(backup.file_contents_location, "ants.py")
       file_result = fetch_cached_file(object_key)
       contents = file_result[:json][:file_contents] || ""
-      files_list = [
-        {
-          name: "ants.py",
-          contents: contents,
-          hasPrint: contains_user_print?(contents)
-        }
-      ]
-
+      has_print = contains_user_print?(contents)
 
       {
         id: index + 1,
         problem: problem_names.join(", "),
         timestamp: backup.created,
         passing: is_passing,
-        files: files_list
+        # TODO don't hardcode this (other assignments may have multiple files)
+        files: [{ name: "ants.py", contents: contents, hasPrint: has_print }],
+        has_print: has_print # internal flag for grouping
       }
     end
 
-    render json: response_data
+    # Identify the indices of backups that contain prints
+    print_indices = all_data.each_index.select { |i| all_data[i][:has_print] }
+
+    Rails.logger.info("Found print statements in backups with indices: #{print_indices}")
+
+    return render json: [] if print_indices.empty?
+
+    # Group consecutive print indices into sessions
+    # e.g., [1, 2, 5, 6, 7] -> [[1, 2], [5, 6, 7]]
+    sessions = []
+    if print_indices.any?
+      current_session = [print_indices.first]
+      print_indices[1..].each do |idx|
+        if idx == current_session.last + 1
+          current_session << idx
+        else
+          sessions << current_session
+          current_session = [idx]
+        end
+      end
+      sessions << current_session
+    end
+
+    # Expand sessions to include +/- 5 backups and flatten/deduplicate
+    # Use a Set to ensure that if sessions overlap (within 10 backups of each other),
+    # we don't include the same backup twice.
+    final_indices = Set.new
+    sessions.each do |session_range|
+      start_idx = [0, session_range.min - 5].max
+      end_idx = [all_data.length - 1, session_range.max + 5].min
+
+      (start_idx..end_idx).each { |i| final_indices.add(i) }
+    end
+
+    # Extract the data for the final indices and sort by timestamp
+    # We remove the internal 'has_print' key used for logic before rendering
+    result = final_indices.to_a.sort.map do |idx|
+      all_data[idx].except(:has_print)
+    end
+
+    render json: result
+  end
 end
