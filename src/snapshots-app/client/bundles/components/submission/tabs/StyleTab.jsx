@@ -10,14 +10,6 @@ import {
   Switch,
   OutlinedInput,
   Chip,
-} from "@mui/material";
-import SkipNextIcon from "@mui/icons-material/SkipNext";
-import { IconButton } from "@mui/material";
-
-import FileViewer from "./style/FileViewer";
-import InfoTooltip from "../../common/InfoTooltip";
-
-import {
   FormControl,
   InputLabel,
   Select,
@@ -25,16 +17,25 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  CircularProgress,
+  IconButton,
 } from "@mui/material";
+import SkipNextIcon from "@mui/icons-material/SkipNext";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-import CircularProgress from "@mui/material/CircularProgress";
 import { useAtom } from "jotai";
 import { backupsAtom } from "../../../state/atoms";
+
+import { useParams } from "react-router";
+
+import FileViewer from "./style/FileViewer";
+import InfoTooltip from "../../common/InfoTooltip";
 
 const URL_PREFIX = "https://docs.astral.sh/ruff/rules/";
 
 function StyleTab() {
+  const routeParams = useParams();
+
   const [backups, setBackups] = useAtom(backupsAtom);
   const [files, setFiles] = React.useState([]);
   const [file, setFile] = React.useState("");
@@ -79,12 +80,6 @@ function StyleTab() {
       editorRef.current.focus();
     }
   }
-
-  // TODO update to use correct params
-  const routeParams = React.useMemo(
-    () => ({ courseId: "1", assignmentId: "1", studentId: "2" }),
-    [],
-  );
 
   React.useEffect(() => {
     fetch(
