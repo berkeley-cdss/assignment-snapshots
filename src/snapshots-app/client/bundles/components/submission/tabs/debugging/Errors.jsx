@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -16,45 +16,9 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 
-import InfoTooltip from "../../../common/InfoTooltip";
+import { useParams } from "react-router";
 
-const errorData = [
-  {
-    id: 1,
-    backupId: "abc123",
-    timestamp: "2026-04-07T08:15:00Z",
-    type: "IndexError",
-    message: "list index out of range",
-  },
-  {
-    id: 2,
-    backupId: "def456",
-    timestamp: "2026-04-07T08:22:00Z",
-    type: "IndexError",
-    message: "list index out of range",
-  },
-  {
-    id: 3,
-    backupId: "ghi789",
-    timestamp: "2026-04-07T09:05:00Z",
-    type: "TypeError",
-    message: "can only concatenate str (not 'int') to str",
-  },
-  {
-    id: 4,
-    backupId: "jkl012",
-    timestamp: "2026-04-07T10:12:00Z",
-    type: "KeyError",
-    message: "'user_id'",
-  },
-  {
-    id: 5,
-    backupId: "mno345",
-    timestamp: "2026-04-07T11:00:00Z",
-    type: "NameError",
-    message: "name 'calculate_total' is not defined",
-  },
-];
+import InfoTooltip from "../../../common/InfoTooltip";
 
 const formatTimestamp = (dateString) => {
   if (!dateString) return "";
@@ -70,7 +34,16 @@ const formatTimestamp = (dateString) => {
 };
 
 const Errors = () => {
+  const [errorData, setErrorData] = useState([]);
   const [errorTypeSortDescending, setErrorTypeSortDescending] = useState(true);
+
+  const routeParams = useParams();
+
+  useEffect(() => {
+    fetch(`/api/debugging/errors/${routeParams.courseId}/${routeParams.assignmentId}/${routeParams.studentId}`,)
+      .then((response) => response.json())
+      .then((responseData) => setErrorData(responseData));
+  }, [routeParams]);
 
   const sortedGroupedErrors = useMemo(() => {
     const groups = errorData.reduce((acc, error) => {
@@ -85,7 +58,7 @@ const Errors = () => {
 
       return errorTypeSortDescending ? countB - countA : countA - countB;
     });
-  }, [errorTypeSortDescending]);
+  }, [errorData, errorTypeSortDescending]);
 
   const columns = [
     {
@@ -102,6 +75,7 @@ const Errors = () => {
       renderCell: (params) => (
         <Box sx={{ display: "flex", alignItems: "center", height: "100%" }}>
           <Tooltip title="Open in timeline" arrow>
+            {/* TODO implement this */}
             <Link
               component="button"
               variant="body2"
