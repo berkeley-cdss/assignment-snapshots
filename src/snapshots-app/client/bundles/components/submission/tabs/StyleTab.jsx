@@ -73,11 +73,11 @@ function StyleTab() {
     });
   };
 
-  function goToLine(lineNumber, column) {
+  function jumpToError(lineNumber, column) {
     if (editorRef.current) {
       editorRef.current.revealLineInCenter(lineNumber);
       editorRef.current.setPosition({ lineNumber: lineNumber, column: column });
-      editorRef.current.focus();
+      editorRef.current.trigger("snapshots-app", "editor.action.marker.next");
     }
   }
 
@@ -315,7 +315,7 @@ function StyleTab() {
                       <IconButton
                         size="small"
                         onClick={() =>
-                          goToLine(
+                          jumpToError(
                             err.start_location_row,
                             err.start_location_col,
                           )
