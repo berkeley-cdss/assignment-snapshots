@@ -38,10 +38,10 @@ function SummaryTab({}) {
       icon: <AccessTime />,
       tooltip: "How long it took to complete the assignment",
       component: (
-        <Distribution
+        <Histogram
           title="Time Taken (min)"
           tooltip="Hover over chart for more details"
-          xLabels={["0–10m", "10–20m", "20–30m", "30–40m", "40–50m", "50m+"]}
+          xLabels={["0-10m", "10-20m", "20-30m", "30-40m", "40-50m", "50m+"]}
           data={[20, 55, 80, 60, 35, 15]}
         />
       ),
@@ -51,10 +51,10 @@ function SummaryTab({}) {
       icon: <Save />,
       tooltip: "Number of backups compared to other students",
       component: (
-        <Distribution
+        <Histogram
           title="Number of Backups"
           tooltip="Hover over chart for more details"
-          xLabels={["0–50", "50-100", "100-200", "200-500", "500+"]}
+          xLabels={["0-50", "50-100", "100-200", "200-500", "500+"]}
           data={[10, 50, 60, 80, 35]}
         />
       ),
@@ -64,15 +64,15 @@ function SummaryTab({}) {
       icon: <LeaderboardSharp />,
       tooltip: "Score on assignment compared to other students",
       component: (
-        <Distribution
+        <Histogram
           title="Score Distribution (%)"
           tooltip="Hover over chart for more details"
           xLabels={[
-            "0–10%",
-            "10–20%",
-            "20–30%",
-            "30–40%",
-            "40–50%",
+            "0-10%",
+            "10-20%",
+            "20-30%",
+            "30-40%",
+            "40-50%",
             "50-60%",
             "60-70%",
             "70-80%",
@@ -88,7 +88,7 @@ function SummaryTab({}) {
       icon: <Error />,
       tooltip: "Most common errors for this student",
       component: (
-        <Distribution
+        <Histogram
           title="Common Errors"
           tooltip="Hover over chart for more details"
           xLabels={["I was not sure what to put for this"]}
