@@ -30,6 +30,10 @@ function App() {
         />
         {/* TODO make this a real route later */}
         <Route
+          path="/tabs/:courseId/assignments/:assignmentId/students/:studentId/:tabId"
+          element={<TabsLayout />}
+        />
+        <Route
           path="/tabs/:courseId/assignments/:assignmentId/students/:studentId"
           element={<TabsLayout />}
         />
