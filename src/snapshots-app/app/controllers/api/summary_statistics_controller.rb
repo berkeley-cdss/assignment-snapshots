@@ -59,11 +59,8 @@ class Api::SummaryStatisticsController < ApplicationController
     latest_analytics.each do |backup|
       score = 0
 
-      Rails.logger.info("#{backup.history.class}, history: #{backup.history}")
-
       JSON.parse(backup.history).each do |question|
         if question["solved"]
-          Rails.logger.info("Adding #{SCORING[question['display_name']]} points for solving #{question['display_name']}")
           score += SCORING[question["display_name"]]
         end
       end
