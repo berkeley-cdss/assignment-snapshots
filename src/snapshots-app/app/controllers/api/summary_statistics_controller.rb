@@ -24,11 +24,11 @@ MIN_PER_HOUR = 60.0
 HOUR_PER_DAY = 24.0
 
 class Api::SummaryStatisticsController < ApplicationController
-  def get_latest_analytics(course_id, assignment_id)
+  def get_latest_analytics(course_endpoint, assignment_endpoint)
     BackupMetadatum
       .where(
-        course: Course.find(course_id).okpy_endpoint,
-        assignment: Assignment.find(assignment_id).okpy_endpoint,
+        course: course_endpoint,
+        assignment: assignment_endpoint,
       )
       .group(:student_email)
       .having('MAX(created)')
@@ -40,6 +40,8 @@ class Api::SummaryStatisticsController < ApplicationController
     start = data.min.floor
     last = data.max.ceil
     bin_size = (last - start) / 10
+
+    # TODO: dynamic bin sizing and handle when bin_size = 0
 
     bins = []
     current = start
@@ -57,8 +59,8 @@ class Api::SummaryStatisticsController < ApplicationController
     return bins
   end
 
-  def get_score_distribution(course_id, assignment_id, course, student_email)
-    latest_analytics = get_latest_analytics(course_id, assignment_id)
+  def get_score_distribution(course_endpoint, assignment_endpoint, course, student_email)
+    latest_analytics = get_latest_analytics(course_endpoint, assignment_endpoint)
 
     student_score = 0
     data = []
@@ -83,8 +85,8 @@ class Api::SummaryStatisticsController < ApplicationController
   end
 
   # TODO make this more DRY (a lot of repeated code from previous method)
-  def get_problems_solved_distribution(course_id, assignment_id, student_email)
-    latest_analytics = get_latest_analytics(course_id, assignment_id)
+  def get_problems_solved_distribution(course_endpoint, assignment_endpoint, student_email)
+    latest_analytics = get_latest_analytics(course_endpoint, assignment_endpoint)
 
     student_solved = 0
     data = []
@@ -108,11 +110,11 @@ class Api::SummaryStatisticsController < ApplicationController
     return { "xLabels": get_bins(data), "studentValue": student_solved, "data": data }
   end
 
-  def get_number_of_backups_distribution(course_id, assignment_id, student_email)
+  def get_number_of_backups_distribution(course_endpoint, assignment_endpoint, student_email)
     num_backups = BackupMetadatum
       .where(
-        course: Course.find(course_id).okpy_endpoint,
-        assignment: Assignment.find(assignment_id).okpy_endpoint,
+        course: course_endpoint,
+        assignment: assignment_endpoint,
       )
       .group(:student_email)
       .select("student_email, COUNT(*) as num_backups")
@@ -131,11 +133,11 @@ class Api::SummaryStatisticsController < ApplicationController
     return { "xLabels": get_bins(data), "studentValue": student_num_backups, "data": data }
   end
 
-  def get_total_time_spent_distribution(course_id, assignment_id, student_email)
+  def get_total_time_spent_distribution(course_endpoint, assignment_endpoint, student_email)
     timestamps = BackupMetadatum
       .where(
-        course: Course.find(course_id).okpy_endpoint,
-        assignment: Assignment.find(assignment_id).okpy_endpoint,
+        course: course_endpoint,
+        assignment: assignment_endpoint,
       )
       .group(:student_email)
       .select("student_email, unixepoch(MAX(created)) - unixepoch(MIN(created)) as total_time_sec")
@@ -155,12 +157,36 @@ class Api::SummaryStatisticsController < ApplicationController
     return { "xLabels": get_bins(data), "studentValue": student_time_spent, "data": data }
   end
 
-  def get_active_time_spent_distribution(course_id, assignment_id, user_id)
-    # TODO implement
-    return {}
+  def get_active_time_spent_distribution(course_endpoint, assignment_endpoint, student_email)
+    threshold = 15 * SEC_PER_MIN
+
+    # calculate time diffs in SQL
+    inner_query = BackupMetadatum
+      .where(course: course_endpoint, assignment: assignment_endpoint)
+      .select(:student_email)
+      .select("unixepoch(created) as ts")
+      .select("LAG(unixepoch(created)) OVER (PARTITION BY student_email ORDER BY created) as prev_ts")
+
+    # only include diffs under the threshold to filter out inactive time
+    results = BackupMetadatum.from("(#{inner_query.to_sql}) as sub")
+      .select(:student_email)
+      .select("SUM(CASE WHEN ts - prev_ts <= #{threshold} THEN ts - prev_ts ELSE 0 END) as total_sec")
+      .group(:student_email)
+
+    # Map the results to hours
+    data = []
+    student_active_time_spent = nil
+
+    results.each do |row|
+      total_min = (row.total_sec / SEC_PER_MIN).round(2)
+      data << total_min
+      student_active_time_spent = total_min if row.student_email == student_email
+    end
+
+    { "xLabels": get_bins(data), "studentValue": student_active_time_spent, "data": data }
   end
 
-  def get_lint_errors_distribution(course_id, assignment_id, user_id)
+  def get_lint_errors_distribution(course_endpoint, assignment_endpoint, student_email)
     # TODO implement
     return {}
   end
@@ -195,12 +221,12 @@ class Api::SummaryStatisticsController < ApplicationController
       "course_id": course_id,
       "assignment_id": assignment_id,
       "user_id": user_id,
-      "score_distribution": get_score_distribution(course_id, assignment_id, user_id, student.email),
-      "problems_solved_distribution": get_problems_solved_distribution(course_id, assignment_id, student.email),
-      "number_of_backups_distribution": get_number_of_backups_distribution(course_id, assignment_id, student.email),
-      "total_time_spent_distribution": get_total_time_spent_distribution(course_id, assignment_id, student.email),
-      "active_time_spent_distribution": get_active_time_spent_distribution(course_id, assignment_id, user_id),
-      "lint_errors_distribution": get_lint_errors_distribution(course_id, assignment_id, user_id)
+      "score_distribution": get_score_distribution(course.okpy_endpoint, assignment.okpy_endpoint, user_id, student.email),
+      "problems_solved_distribution": get_problems_solved_distribution(course.okpy_endpoint, assignment.okpy_endpoint, student.email),
+      "number_of_backups_distribution": get_number_of_backups_distribution(course.okpy_endpoint, assignment.okpy_endpoint, student.email),
+      "total_time_spent_distribution": get_total_time_spent_distribution(course.okpy_endpoint, assignment.okpy_endpoint, student.email),
+      "active_time_spent_distribution": get_active_time_spent_distribution(course.okpy_endpoint, assignment.okpy_endpoint, student.email),
+      "lint_errors_distribution": get_lint_errors_distribution(course.okpy_endpoint, assignment.okpy_endpoint, student.email)
     }, status: :ok
   end
 end
