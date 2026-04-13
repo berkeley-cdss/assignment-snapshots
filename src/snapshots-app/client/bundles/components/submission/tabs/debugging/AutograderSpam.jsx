@@ -1,47 +1,11 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Typography, Box, Paper, Tooltip, IconButton } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 
-import InfoTooltip from "../../../common/InfoTooltip";
+import { useParams } from "react-router";
 
-const rows = [
-  {
-    id: 1,
-    startTimestamp: "2026-04-07T09:15:00Z",
-    endTimestamp: "2026-04-07T09:20:00Z",
-    numBackups: 12,
-    problems: ["01", "05"],
-  },
-  {
-    id: 2,
-    startTimestamp: "2026-04-07T10:30:00Z",
-    endTimestamp: "2026-04-07T10:40:00Z",
-    numBackups: 45,
-    problems: ["03"],
-  },
-  {
-    id: 3,
-    startTimestamp: "2026-04-07T11:45:00Z",
-    endTimestamp: "2026-04-07T12:00:00Z",
-    numBackups: 8,
-    problems: ["07", "08", "09"],
-  },
-  {
-    id: 4,
-    startTimestamp: "2026-04-07T13:20:00Z",
-    endTimestamp: "2026-04-07T13:30:00Z",
-    numBackups: 102,
-    problems: ["12"],
-  },
-  {
-    id: 5,
-    startTimestamp: "2026-04-07T15:05:00Z",
-    endTimestamp: "2026-04-07T15:15:00Z",
-    numBackups: 23,
-    problems: ["02", "04"],
-  },
-];
+import InfoTooltip from "../../../common/InfoTooltip";
 
 const formatTimestamp = (dateString) => {
   if (!dateString) return "";
@@ -68,6 +32,31 @@ const formatDuration = (ms) => {
 };
 
 const AutograderSpam = () => {
+  // TODO make adjustable
+  const [rows, setRows] = useState([]);
+  const [numBackupsThreshold, setNumBackupsThreshold] = useState(5);
+  const [timeThreshold, setTimeThreshold] = useState(5);
+
+  const routeParams = useParams();
+
+  useEffect(() => {
+    const queryParams = {
+      num_backups_threshold: numBackupsThreshold,
+      time_threshold: timeThreshold,
+    };
+
+    const queryString = new URLSearchParams(queryParams).toString();
+
+    fetch(
+      `/api/debugging/autograder_spam/${routeParams.courseId}/${routeParams.assignmentId}/${routeParams.studentId}?${queryString}`,
+      { method: "GET" },
+    )
+      .then((response) => response.json())
+      .then((responseData) => {
+        setRows(responseData);
+      });
+  }, [routeParams, numBackupsThreshold, timeThreshold]);
+
   const columns = [
     {
       field: "startTimestamp",
