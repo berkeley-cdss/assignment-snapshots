@@ -52,10 +52,12 @@ function BreadcrumbNav() {
 
     if (matchesCourseRoute) {
       const course = findById(courses, matchesCourseRoute.params.courseId);
+      
       result.push({
         name: getCourseHumanReadableName(course),
         path: `/courses/${matchesCourseRoute.params.courseId}`,
-      });
+      }); 
+  
     }
 
     if (matchesAssignmentRoute) {
