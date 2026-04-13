@@ -1,12 +1,20 @@
 import React, { useRef, useState, useMemo } from "react";
 
-import { Box, Typography } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Link,
+  Tooltip,
+  FormControlLabel,
+  Alert,
+  Switch,
+  OutlinedInput,
+  Chip,
+} from "@mui/material";
+import SkipNextIcon from "@mui/icons-material/SkipNext";
+import { IconButton } from "@mui/material";
 
-
-import FileViewer from "../FileViewer";
-
-// TODO(frontend): organize imports
-
+import FileViewer from "./style/FileViewer";
 import InfoTooltip from "../../common/InfoTooltip";
 
 import {
@@ -24,339 +32,328 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { useAtom } from "jotai";
 import { backupsAtom } from "../../../state/atoms";
 
+const URL_PREFIX = "https://docs.astral.sh/ruff/rules/";
 
 function StyleTab() {
-  /*
-  const { courseId, assignmentId, studentId } = useParams();
-  const submissionData = useSubmissionFileData({
-    courseId,
-    assignmentId,
-    studentId,
-  });
-  */
- 
-  const courseId = 1;
-  const assignmentId = 1;
-  const studentId = 3;
-  
-
-  const [sortBy, setSortBy] = useState("frequency"); 
-
-  // const { courseId, assignmentId, studentId } = useParams(); 
-
   const [backups, setBackups] = useAtom(backupsAtom);
-  const [selectedBackup, setSelectedBackup] = React.useState(0);
   const [files, setFiles] = React.useState([]);
   const [file, setFile] = React.useState("");
-  const [allProblemDisplayNames, setAllProblemDisplayNames] = React.useState(
-    [],
-  );
-
   const [code, setCode] = React.useState("");
-  const [autograderOutput, setAutograderOutput] = React.useState("");
-
-  const [lightMode, setLightMode] = React.useState(true);
-
+  const [lightMode, setLightMode] = React.useState(false);
   const [lintErrors, setLintErrors] = React.useState([]);
-  const [filesToMetadata, setFilesToMetadata] = React.useState(null);
-  const [diffViewerOpen, setDiffViewerOpen] = React.useState(false);
 
-  
+  const [sortBy, setSortBy] = useState("most frequent");
+  const [selectedFilters, setSelectedFilters] = useState([]);
 
-    // TODO: update eventually to correctly use params (rather than hardcoding)
-    const routeParams = React.useMemo(
-      () => ({ courseId: "1", assignmentId: "1", studentId: "2" }),
-      [],
-    );
+  const editorRef = useRef(null);
 
+  // Helper to extract the rule name from the URL
+  const getRuleName = (url) =>
+    url ? url.replace(URL_PREFIX, "").replace(/\/$/, "") : "unknown";
 
-  // TODO(frontend): abstract this to useSubmissionFileData hook
-  // Fetch backups
-  React.useEffect(() => {
-    fetch(
-      `/api/backups/${routeParams.courseId}/${routeParams.assignmentId}/${routeParams.studentId}`,
-      {
-        method: "GET",
-      },
-    )
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((responseData) => {
-        setBackups(responseData.backups.toReversed());
-        setSelectedBackup(0);
-        setFiles(responseData.assignment_file_names);
-        setFile(responseData.assignment_file_names[0]);
-        setAllProblemDisplayNames(responseData.assignment_problem_names);
-      });
-  }, [routeParams, setBackups]);
+  // Generate combined "Code: Name" options for the filter
+  const filterOptions = useMemo(() => {
+    const options = new Set();
+    lintErrors.forEach((err) => {
+      const code = err.code ?? "N/A";
+      const name = getRuleName(err.url);
+      options.add(`${code}: ${name}`);
+    });
+    return Array.from(options).sort();
+  }, [lintErrors]);
 
-  // Fetch autograder output for current selected backup
-  // if backups is done loading
-  React.useEffect(() => {
-    if (backups.length === 0 || backups[selectedBackup].unlock) {
-      return;
-    }
+  const renderTextWithCode = (text) => {
+    const parts = text.split(/(`[^`]+`)/g);
+    return parts.map((part, index) => {
+      if (part.startsWith("`") && part.endsWith("`")) {
+        return <code key={index}>{part.slice(1, -1)}</code>;
+      }
+      return part;
+    });
+  };
 
-    const autograderQueryParams = new URLSearchParams();
-    autograderQueryParams.append(
-      "object_key",
-      backups[selectedBackup].autograder_output_location,
-    );
-
-    fetch(`/api/files?${autograderQueryParams}`, {
-      method: "GET",
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((responseData) => {
-        setAutograderOutput(responseData.file_contents);
-      });
-  }, [backups, selectedBackup]);
-
-  // Fetch code file contents for currently selected backup and file
-  // if backups is done loading
-  React.useEffect(() => {
-    if (backups.length === 0 || file === "") {
-      return;
-    }
-
-    const codeQueryParams = new URLSearchParams();
-    codeQueryParams.append(
-      "object_key",
-      `${backups[selectedBackup].file_contents_location}/${file}`,
-    );
-
-    fetch(`/api/files?${codeQueryParams}`, {
-      method: "GET",
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((responseData) => {
-        setCode(responseData.file_contents);
-      });
-  }, [backups, selectedBackup, file]);
-
-  // Fetch lint errors for currently selected backup and file
-  // if backups is done loading
-  React.useEffect(() => {
-    if (backups.length === 0 || file === "") {
-      return;
-    }
-
-    const lintErrorsQueryParams = new URLSearchParams();
-    lintErrorsQueryParams.append(
-      "file_contents_location",
-      `${backups[selectedBackup].file_contents_location}/${file}`,
-    );
-
-    fetch(`/api/lint_errors?${lintErrorsQueryParams}`, {
-      method: "GET",
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((responseData) => {
-        setLintErrors(responseData.lint_errors);
-      });
-  }, [backups, selectedBackup, file]);
-
-  // Fetch backup file metadata for currently selected backup and file
-  // if backups is done loading
-  React.useEffect(() => {
-    if (backups.length === 0 || file === "") {
-      return;
-    }
-
-    fetch(
-      `/api/backup_file_metadata/${routeParams.courseId}/${routeParams.assignmentId}/${routeParams.studentId}`,
-      {
-        method: "GET",
-      },
-    )
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((responseData) => {
-        setFilesToMetadata(responseData.files_to_metadata);
-      });
-  }, [routeParams, backups, selectedBackup, file]);
-
-  // Fetch previous backup file contents
-  React.useEffect(() => {
-    if (selectedBackup === 0 || backups.length === 0 || file === "") {
-      return;
-    }
-
-    const queryParams = new URLSearchParams();
-    queryParams.append(
-      "object_key",
-      `${backups[selectedBackup - 1].file_contents_location}/${file}`,
-    );
-
-    fetch(`/api/files?${queryParams}`, {
-      method: "GET",
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((responseData) => {
-        setPrevFileContents(responseData.file_contents);
-      });
-  }, [backups, selectedBackup, file]);
-
-
-  function getLanguage(file) {
-    const extension = file.split(".").pop();
-    switch (extension) {
-      case "py":
-        return "python";
-      default:
-        throw new Error(`Unsupported file extension: ${extension}`);
+  function goToLine(lineNumber, column) {
+    if (editorRef.current) {
+      editorRef.current.revealLineInCenter(lineNumber);
+      editorRef.current.setPosition({ lineNumber: lineNumber, column: column });
+      editorRef.current.focus();
     }
   }
 
+  // TODO update to use correct params
+  const routeParams = React.useMemo(
+    () => ({ courseId: "1", assignmentId: "1", studentId: "2" }),
+    [],
+  );
+
+  React.useEffect(() => {
+    fetch(
+      `/api/backups/${routeParams.courseId}/${routeParams.assignmentId}/${routeParams.studentId}`,
+      { method: "GET" },
+    )
+      .then((response) => response.json())
+      .then((responseData) => {
+        setBackups(responseData.backups.toReversed());
+        setFiles(responseData.assignment_file_names);
+        setFile(responseData.assignment_file_names[0]);
+      });
+  }, [routeParams, setBackups]);
+
+  React.useEffect(() => {
+    if (backups.length === 0 || file === "") return;
+    const codeQueryParams = new URLSearchParams();
+    codeQueryParams.append(
+      "object_key",
+      `${backups[backups.length - 1].file_contents_location}/${file}`,
+    );
+
+    fetch(`/api/files?${codeQueryParams}`)
+      .then((response) => response.json())
+      .then((responseData) => setCode(responseData.file_contents));
+  }, [backups, file]);
+
+  React.useEffect(() => {
+    if (backups.length === 0 || file === "") return;
+    const lintErrorsQueryParams = new URLSearchParams();
+    lintErrorsQueryParams.append(
+      "file_contents_location",
+      `${backups[backups.length - 1].file_contents_location}/${file}`,
+    );
+
+    fetch(`/api/lint_errors?${lintErrorsQueryParams}`)
+      .then((response) => response.json())
+      .then((responseData) => {
+        setLintErrors(responseData.lint_errors);
+        setSelectedFilters([]);
+      });
+  }, [backups, file]);
+
   function getLanguage(file) {
     const extension = file.split(".").pop();
-    switch (extension) {
-      case "py":
-        return "python";
-      default:
-        throw new Error(`Unsupported file extension: ${extension}`);
-    }
+    return extension === "py" ? "python" : "text";
   }
 
   const lintErrorsByCode = useMemo(() => {
     const groups = new Map();
-    for (const err of lintErrors) {
+
+    // Filter logic matches against the combined string
+    const filteredErrors = lintErrors.filter((err) => {
+      if (selectedFilters.length === 0) return true;
+      const combinedString = `${err.code ?? "N/A"}: ${getRuleName(err.url)}`;
+      return selectedFilters.includes(combinedString);
+    });
+
+    for (const err of filteredErrors) {
       const key = err.code ?? "(no code)";
-      if (!groups.has(key)) {
-        groups.set(key, []);
-      }
+      if (!groups.has(key)) groups.set(key, []);
       groups.get(key).push(err);
     }
+
     const entries = Array.from(groups.entries());
-    if (sortBy === "frequency") {
+    if (sortBy === "most frequent") {
       entries.sort((a, b) => b[1].length - a[1].length);
+    } else if (sortBy === "least frequent") {
+      entries.sort((a, b) => a[1].length - b[1].length);
     } else {
       entries.sort((a, b) => a[0].localeCompare(b[0]));
     }
     return entries;
-  }, [lintErrors, sortBy]);
-
+  }, [lintErrors, sortBy, selectedFilters]);
 
   return (
-    <div style={{ display: "flex", height: "calc(100vh - 160px)", minHeight: 0 }}>
-  <div style={{ width: "33%", overflowY: "auto", borderRight: "1px solid #ccc", padding: "1rem", minHeight: 0 }}>
-       
-  <div style={{ display: "flex", alignItems: "center", gap: 8, paddingBottom: "2rem"}}>
-        <Typography variant="h4" sx={{ fontWeight: "bold" }}>
-          Lint Errors
-        </Typography>
-        <InfoTooltip
-          info="This tab allows you to view details of different lint errors, such as details of where that lint error occured and a preview of what was on that line. Click on a lint error to jump to that position on the file viewer."
-          placement="right"
-        />
-      </div>
-        {/* sort/filter controls*/}
-        <FormControl fullWidth sx={{ mb: 2 }}>
-        <InputLabel id="style-sort-label">Sort</InputLabel> 
-        <Select
-          labelId="style-sort-label"
-          id="style-sort"
-          value={sortBy}
-          label="Sort by:"
-          onChange={(event) => {
-            setSortBy(event.target.value)
-          }}
-        >
-          <MenuItem value={"frequency"}>Most Frequent</MenuItem>
-          <MenuItem value={"code"}>Code A-Z</MenuItem>
-        </Select>
-      </FormControl>
-
-        <Typography variant="subtitle2" sx={{ mb: 1 }}>
-          Lint ({lintErrors.length})
-        </Typography>
-        {lintErrors.length === 0 ? (
-          <Typography variant="body2" color="text.secondary">
-            No lint issues for this file.
-          </Typography>
-        ) : (
-          lintErrorsByCode.map(([errorCode, errorsForCode]) => (
-            <Accordion
-              key={errorCode}
-              disableGutters
-            >
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Typography variant="body2" sx={{ pr: 1 }}>
-                  {errorCode} ({errorsForCode.length})
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                {errorsForCode.map((err, index) => (
-                  <Box
-                    key={`${err.start_location_row}-${err.start_location_col}-${index}`}
-                    sx={{ mb: index < errorsForCode.length - 1 ? 2 : 0 }}
-                  >
-                    <Typography variant="caption" color="text.secondary" display="block">
-                      Line {err.start_location_row}, col {err.start_location_col}
-                    </Typography>
-                    <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
-                      {err.message}
-                    </Typography>
-                  </Box>
-                ))}
-              </AccordionDetails>
-            </Accordion>
-          ))
-        )}
-      </div>
-
+    <div
+      style={{ display: "flex", height: "calc(100vh - 160px)", minHeight: 0 }}
+    >
       <div
         style={{
-          width: "67%",
+          width: "33%",
+          overflowY: "auto",
+          borderRight: "1px solid #ccc",
           padding: "1rem",
-          
+          minHeight: 0,
         }}
       >
-        {code === "" ? (
-              <CircularProgress />
-            ) : (
-              <FileViewer
-                code={code}
-                language={getLanguage(file)}
-                lightMode={lightMode}
-                lintErrors={lintErrors}
-                // NOTE: This is needed so that the FileViewer component
-                // re-mounts after DiffViewer dialog closes, otherwise
-                // error occurs because Monaco editor ref gets disposed
-                // when DiffViewer dialog opens
-                key={`${file}-${diffViewerOpen}`}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "top",
+            marginBottom: "1rem",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              paddingBottom: "2rem",
+            }}
+          >
+            <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+              Lint Errors
+            </Typography>
+            <InfoTooltip
+              info="View lint errors for the student's final backup"
+              placement="right"
+            />
+          </div>
+          <div>
+            <FormControlLabel
+            control={
+              <Switch
+                checked={lightMode}
+                onChange={(e) => setLightMode(e.target.checked)}
               />
-            )}
+            }
+            label={lightMode ? "Light" : "Dark"}
+          />
 
-        
+          </div>
+
+        </div>
+
+        {/* Multi-Select with combined "Code: Name" chips */}
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <InputLabel id="filter-codes-label">Filter Errors</InputLabel>
+          <Select
+            labelId="filter-codes-label"
+            multiple
+            value={selectedFilters}
+            onChange={(e) =>
+              setSelectedFilters(
+                typeof e.target.value === "string"
+                  ? e.target.value.split(",")
+                  : e.target.value,
+              )
+            }
+            input={<OutlinedInput label="Filter Errors" />}
+            renderValue={(selected) => (
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                {selected.map((value) => (
+                  <Chip
+                    key={value}
+                    label={value}
+                    size="small"
+                    variant="outlined"
+                  />
+                ))}
+              </Box>
+            )}
+          >
+            {filterOptions.map((opt) => (
+              <MenuItem key={opt} value={opt}>
+                {opt}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <InputLabel id="file-select-label">File</InputLabel>
+          <Select
+            labelId="file-select-label"
+            value={file}
+            label="File"
+            onChange={(e) => {
+              setFile(e.target.value);
+              setCode("");
+            }}
+          >
+            {files.map((f) => (
+              <MenuItem key={f} value={f}>
+                {f}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <InputLabel id="style-sort-label">Sort</InputLabel>
+          <Select
+            labelId="style-sort-label"
+            value={sortBy}
+            label="Sort"
+            onChange={(e) => setSortBy(e.target.value)}
+          >
+            <MenuItem value={"most frequent"}>Most Frequent</MenuItem>
+            <MenuItem value={"least frequent"}>Least Frequent</MenuItem>
+            <MenuItem value={"code"}>Code A-Z</MenuItem>
+          </Select>
+        </FormControl>
+
+        <Alert severity="warning" sx={{ mb: "1rem" }}>
+          Showing{" "}
+          {lintErrorsByCode.reduce((acc, curr) => acc + curr[1].length, 0)} of{" "}
+          {lintErrors.length} errors
+        </Alert>
+
+        {lintErrorsByCode.map(([errorCode, errorsForCode]) => (
+          <Accordion key={errorCode} disableGutters>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography variant="body1" sx={{ pr: 1 }}>
+                <Link
+                  href={errorsForCode[0].url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {errorCode}
+                </Link>
+                : {getRuleName(errorsForCode[0].url)} ({errorsForCode.length})
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              {errorsForCode.map((err, index) => (
+                <Box
+                  key={`${err.start_location_row}-${err.start_location_col}-${index}`}
+                  sx={{ mb: index < errorsForCode.length - 1 ? 2 : 0 }}
+                >
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    display="block"
+                  >
+                    Line {err.start_location_row}, col {err.start_location_col}
+                    <Tooltip
+                      title="Jump to lint error location in file viewer"
+                      placement="right"
+                    >
+                      <IconButton
+                        size="small"
+                        onClick={() =>
+                          goToLine(
+                            err.start_location_row,
+                            err.start_location_col,
+                          )
+                        }
+                        color="primary"
+                      >
+                        <SkipNextIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </Typography>
+                  <Typography variant="body1" sx={{ whiteSpace: "pre-wrap" }}>
+                    {renderTextWithCode(err.message)}
+                  </Typography>
+                </Box>
+              ))}
+            </AccordionDetails>
+          </Accordion>
+        ))}
+      </div>
+
+      <div style={{ width: "67%", padding: "1rem" }}>
+        {code === "" ? (
+          <CircularProgress />
+        ) : (
+          <FileViewer
+            editorRef={editorRef}
+            code={code}
+            language={getLanguage(file)}
+            lightMode={lightMode}
+            lintErrors={lintErrors}
+            key={file}
+          />
+        )}
       </div>
     </div>
   );
