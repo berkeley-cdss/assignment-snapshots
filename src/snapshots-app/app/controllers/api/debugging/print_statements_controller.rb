@@ -7,7 +7,10 @@ class Api::Debugging::PrintStatementsController < ApplicationController
     "print('All bees are vanquished. You win!')",
     "print('The bees reached homebase or the queen ant queen has perished. Please try again :(')",
     "print(message)"
-  ]
+  ].freeze
+
+  # Regex for Python print statements: print(...)
+  PRINT_REGEX = /^\s*print\s*\(.*\)/
 
   # TODO deduplicate from FilesController
   def fetch_file_from_local(object_key)
@@ -27,6 +30,14 @@ class Api::Debugging::PrintStatementsController < ApplicationController
     Rails.cache.fetch(cache_key, expires_in: CACHE_TTL) do
       Rails.logger.info("Cache MISS for cache_key #{cache_key}. Fetching from local file system...")
       fetch_file_from_local(object_key)
+    end
+  end
+
+  def contains_user_print?(contents)
+    contents.lines.any? do |line|
+      trimmed = line.strip
+      # Line matches print regex AND is not in our ignore list
+      trimmed.match?(PRINT_REGEX) && !IGNORE_LINES.include?(trimmed)
     end
   end
 
@@ -59,16 +70,43 @@ class Api::Debugging::PrintStatementsController < ApplicationController
     backups = BackupMetadatum.where(
       course: course.okpy_endpoint,
       assignment: assignment.okpy_endpoint,
-      student_email: student.email
+      student_email: student.email,
+      # exclude unlocking tests
+      unlock_location: nil
     ).order(:created)
 
     return render json: [] if backups.empty?
 
-    # TODO loop over all files, all backups to construct object key
-    # TODO only include print statements that match python print regex but the line must not match any of the IGNORE_LINES
-    # TODO don't hardcode only ants.py file
+    response_data = backups.each_with_index.map do |backup, index|
+      # Backup is considered passing if num failed == 0
+      grading = GradingMessageQuestion.where(backup_id: backup.backup_id)
+      is_passing = grading.any? && grading.all? { |q| q.failed == 0 }
 
-    file_contents = fetch_file_from_local("ants.py")
+      # Get the list of problems worked on
+      analytics = AnalyticsMessage.find_by(backup_id: backup.backup_id)
+      problem_names = analytics.question_display_names
 
-    # TODO render cached_response
+      # Get file contents
+      object_key = File.join(backup.file_contents_location, "ants.py")
+      file_result = fetch_cached_file(object_key)
+      contents = file_result[:json][:file_contents] || ""
+      files_list = [
+        {
+          name: "ants.py",
+          contents: contents,
+          hasPrint: contains_user_print?(contents)
+        }
+      ]
+
+
+      {
+        id: index + 1,
+        problem: problem_names.join(", "),
+        timestamp: backup.created,
+        passing: is_passing,
+        files: files_list
+      }
+    end
+
+    render json: response_data
 end
