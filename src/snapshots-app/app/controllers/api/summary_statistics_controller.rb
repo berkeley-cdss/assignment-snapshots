@@ -17,7 +17,7 @@ SCORING = {
   "Problem 9" => 4,
   "Problem 10" => 2,
   "Problem 11" => 4,
-  "Problem 12" => 4,
+  "Problem 12" => 4
 }
 SEC_PER_MIN = 60.0
 MIN_PER_HOUR = 60.0
@@ -31,7 +31,7 @@ class Api::SummaryStatisticsController < ApplicationController
         assignment: assignment_endpoint,
       )
       .group(:student_email)
-      .having('created = MAX(created)')
+      .having("created = MAX(created)")
       .joins("INNER JOIN analytics_messages ON analytics_messages.backup_id = backup_metadata.backup_id")
       .select("backup_metadata.*, analytics_messages.*")
   end
@@ -56,7 +56,7 @@ class Api::SummaryStatisticsController < ApplicationController
       current += bin_size
     end
 
-    return bins
+    bins
   end
 
   def get_score_distribution(course_endpoint, assignment_endpoint, course, student_email)
@@ -81,7 +81,7 @@ class Api::SummaryStatisticsController < ApplicationController
       data << score
     end
 
-    return { "xLabels": get_bins(data), "studentValue": student_score, "data": data }
+    { "xLabels": get_bins(data), "studentValue": student_score, "data": data }
   end
 
   # TODO make this more DRY (a lot of repeated code from previous method)
@@ -107,7 +107,7 @@ class Api::SummaryStatisticsController < ApplicationController
       data << solved
     end
 
-    return { "xLabels": get_bins(data), "studentValue": student_solved, "data": data }
+    { "xLabels": get_bins(data), "studentValue": student_solved, "data": data }
   end
 
   def get_number_of_backups_distribution(course_endpoint, assignment_endpoint, student_email)
@@ -130,7 +130,7 @@ class Api::SummaryStatisticsController < ApplicationController
       end
     end
 
-    return { "xLabels": get_bins(data), "studentValue": student_num_backups, "data": data }
+    { "xLabels": get_bins(data), "studentValue": student_num_backups, "data": data }
   end
 
   def get_total_time_spent_distribution(course_endpoint, assignment_endpoint, student_email)
@@ -154,7 +154,7 @@ class Api::SummaryStatisticsController < ApplicationController
       end
     end
 
-    return { "xLabels": get_bins(data), "studentValue": student_time_spent, "data": data }
+    { "xLabels": get_bins(data), "studentValue": student_time_spent, "data": data }
   end
 
   def get_active_time_spent_distribution(course_endpoint, assignment_endpoint, student_email)
@@ -191,7 +191,7 @@ class Api::SummaryStatisticsController < ApplicationController
     lint_counts = BackupMetadatum
       .where(course: course_endpoint, assignment: assignment_endpoint)
       .group(:student_email)
-      .having('created = MAX(created)')
+      .having("created = MAX(created)")
       # TODO don't hardcode ants.py
       .joins("INNER JOIN lint_errors ON lint_errors.file_contents_location = CONCAT(backup_metadata.file_contents_location, '/ants.py')")
       .select("student_email, COUNT(lint_errors.id) as error_count")
@@ -217,7 +217,7 @@ class Api::SummaryStatisticsController < ApplicationController
     zeros_to_add = total_students - data.length
     zeros_to_add.times { data << 0 }
 
-    return {
+    {
       "xLabels": get_bins(data),
       "studentValue": student_lint_errors,
       "data": data
