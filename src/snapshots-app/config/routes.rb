@@ -19,6 +19,7 @@ Rails.application.routes.draw do
     get "backups/:course_id/:assignment_id/:user_id", to: "backups#show"
     get "lint_errors", to: "lint_errors#show"
     get "backup_file_metadata/:course_id/:assignment_id/:user_id", to: "backup_file_metadata#show"
+    get "summary_statistics/:course_id/:assignment_id/:user_id", to: "summary_statistics#show"
   end
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
