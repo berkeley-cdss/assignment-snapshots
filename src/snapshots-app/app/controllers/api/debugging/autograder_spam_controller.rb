@@ -52,7 +52,8 @@ class Api::Debugging::AutograderSpamController < ApplicationController
           start_time: backup_time,
           end_time: backup_time,
           num_backups: 0,
-          problems: Set.new
+          problems: Set.new,
+          start_backup_id: backup.backup_id
         }
         sessions << current_session
       end
@@ -77,11 +78,11 @@ class Api::Debugging::AutograderSpamController < ApplicationController
       next unless is_spam and s[:num_backups] > 1
 
       {
-        id: index + 1,
+        id: s[:start_backup_id],
         startTimestamp: s[:start_time].iso8601,
         endTimestamp: s[:end_time].iso8601,
         numBackups: s[:num_backups],
-        problems: s[:problems].to_a.sort
+        problems: s[:problems].to_a.sort,
       }
     end
 

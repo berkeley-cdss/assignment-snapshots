@@ -12,7 +12,7 @@ import {
 import { DataGrid } from "@mui/x-data-grid";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 
 import InfoTooltip from "../../../common/InfoTooltip";
 
@@ -49,6 +49,7 @@ const AutograderSpam = () => {
   const [timeThreshold, setTimeThreshold] = useState(THRESHOLD_DEFAULT);
 
   const routeParams = useParams();
+  const navigate = useNavigate();
 
   /**
    * Validates and updates thresholds to ensure they are positive integers
@@ -132,13 +133,16 @@ const AutograderSpam = () => {
       filterable: false,
       align: "center",
       headerAlign: "center",
-      // TODO implement this
       renderCell: (params) => (
-        <Tooltip title="Jump to Timeline">
+        <Tooltip title="Jump to start of session in Timeline">
           <IconButton
             color="primary"
             size="small"
-            onClick={() => console.log(`Opening ID: ${params.id}`)}
+            onClick={() => {
+              console.log(params)
+                navigate(
+            `/courses/${routeParams.courseId}/assignments/${routeParams.assignmentId}/students/${routeParams.studentId}/timeline/${params.id}`,
+          )}}
           >
             <OpenInNewIcon fontSize="small" />
           </IconButton>
