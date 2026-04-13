@@ -19,6 +19,9 @@ SCORING = {
   "Problem 11" => 4,
   "Problem 12" => 4,
 }
+SEC_PER_MIN = 60.0
+MIN_PER_HOUR = 60.0
+HOUR_PER_DAY = 24.0
 
 class Api::SummaryStatisticsController < ApplicationController
   def get_latest_analytics(course_id, assignment_id)
@@ -34,8 +37,8 @@ class Api::SummaryStatisticsController < ApplicationController
   end
 
   def get_bins(data)
-    start = data.min
-    last = data.max
+    start = data.min.floor
+    last = data.max.ceil
     bin_size = (last - start) / 10
 
     bins = []
@@ -54,7 +57,7 @@ class Api::SummaryStatisticsController < ApplicationController
     return bins
   end
 
-  def get_score_distribution(course_id, assignment_id, user_id, course, student_email)
+  def get_score_distribution(course_id, assignment_id, course, student_email)
     latest_analytics = get_latest_analytics(course_id, assignment_id)
 
     student_score = 0
@@ -80,7 +83,7 @@ class Api::SummaryStatisticsController < ApplicationController
   end
 
   # TODO make this more DRY (a lot of repeated code from previous method)
-  def get_problems_solved_distribution(course_id, assignment_id, user_id, course, student_email)
+  def get_problems_solved_distribution(course_id, assignment_id, student_email)
     latest_analytics = get_latest_analytics(course_id, assignment_id)
 
     student_solved = 0
@@ -105,7 +108,7 @@ class Api::SummaryStatisticsController < ApplicationController
     return { "xLabels": get_bins(data), "studentValue": student_solved, "data": data }
   end
 
-  def get_number_of_backups_distribution(course_id, assignment_id, user_id, student_email)
+  def get_number_of_backups_distribution(course_id, assignment_id, student_email)
     num_backups = BackupMetadatum
       .where(
         course: Course.find(course_id).okpy_endpoint,
@@ -128,9 +131,28 @@ class Api::SummaryStatisticsController < ApplicationController
     return { "xLabels": get_bins(data), "studentValue": student_num_backups, "data": data }
   end
 
-  def get_total_time_spent_distribution(course_id, assignment_id, user_id)
-    # TODO implement
-    return {}
+  def get_total_time_spent_distribution(course_id, assignment_id, student_email)
+    timestamps = BackupMetadatum
+      .where(
+        course: Course.find(course_id).okpy_endpoint,
+        assignment: Assignment.find(assignment_id).okpy_endpoint,
+      )
+      .group(:student_email)
+      .select("student_email, unixepoch(MAX(created)) - unixepoch(MIN(created)) as total_time_sec")
+
+    student_time_spent = 0
+    data = []
+
+    timestamps.each do |timestamp|
+      time_spent_days = (timestamp.total_time_sec / SEC_PER_MIN / MIN_PER_HOUR / HOUR_PER_DAY).round(2)
+      data << time_spent_days
+
+      if timestamp.student_email == student_email
+        student_time_spent = time_spent_days
+      end
+    end
+
+    return { "xLabels": get_bins(data), "studentValue": student_time_spent, "data": data }
   end
 
   def get_active_time_spent_distribution(course_id, assignment_id, user_id)
@@ -173,10 +195,10 @@ class Api::SummaryStatisticsController < ApplicationController
       "course_id": course_id,
       "assignment_id": assignment_id,
       "user_id": user_id,
-      "score_distribution": get_score_distribution(course_id, assignment_id, user_id, course, student.email),
-      "problems_solved_distribution": get_problems_solved_distribution(course_id, assignment_id, user_id, course, student.email),
-      "number_of_backups_distribution": get_number_of_backups_distribution(course_id, assignment_id, user_id, student.email),
-      "total_time_spent_distribution": get_total_time_spent_distribution(course_id, assignment_id, user_id),
+      "score_distribution": get_score_distribution(course_id, assignment_id, user_id, student.email),
+      "problems_solved_distribution": get_problems_solved_distribution(course_id, assignment_id, student.email),
+      "number_of_backups_distribution": get_number_of_backups_distribution(course_id, assignment_id, student.email),
+      "total_time_spent_distribution": get_total_time_spent_distribution(course_id, assignment_id, student.email),
       "active_time_spent_distribution": get_active_time_spent_distribution(course_id, assignment_id, user_id),
       "lint_errors_distribution": get_lint_errors_distribution(course_id, assignment_id, user_id)
     }, status: :ok
