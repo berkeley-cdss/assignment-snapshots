@@ -36,34 +36,11 @@ class Api::SummaryStatisticsController < ApplicationController
       .select("backup_metadata.*, analytics_messages.*")
   end
 
-  def get_bins(data)
-    start = data.min.floor
-    last = data.max.ceil
-    bin_size = (last - start) / 10
-
-    # TODO: dynamic bin sizing and handle when bin_size = 0
-
-    bins = []
-    current = start
-
-    while current < last
-      if current + bin_size > last
-        bins << "#{current}+"
-      else
-        bins << "#{current}-#{current + bin_size}"
-      end
-
-      current += bin_size
-    end
-
-    bins
-  end
-
   def get_score_distribution(course_endpoint, assignment_endpoint, course, student_email)
     latest_analytics = get_latest_analytics(course_endpoint, assignment_endpoint)
 
     student_score = 0
-    data = []
+    data = [["Student Email", "Score"]]
 
     latest_analytics.each do |backup|
       score = 0
@@ -78,10 +55,10 @@ class Api::SummaryStatisticsController < ApplicationController
         student_score = score
       end
 
-      data << score
+      data << [backup.student_email, score]
     end
 
-    { "xLabels": get_bins(data), "studentValue": student_score, "data": data }
+    { "studentValue": student_score, "data": data }
   end
 
   # TODO make this more DRY (a lot of repeated code from previous method)
@@ -89,7 +66,7 @@ class Api::SummaryStatisticsController < ApplicationController
     latest_analytics = get_latest_analytics(course_endpoint, assignment_endpoint)
 
     student_solved = 0
-    data = []
+    data = [["Student Email", "Problems Solved"]]
 
     latest_analytics.each do |backup|
       solved = 0
@@ -104,10 +81,10 @@ class Api::SummaryStatisticsController < ApplicationController
         student_solved = solved
       end
 
-      data << solved
+      data << [backup.student_email, solved]
     end
 
-    { "xLabels": get_bins(data), "studentValue": student_solved, "data": data }
+    { "studentValue": student_solved, "data": data }
   end
 
   def get_number_of_backups_distribution(course_endpoint, assignment_endpoint, student_email)
@@ -120,17 +97,17 @@ class Api::SummaryStatisticsController < ApplicationController
       .select("student_email, COUNT(*) as num_backups")
 
     student_num_backups = 0
-    data = []
+    data = [["Student Email", "Number of Backups"]]
 
     num_backups.each do |backup|
-      data << backup.num_backups
+      data << [backup.student_email, backup.num_backups]
 
       if backup.student_email == student_email
         student_num_backups = backup.num_backups
       end
     end
 
-    { "xLabels": get_bins(data), "studentValue": student_num_backups, "data": data }
+    { "studentValue": student_num_backups, "data": data }
   end
 
   def get_total_time_spent_distribution(course_endpoint, assignment_endpoint, student_email)
@@ -143,18 +120,18 @@ class Api::SummaryStatisticsController < ApplicationController
       .select("student_email, unixepoch(MAX(created)) - unixepoch(MIN(created)) as total_time_sec")
 
     student_time_spent = 0
-    data = []
+    data = [["Student Email", "Total Time Spent (days)"]]
 
     timestamps.each do |timestamp|
       time_spent_days = (timestamp.total_time_sec / SEC_PER_MIN / MIN_PER_HOUR / HOUR_PER_DAY).round(2)
-      data << time_spent_days
+      data << [timestamp.student_email, time_spent_days]
 
       if timestamp.student_email == student_email
         student_time_spent = time_spent_days
       end
     end
 
-    { "xLabels": get_bins(data), "studentValue": student_time_spent, "data": data }
+    { "studentValue": student_time_spent, "data": data }
   end
 
   def get_active_time_spent_distribution(course_endpoint, assignment_endpoint, student_email)
@@ -174,16 +151,16 @@ class Api::SummaryStatisticsController < ApplicationController
       .group(:student_email)
 
     # Map the results to hours
-    data = []
+    data = [["Student Email", "Active Time Spent (min)"]]
     student_active_time_spent = nil
 
     results.each do |row|
       total_min = (row.total_sec / SEC_PER_MIN).round(2)
-      data << total_min
+      data << [row.student_email, total_min]
       student_active_time_spent = total_min if row.student_email == student_email
     end
 
-    { "xLabels": get_bins(data), "studentValue": student_active_time_spent, "data": data }
+    { "studentValue": student_active_time_spent, "data": data }
   end
 
   # Total lint errors across all files for the student's latest backup
@@ -197,28 +174,21 @@ class Api::SummaryStatisticsController < ApplicationController
       .select("student_email, COUNT(lint_errors.id) as error_count")
 
     student_lint_errors = 0
-    data = []
+    data = [["Student Email", "Lint Errors"]]
 
     lint_counts.each do |row|
       Rails.logger.info("row: #{row.student_email}, #{row.error_count}")
       count = row.error_count
-      data << count
+      data << [row.student_email, count]
 
       if row.student_email == student_email
         student_lint_errors = count
       end
     end
 
-    # Handle case where students have 0 lint errors (they won't appear in the INNER JOIN)
-    # We fetch total unique students for this assignment to fill in the zeros
-    total_students = BackupMetadatum.where(course: course_endpoint, assignment: assignment_endpoint)
-                                    .distinct.count(:student_email)
-
-    zeros_to_add = total_students - data.length
-    zeros_to_add.times { data << 0 }
+    # TODO Handle case where students have 0 lint errors (they won't appear in the INNER JOIN)
 
     {
-      "xLabels": get_bins(data),
       "studentValue": student_lint_errors,
       "data": data
     }

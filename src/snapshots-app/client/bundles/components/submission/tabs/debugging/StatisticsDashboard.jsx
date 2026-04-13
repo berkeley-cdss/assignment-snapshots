@@ -1,41 +1,16 @@
 import React, { useMemo } from "react";
 
 import { Box, Typography } from "@mui/material";
-import { BarChart } from "@mui/x-charts/BarChart";
+import { Chart } from "react-google-charts";
 
 import InfoTooltip from "../../../common/InfoTooltip";
 
-const Histogram = ({ title, tooltip, xLabels, studentValue, data }) => {
-  /**
-   * Finds the correct xLabel bin for a given student value.
-   * @param {number} value - The student's numerical score.
-   * @param {string[]} labels - Array of bin strings (e.g., ["0-10", "50+"])
-   * @returns {string|null} - The matching bin string.
-   */
-  const findBin = (value, labels) => {
-    return (
-      labels.find((label) => {
-        // Handle the "50+" or "100+" case
-        if (label.includes("+")) {
-          const floor = parseFloat(label.replace("+", ""));
-          return value >= floor;
-        }
+const Histogram = ({ title, tooltip, data }) => {
 
-        // Handle ranges like "10-20"
-        const [min, max] = label.split("-").map(Number);
 
-        // Standard histogram logic: inclusive of min, exclusive of max [min, max)
-        return value >= min && value < max;
-      }) || null
-    );
-  };
-
-  const studentBin = useMemo(
-    () => findBin(studentValue, xLabels),
-    [studentValue, xLabels],
-  );
-
-  console.log("student bin:", studentBin);
+  const options = {
+  legend: { position: "none" },
+};
 
   return (
     <Box>
@@ -43,24 +18,16 @@ const Histogram = ({ title, tooltip, xLabels, studentValue, data }) => {
         <Typography variant="h6">{title}</Typography>
         <InfoTooltip info={tooltip} />
       </Box>
-      <BarChart
-        xAxis={[
-          {
-            scaleType: "band",
-            data: xLabels,
-            colorMap: {
-              type: "ordinal",
-              values: xLabels,
-              // If the label matches the studentValue, turn it red; otherwise, use default blue
-              colors: xLabels.map((bin) =>
-                bin === studentBin ? "red" : "blue",
-              ),
-            },
-          },
-        ]}
-        series={[{ data }]}
-        height={300}
-      />
+
+      <Chart
+      chartType="Histogram"
+      width="100%"
+      height="100%"
+      data={data}
+      options={options}
+    />
+
+
     </Box>
   );
 };
@@ -68,13 +35,12 @@ const Histogram = ({ title, tooltip, xLabels, studentValue, data }) => {
 const StatisticsDashboard = ({
   title,
   tooltip,
-  xLabels,
   studentValue,
   data,
 }) => {
   // Calculate the stats based on the full dataset
   const stats = useMemo(() => {
-    const values = data.sort((a, b) => a - b);
+    const values = data.slice(1).map((row) => row[1]).sort((a, b) => a - b);
     const n = values.length;
 
     if (n === 0) return null;
@@ -136,8 +102,6 @@ const StatisticsDashboard = ({
         <Histogram
           title={title}
           tooltip={tooltip}
-          xLabels={xLabels}
-          studentValue={studentValue}
           data={data}
         />
       </div>
