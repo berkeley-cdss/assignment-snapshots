@@ -6,11 +6,9 @@ import { Chart } from "react-google-charts";
 import InfoTooltip from "../../../common/InfoTooltip";
 
 const Histogram = ({ title, tooltip, data }) => {
-
-
   const options = {
-  legend: { position: "none" },
-};
+    legend: { position: "none" },
+  };
 
   return (
     <Box>
@@ -20,27 +18,23 @@ const Histogram = ({ title, tooltip, data }) => {
       </Box>
 
       <Chart
-      chartType="Histogram"
-      width="100%"
-      height="100%"
-      data={data}
-      options={options}
-    />
-
-
+        chartType="Histogram"
+        width="100%"
+        height="100%"
+        data={data}
+        options={options}
+      />
     </Box>
   );
 };
 
-const StatisticsDashboard = ({
-  title,
-  tooltip,
-  studentValue,
-  data,
-}) => {
+const StatisticsDashboard = ({ title, tooltip, studentValue, data }) => {
   // Calculate the stats based on the full dataset
   const stats = useMemo(() => {
-    const values = data.slice(1).map((row) => row[1]).sort((a, b) => a - b);
+    const values = data
+      .slice(1)
+      .map((row) => row[1])
+      .sort((a, b) => a - b);
     const n = values.length;
 
     if (n === 0) return null;
@@ -99,11 +93,7 @@ const StatisticsDashboard = ({
       </div>
 
       <div className="chart-placeholder">
-        <Histogram
-          title={title}
-          tooltip={tooltip}
-          data={data}
-        />
+        <Histogram title={title} tooltip={tooltip} data={data} />
       </div>
     </div>
   );
