@@ -31,7 +31,7 @@ class Api::SummaryStatisticsController < ApplicationController
         assignment: assignment_endpoint,
       )
       .group(:student_email)
-      .having('MAX(created)')
+      .having('created = MAX(created)')
       .joins("INNER JOIN analytics_messages ON analytics_messages.backup_id = backup_metadata.backup_id")
       .select("backup_metadata.*, analytics_messages.*")
   end
@@ -186,9 +186,42 @@ class Api::SummaryStatisticsController < ApplicationController
     { "xLabels": get_bins(data), "studentValue": student_active_time_spent, "data": data }
   end
 
+  # Total lint errors across all files for the student's latest backup
   def get_lint_errors_distribution(course_endpoint, assignment_endpoint, student_email)
-    # TODO implement
-    return {}
+    lint_counts = BackupMetadatum
+      .where(course: course_endpoint, assignment: assignment_endpoint)
+      .group(:student_email)
+      .having('created = MAX(created)')
+      # TODO don't hardcode ants.py
+      .joins("INNER JOIN lint_errors ON lint_errors.file_contents_location = CONCAT(backup_metadata.file_contents_location, '/ants.py')")
+      .select("student_email, COUNT(lint_errors.id) as error_count")
+
+    student_lint_errors = 0
+    data = []
+
+    lint_counts.each do |row|
+      Rails.logger.info("row: #{row.student_email}, #{row.error_count}")
+      count = row.error_count
+      data << count
+
+      if row.student_email == student_email
+        student_lint_errors = count
+      end
+    end
+
+    # Handle case where students have 0 lint errors (they won't appear in the INNER JOIN)
+    # We fetch total unique students for this assignment to fill in the zeros
+    total_students = BackupMetadatum.where(course: course_endpoint, assignment: assignment_endpoint)
+                                    .distinct.count(:student_email)
+
+    zeros_to_add = total_students - data.length
+    zeros_to_add.times { data << 0 }
+
+    return {
+      "xLabels": get_bins(data),
+      "studentValue": student_lint_errors,
+      "data": data
+    }
   end
 
   def show
