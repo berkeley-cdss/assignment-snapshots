@@ -108,8 +108,12 @@ function SubmissionLayout() {
           const index = responseData.backups.toReversed().findIndex(
             (b) => b.backup_id === routeParams.backupId,
           );
-          // Default to 0 if ID not found, otherwise use matched index
-          setSelectedBackup(index !== -1 ? index : 0);
+
+          if (index === -1) {
+            navigate("/404");
+          }
+
+          setSelectedBackup(index);
         } else {
           setSelectedBackup(0);
 
