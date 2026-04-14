@@ -1,12 +1,17 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import Breadcrumbs from "@mui/material/Breadcrumbs";
 import Typography from "@mui/material/Typography";
 import Link from "@mui/material/Link";
 import { Link as RouterLink, useMatch } from "react-router";
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 
-import { coursesAtom, assignmentsAtom, studentsAtom } from "../../state/atoms";
+import {
+  userAtom,
+  coursesAtom,
+  assignmentsAtom,
+  studentsAtom,
+} from "../../state/atoms";
 
 function BreadcrumbNavLink(props) {
   return <Link {...props} component={RouterLink} />;
@@ -14,22 +19,92 @@ function BreadcrumbNavLink(props) {
 
 function BreadcrumbNav() {
   const matchesCoursesRoute = useMatch({ path: "/courses", end: false });
-  const matchesCourseRoute = useMatch({
-    path: "/courses/:courseId",
+  const matchesAssignmentsRoute = useMatch({
+    path: "/courses/:courseId/assignments",
     end: false,
   });
-  const matchesAssignmentRoute = useMatch({
-    path: "/courses/:courseId/assignments/:assignmentId",
+  const matchesStudentsRoute = useMatch({
+    path: "/courses/:courseId/assignments/:assignmentId/students",
     end: false,
   });
-  const matchesStudentRoute = useMatch({
-    path: "/courses/:courseId/assignments/:assignmentId/students/:studentId",
+  const matchesSubmissionRoute = useMatch({
+    path: "/courses/:courseId/assignments/:assignmentId/students/:studentId/submission",
     end: false,
   });
 
-  const courses = useAtomValue(coursesAtom);
-  const assignments = useAtomValue(assignmentsAtom);
-  const students = useAtomValue(studentsAtom);
+  const user = useAtomValue(userAtom);
+  const [courses, setCourses] = useAtom(coursesAtom);
+  const [assignments, setAssignments] = useAtom(assignmentsAtom);
+  const [students, setStudents] = useAtom(studentsAtom);
+
+  useEffect(() => {
+    fetch(`/api/courses?email=${encodeURIComponent(user)}`, {
+      method: "GET",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((responseData) => {
+        setCourses(responseData["courses"]);
+      })
+      .catch((error) => {
+        throw new Error(`HTTP error! Error: ${error}`);
+      });
+  }, [user, setCourses]);
+
+  useEffect(() => {
+    if (matchesAssignmentsRoute?.params?.courseId) {
+      fetch(`/api/assignments/${matchesAssignmentsRoute.params.courseId}`, {
+        method: "GET",
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((responseData) => {
+          setAssignments(responseData["assignments"]);
+        })
+        .catch((error) => {
+          throw new Error(`HTTP error! Error: ${error}`);
+        });
+    }
+  }, [matchesAssignmentsRoute?.params?.courseId, setAssignments]);
+
+  useEffect(() => {
+    if (
+      matchesStudentsRoute?.params?.courseId &&
+      matchesStudentsRoute?.params?.assignmentId
+    ) {
+      fetch(
+        `/api/submissions/${matchesStudentsRoute.params.courseId}/${matchesStudentsRoute.params.assignmentId}`,
+        {
+          method: "GET",
+        },
+      )
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((responseData) => {
+          setStudents(responseData["submissions"]);
+        })
+        .catch((error) => {
+          throw new Error(`HTTP error! Error: ${error}`);
+        });
+    }
+  }, [
+    matchesStudentsRoute?.params?.courseId,
+    matchesStudentsRoute?.params?.assignmentId,
+    setStudents,
+  ]);
+
   const breadcrumbs = getBreadcrumbs();
 
   function findById(objects, id) {
@@ -50,33 +125,55 @@ function BreadcrumbNav() {
       result.push({ name: "Courses", path: "/courses" });
     }
 
-    if (matchesCourseRoute) {
-      const course = findById(courses, matchesCourseRoute.params.courseId);
-      
-      result.push({
-        name: getCourseHumanReadableName(course),
-        path: `/courses/${matchesCourseRoute.params.courseId}`,
-      }); 
-  
+    if (matchesAssignmentsRoute) {
+      const course = findById(courses, matchesAssignmentsRoute.params.courseId);
+      if (course) {
+        result.push({
+          name: getCourseHumanReadableName(course),
+          path: `/courses/${matchesAssignmentsRoute.params.courseId}/assignments`,
+        });
+      } else {
+        result.push({
+          name: "Loading course name",
+          path: "#",
+        });
+      }
     }
 
-    if (matchesAssignmentRoute) {
+    if (matchesStudentsRoute) {
       const assignment = findById(
         assignments,
-        matchesAssignmentRoute.params.assignmentId,
+        matchesStudentsRoute.params.assignmentId,
       );
-      result.push({
-        name: assignment.name,
-        path: `/courses/${matchesAssignmentRoute.params.courseId}/assignments/${matchesAssignmentRoute.params.assignmentId}`,
-      });
+      if (assignment) {
+        result.push({
+          name: assignment.name,
+          path: `/courses/${matchesStudentsRoute.params.courseId}/assignments/${matchesStudentsRoute.params.assignmentId}/students`,
+        });
+      } else {
+        result.push({
+          name: "Loading assignment name",
+          path: "#",
+        });
+      }
     }
 
-    if (matchesStudentRoute) {
-      const student = findById(students, matchesStudentRoute.params.studentId);
-      result.push({
-        name: `${student.first_name} ${student.last_name} (${student.student_id})`,
-        path: `/courses/${matchesStudentRoute.params.courseId}/assignments/${matchesStudentRoute.params.assignmentId}/students/${matchesStudentRoute.params.studentId}`,
-      });
+    if (matchesSubmissionRoute) {
+      const student = findById(
+        students,
+        matchesSubmissionRoute.params.studentId,
+      );
+      if (student) {
+        result.push({
+          name: `${student.first_name} ${student.last_name} (SID: ${student.student_id})`,
+          path: `/courses/${matchesSubmissionRoute.params.courseId}/assignments/${matchesSubmissionRoute.params.assignmentId}/students/${matchesSubmissionRoute.params.studentId}/submission/summary`,
+        });
+      } else {
+        result.push({
+          name: "Loading student name and SID",
+          path: "#",
+        });
+      }
     }
 
     return result;
@@ -88,7 +185,6 @@ function BreadcrumbNav() {
         padding: "1rem",
         borderBottom: "1px solid lightGrey",
         backgroundColor: "white",
-        marginBottom: "1rem",
       }}
     >
       <Breadcrumbs separator="›" aria-label="breadcrumb">

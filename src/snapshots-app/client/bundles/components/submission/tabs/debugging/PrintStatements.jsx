@@ -136,7 +136,9 @@ const PrintStatements = () => {
   const routeParams = useParams();
 
   useEffect(() => {
-    fetch(`/api/debugging/print_statements/${routeParams.courseId}/${routeParams.assignmentId}/${routeParams.studentId}`,)
+    fetch(
+      `/api/debugging/print_statements/${routeParams.courseId}/${routeParams.assignmentId}/${routeParams.studentId}`,
+    )
       .then((response) => response.json())
       .then((responseData) => setDiffData(responseData));
   }, [routeParams]);

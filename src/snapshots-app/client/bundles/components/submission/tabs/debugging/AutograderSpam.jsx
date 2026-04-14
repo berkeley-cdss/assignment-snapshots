@@ -8,6 +8,7 @@ import {
   IconButton,
   TextField,
   Stack,
+  Slider,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
@@ -85,20 +86,79 @@ const AutograderSpam = () => {
       });
   }, [routeParams, numBackupsThreshold, timeThreshold]);
 
+  const getMarks = (totalBackups) => {
+    return [
+      {
+        value: 0,
+        label: "0",
+      },
+      {
+        value: Math.round(totalBackups * 0.25),
+        label: `${Math.round(totalBackups * 0.25)}`,
+      },
+      {
+        value: Math.round(totalBackups * 0.5),
+        label: `${Math.round(totalBackups * 0.5)}`,
+      },
+      {
+        value: Math.round(totalBackups * 0.75),
+        label: `${Math.round(totalBackups * 0.75)}`,
+      },
+      {
+        value: totalBackups,
+        label: `${totalBackups}`,
+      },
+    ];
+  };
+
   const columns = [
     {
-      field: "startTimestamp",
-      headerName: "Start Timestamp",
-      flex: 1,
-      valueGetter: (value) => value,
-      valueFormatter: (value) => formatTimestamp(value),
-    },
-    {
-      field: "endTimestamp",
-      headerName: "End Timestamp",
-      flex: 1,
-      valueGetter: (value) => value,
-      valueFormatter: (value) => formatTimestamp(value),
+      field: "worksession",
+      headerName: "Worksession",
+      flex: 2,
+      valueGetter: (value, row) => new Date(row.startTimestamp),
+      sortComparator: (v1, v2) => v1 - v2,
+      // TODO fix popper being hidden by DataGrid on the far left side when hovering over the slider thumbs
+      renderCell: (params) => {
+        const getSliderValueText = (value) => {
+          if (value === params.row.startIndex) {
+            return `Backup #${value} (${formatTimestamp(params.row.startTimestamp)})`;
+          } else {
+            return `Backup #${value} (${formatTimestamp(params.row.endTimestamp)})`;
+          }
+        };
+
+        return (
+          <div
+            style={{ display: "flex", alignItems: "center", height: "100%" }}
+          >
+            <Slider
+              aria-label="Worksession"
+              value={[params.row.startIndex, params.row.endIndex]}
+              valueLabelDisplay="auto"
+              min={0}
+              max={params.row.totalBackups}
+              marks={getMarks(params.row.totalBackups)}
+              valueLabelFormat={getSliderValueText}
+              getAriaValueText={getSliderValueText}
+              sx={{
+                // Reduce the size of the circles (thumbs)
+                "& .MuiSlider-thumb": {
+                  height: 12,
+                  width: 12,
+                },
+                // Adjust the track and rail thickness to match smaller thumbs
+                "& .MuiSlider-track": {
+                  height: 4,
+                },
+                "& .MuiSlider-rail": {
+                  height: 4,
+                },
+              }}
+            />
+          </div>
+        );
+      },
     },
     {
       field: "duration",
@@ -113,9 +173,9 @@ const AutograderSpam = () => {
     },
     {
       field: "numBackups",
-      headerName: "Number of Backups",
+      headerName: "# of Backups",
       type: "number",
-      width: 150,
+      width: 100,
       align: "right",
       headerAlign: "right",
     },
@@ -134,19 +194,21 @@ const AutograderSpam = () => {
       align: "center",
       headerAlign: "center",
       renderCell: (params) => (
-        <Tooltip title="Jump to start of session in Timeline">
-          <IconButton
-            color="primary"
-            size="small"
-            onClick={() => {
-              console.log(params)
+        <div style={{ display: "flex", alignItems: "center", height: "100%" }}>
+          <Tooltip title="Jump to start of session in Timeline">
+            <IconButton
+              color="primary"
+              size="small"
+              onClick={() => {
                 navigate(
-            `/courses/${routeParams.courseId}/assignments/${routeParams.assignmentId}/students/${routeParams.studentId}/timeline/${params.id}`,
-          )}}
-          >
-            <OpenInNewIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
+                  `/courses/${routeParams.courseId}/assignments/${routeParams.assignmentId}/students/${routeParams.studentId}/submission/timeline/${params.id}`,
+                );
+              }}
+            >
+              <OpenInNewIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </div>
       ),
     },
   ];
@@ -228,6 +290,7 @@ const AutograderSpam = () => {
           }}
           pageSizeOptions={[5, 10, 25]}
           disableRowSelectionOnClick
+          rowHeight={100}
         />
       </Paper>
     </Box>

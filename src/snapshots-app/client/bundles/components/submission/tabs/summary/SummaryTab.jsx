@@ -23,18 +23,55 @@ import {
 
 import { useParams } from "react-router";
 
-import StatisticsDashboard from "./debugging/StatisticsDashboard";
-import InfoTooltip from "../../common/InfoTooltip";
+import StatisticsDashboard from "./StatisticsDashboard";
+import ProblemGanttPlot from "./ProblemGanttPlot";
+// import ProblemTimeline from "./ProblemTimeline";
+// import GanttPlot from "./GanttPlot";
+import InfoTooltip from "../../../common/InfoTooltip";
 
 // TODO: move graphs from Submission Layout into here
 // TODO: lines added/removed rich git diff chart like encourse
 
 // TODO: problem summaries [subtasks]
-// TODO: duration plots for problems (see slack)
 // TODO: number of backups for each problem
 // TODO: plot time spent on unlocking vs correctness tests for each problem
 
 // TODO: radar plot
+
+// TODO: don't hardcode these options for just ants
+const SCORE_HISTOGRAM_OPTIONS = {
+  histogram: {
+    bucketSize: 10,
+    minValue: 0,
+    maxValue: 50,
+  },
+
+  hAxis: {
+    // manually sets the scale of the X-axis
+    viewWindow: {
+      min: 0,
+      max: 50,
+    },
+  },
+  legend: { position: "none" },
+};
+
+const PROBLEMS_SOLVED_HISTOGRAM_OPTIONS = {
+  histogram: {
+    bucketSize: 5,
+    minValue: 0,
+    maxValue: 15,
+  },
+
+  hAxis: {
+    // manually sets the scale of the X-axis
+    viewWindow: {
+      min: 0,
+      max: 15,
+    },
+  },
+  legend: { position: "none" },
+};
 
 function SummaryTab({}) {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -101,6 +138,7 @@ function SummaryTab({}) {
                   tooltip="Hover over chart for more details"
                   studentValue={summaryStats.score_distribution.studentValue}
                   data={summaryStats.score_distribution.data}
+                  options={SCORE_HISTOGRAM_OPTIONS}
                 />
               ),
             },
@@ -113,6 +151,7 @@ function SummaryTab({}) {
                   tooltip="Hover over chart for more details"
                   studentValue={summaryStats.problems_solved_distribution.studentValue}
                   data={summaryStats.problems_solved_distribution.data}
+                  options={PROBLEMS_SOLVED_HISTOGRAM_OPTIONS}
                 />
               ),
             },
@@ -224,8 +263,10 @@ function SummaryTab({}) {
             sx={{ flexGrow: 1, p: 4, borderRadius: 2, backgroundColor: "#fafafa" }}
           >
             {menuItems[activeIndex].component}
+          </Paper>
 
-            {chartsReady ? (
+          {/* TODO: move into separate component -- these were graphs moved from timeline view */}
+          {chartsReady ? (
               <>
                 <LineChart
                   xAxis={xAxis}
@@ -250,7 +291,8 @@ function SummaryTab({}) {
             ) : (
               <CircularProgress />
             )}
-          </Paper>
+
+          <ProblemGanttPlot />
         </Box>
       ) : (
         <CircularProgress />

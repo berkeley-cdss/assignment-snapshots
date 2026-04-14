@@ -2,14 +2,14 @@ import React from "react";
 
 import { BrowserRouter, Route, Routes } from "react-router";
 
-import SubmissionLayout from "./layouts/SubmissionLayout";
 import Login from "./pages/Login";
 import Courses from "./pages/Courses";
-import Course from "./pages/Course";
-import Assignment from "./pages/Assignment";
+import Assignments from "./pages/Assignments";
+import Students from "./pages/Students";
 import Header from "./components/common/Header";
 import Footer from "./components/common/Footer";
 import TabsLayout from "./layouts/TabsLayout";
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
@@ -19,23 +19,29 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/courses" element={<Courses />} />
-        <Route path="/courses/:courseId" element={<Course />} />
         <Route
-          path="/courses/:courseId/assignments/:assignmentId"
-          element={<Assignment />}
+          path="/courses/:courseId/assignments"
+          element={<Assignments />}
         />
         <Route
-          path="/courses/:courseId/assignments/:assignmentId/students/:studentId/:tabId"
+          path="/courses/:courseId/assignments/:assignmentId/students"
+          element={<Students />}
+        />
+        <Route
+          path="/courses/:courseId/assignments/:assignmentId/students/:studentId/submission/:tabId"
           element={<TabsLayout />}
         />
         <Route
-          path="/courses/:courseId/assignments/:assignmentId/students/:studentId/:tabId/:backupId"
+          path="/courses/:courseId/assignments/:assignmentId/students/:studentId/submission/:tabId/:backupId"
           element={<TabsLayout />}
         />
         <Route
-          path="/courses/:courseId/assignments/:assignmentId/students/:studentId"
+          path="/courses/:courseId/assignments/:assignmentId/students/:studentId/submission"
           element={<TabsLayout />}
         />
+
+        {/* catch all route */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
 
       <Footer />
