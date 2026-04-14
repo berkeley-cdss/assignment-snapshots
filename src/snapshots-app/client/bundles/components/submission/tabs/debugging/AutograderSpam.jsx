@@ -140,7 +140,7 @@ const AutograderSpam = () => {
             size="small"
             onClick={() => {
               navigate(
-                `/courses/${routeParams.courseId}/assignments/${routeParams.assignmentId}/students/${routeParams.studentId}/timeline/${params.id}`,
+                `/courses/${routeParams.courseId}/assignments/${routeParams.assignmentId}/students/${routeParams.studentId}/submission/timeline/${params.id}`,
               );
             }}
           >

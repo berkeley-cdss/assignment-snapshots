@@ -316,7 +316,7 @@ function TimelineTab() {
 
   function handleBackupSelect(selectedBackupIndex) {
     navigate(
-      `/courses/${routeParams.courseId}/assignments/${routeParams.assignmentId}/students/${routeParams.studentId}/timeline/${backups[selectedBackupIndex].backup_id}`,
+      `/courses/${routeParams.courseId}/assignments/${routeParams.assignmentId}/students/${routeParams.studentId}/submission/timeline/${backups[selectedBackupIndex].backup_id}`,
       { replace: true },
     );
 

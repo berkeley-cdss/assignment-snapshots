@@ -84,7 +84,7 @@ const Errors = () => {
               variant="body2"
               onClick={() =>
                 navigate(
-                  `/courses/${routeParams.courseId}/assignments/${routeParams.assignmentId}/students/${routeParams.studentId}/timeline/${params.value}`,
+                  `/courses/${routeParams.courseId}/assignments/${routeParams.assignmentId}/students/${routeParams.studentId}/submission/timeline/${params.value}`,
                 )
               }
             >
