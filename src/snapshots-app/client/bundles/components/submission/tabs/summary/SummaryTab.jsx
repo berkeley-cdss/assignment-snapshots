@@ -54,7 +54,6 @@ function SummaryTab({}) {
         return response.json();
       })
       .then((responseData) => {
-        console.log("response data", responseData);
         setSummaryStats(responseData);
       });
   }, [routeParams]);
