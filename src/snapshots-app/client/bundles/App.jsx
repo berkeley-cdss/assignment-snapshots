@@ -10,6 +10,7 @@ import Assignment from "./pages/Assignment";
 import Header from "./components/common/Header";
 import Footer from "./components/common/Footer";
 import TabsLayout from "./layouts/TabsLayout";
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
@@ -35,6 +36,12 @@ function App() {
         <Route
           path="/courses/:courseId/assignments/:assignmentId/students/:studentId"
           element={<TabsLayout />}
+        />
+
+        {/* catch all route */}
+        <Route
+          path="*"
+          element={<NotFound />}
         />
       </Routes>
 
