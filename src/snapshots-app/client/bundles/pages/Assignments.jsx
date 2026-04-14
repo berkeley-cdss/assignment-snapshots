@@ -26,7 +26,7 @@ function AssignmentsTable({ courseId, assignments }) {
       headerClassName: "column-header",
       renderCell: (params) => (
         <TableCellNavLink
-          pathname={`/courses/${courseId}/assignments/${params.row.id}`}
+          pathname={`/courses/${courseId}/assignments/${params.row.id}/students`}
         >
           {params.value}
         </TableCellNavLink>

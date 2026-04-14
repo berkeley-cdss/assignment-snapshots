@@ -19,21 +19,21 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/courses" element={<Courses />} />
-        <Route path="/courses/:courseId" element={<Assignments />} />
+        <Route path="/courses/:courseId/assignments" element={<Assignments />} />
         <Route
-          path="/courses/:courseId/assignments/:assignmentId"
+          path="/courses/:courseId/assignments/:assignmentId/students"
           element={<Students />}
         />
         <Route
-          path="/courses/:courseId/assignments/:assignmentId/students/:studentId/:tabId"
+          path="/courses/:courseId/assignments/:assignmentId/students/:studentId/submission/:tabId"
           element={<TabsLayout />}
         />
         <Route
-          path="/courses/:courseId/assignments/:assignmentId/students/:studentId/:tabId/:backupId"
+          path="/courses/:courseId/assignments/:assignmentId/students/:studentId/submission/:tabId/:backupId"
           element={<TabsLayout />}
         />
         <Route
-          path="/courses/:courseId/assignments/:assignmentId/students/:studentId"
+          path="/courses/:courseId/assignments/:assignmentId/students/submission/:studentId"
           element={<TabsLayout />}
         />
 

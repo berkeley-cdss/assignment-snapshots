@@ -52,7 +52,7 @@ function CoursesTable() {
       flex: 1,
       headerClassName: "column-header",
       renderCell: (params) => (
-        <TableCellNavLink pathname={`/courses/${params.row.id}`}>
+        <TableCellNavLink pathname={`/courses/${params.row.id}/assignments`}>
           {params.value}
         </TableCellNavLink>
       ),
