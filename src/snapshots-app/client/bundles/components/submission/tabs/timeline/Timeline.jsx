@@ -8,6 +8,7 @@ import DoneIcon from "@mui/icons-material/Done";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { Tooltip } from "@mui/material";
 import InfoTooltip from "../../../common/InfoTooltip";
 import Snackbar from "@mui/material/Snackbar";
@@ -128,6 +129,19 @@ function TimelineButtonGroup({
     backups[0].question_cli_names,
     backups[0].unlock,
   );
+
+  const problemNames = useMemo(() => {
+    const questionCliNames = backups[0].question_cli_names;
+    const joined = questionCliNames.join(", ");
+    const unlockSuffix = backups[0].unlock ? " (Unlocking)" : "";
+
+    if (questionCliNames.length <= 1) {
+      return "Problem " + joined + unlockSuffix;
+    } else {
+      return "Problems " + joined + unlockSuffix;
+    }
+  }, [backups]);
+
   const onClickCommand = () => {
     copyOkpyCommand(okpyCommand);
     setIsSnackbarOpen(true);
@@ -137,15 +151,17 @@ function TimelineButtonGroup({
     <div>
       <div
         style={{
-          whiteSpace: "pre-wrap",
-          fontFamily: "Menlo",
-          fontSize: "0.8rem",
-          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
           marginBottom: "0.5rem",
         }}
-        onClick={onClickCommand}
       >
-        {okpyCommand}
+        <Tooltip title="Copy OkPy command" placement="top">
+          <IconButton aria-label="copy" onClick={onClickCommand} size="small">
+            <ContentCopyIcon />
+          </IconButton>
+        </Tooltip>
+        <div>{problemNames}</div>
       </div>
 
       <ButtonGroup
