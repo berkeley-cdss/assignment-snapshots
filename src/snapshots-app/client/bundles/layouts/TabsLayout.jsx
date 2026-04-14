@@ -37,9 +37,9 @@ function TabsLayout() {
   // Fallback: If URL has no tabId or an invalid one, default to the first tab
   const activeTab = TABS.find((t) => t.id === tabId) ? tabId : TABS[0].id;
 
-  const handleChange = (event, newValue) => {
+  const handleChange = (event, newTabId) => {
     navigate(
-      `/courses/${courseId}/assignments/${assignmentId}/students/${studentId}/submission/${newValue}`,
+      `/courses/${courseId}/assignments/${assignmentId}/students/${studentId}/submission/${newTabId}`,
     );
   };
 
