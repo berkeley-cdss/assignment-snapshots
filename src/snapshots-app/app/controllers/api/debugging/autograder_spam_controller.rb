@@ -82,7 +82,7 @@ class Api::Debugging::AutograderSpamController < ApplicationController
         startTimestamp: s[:start_time].iso8601,
         endTimestamp: s[:end_time].iso8601,
         numBackups: s[:num_backups],
-        problems: s[:problems].to_a.sort,
+        problems: s[:problems].to_a.sort
       }
     end
 
