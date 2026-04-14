@@ -44,6 +44,8 @@
     "compression-webpack-plugin": "^9.2.0",
     "css-loader": "^7.1.2",
     "css-minimizer-webpack-plugin": "^7.0.2",
+    "echarts": "^6.0.0",
+    "echarts-for-react": "^3.0.6",
     "jotai": "^2.15.0",
     "mini-css-extract-plugin": "^2.9.2",
     "prism-react-renderer": "^2.4.1",
