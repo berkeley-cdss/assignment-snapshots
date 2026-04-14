@@ -9,7 +9,7 @@ import StyleTab from "../components/submission/tabs/StyleTab";
 import DebuggingTab from "../components/submission/tabs/DebuggingTab";
 import DesignTab from "../components/submission/tabs/DesignTab";
 import IntegrityTab from "../components/submission/tabs/IntegrityTab";
-import TimelineTab from "../components/submission/tabs/TimelineTab";
+import SubmissionLayout from "./SubmissionLayout";
 
 function TabsLayout() {
   const { courseId, assignmentId, studentId, tabId } = useParams();
@@ -18,7 +18,7 @@ function TabsLayout() {
   React.useEffect(() => {
     if (!tabId) {
       navigate(
-        `/tabs/${courseId}/assignments/${assignmentId}/students/${studentId}/summary`,
+        `/courses/${courseId}/assignments/${assignmentId}/students/${studentId}/summary`,
         { replace: true },
       );
     }
@@ -29,9 +29,9 @@ function TabsLayout() {
     { id: "summary", label: "Summary", component: <SummaryTab /> },
     { id: "style", label: "Style", component: <StyleTab /> },
     { id: "debugging", label: "Debugging", component: <DebuggingTab /> },
-    { id: "design", label: "Design", component: <DesignTab /> },
-    { id: "integrity", label: "Integrity", component: <IntegrityTab /> },
-    { id: "timeline", label: "Timeline", component: <TimelineTab /> },
+    // { id: "design", label: "Design", component: <DesignTab /> },
+    // { id: "integrity", label: "Integrity", component: <IntegrityTab /> },
+    { id: "timeline", label: "Timeline", component: <SubmissionLayout /> },
   ];
 
   // Fallback: If URL has no tabId or an invalid one, default to the first tab
@@ -39,7 +39,7 @@ function TabsLayout() {
 
   const handleChange = (event, newValue) => {
     navigate(
-      `/tabs/${courseId}/assignments/${assignmentId}/students/${studentId}/${newValue}`,
+      `/courses/${courseId}/assignments/${assignmentId}/students/${studentId}/${newValue}`,
     );
   };
 

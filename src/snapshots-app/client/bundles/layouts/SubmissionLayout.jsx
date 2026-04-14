@@ -8,7 +8,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Switch from "@mui/material/Switch";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import Snackbar from "@mui/material/Snackbar";
 import { useCopyToClipboard } from "react-use";
@@ -87,6 +87,7 @@ function SubmissionLayout() {
     "View the code file(s) and OkPy output for this particular backup";
 
   const routeParams = useParams();
+  const navigate = useNavigate();
 
   // Fetch backups
   React.useEffect(() => {
@@ -103,13 +104,27 @@ function SubmissionLayout() {
         return response.json();
       })
       .then((responseData) => {
+        if (routeParams.backupId) {
+          const index = responseData.backups.toReversed().findIndex(
+            (b) => b.backup_id === routeParams.backupId,
+          );
+          // Default to 0 if ID not found, otherwise use matched index
+          setSelectedBackup(index !== -1 ? index : 0);
+        } else {
+          setSelectedBackup(0);
+
+          navigate(
+            `/courses/${routeParams.courseId}/assignments/${routeParams.assignmentId}/students/${routeParams.studentId}/timeline/${responseData.backups.toReversed()[0].backup_id}`,
+            { replace: true },
+          );
+        }
+
         setBackups(responseData.backups.toReversed());
-        setSelectedBackup(0);
         setFiles(responseData.assignment_file_names);
         setFile(responseData.assignment_file_names[0]);
         setAllProblemDisplayNames(responseData.assignment_problem_names);
       });
-  }, [routeParams, setBackups]);
+  }, [routeParams, setBackups, navigate]);
 
   // Fetch autograder output for current selected backup
   // if backups is done loading
@@ -296,6 +311,11 @@ function SubmissionLayout() {
   }, [backups]);
 
   function handleBackupSelect(selectedBackupIndex) {
+    navigate(
+      `/courses/${routeParams.courseId}/assignments/${routeParams.assignmentId}/students/${routeParams.studentId}/timeline/${backups[selectedBackupIndex].backup_id}`,
+      { replace: true },
+    );
+
     setSelectedBackup(selectedBackupIndex);
     // Set these values to empty so that circular progress shows while loading new contents
     setCode("");

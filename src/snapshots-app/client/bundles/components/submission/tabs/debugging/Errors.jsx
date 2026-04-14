@@ -15,6 +15,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import { useNavigate } from "react-router";
 
 import { useParams } from "react-router";
 
@@ -38,6 +39,7 @@ const Errors = () => {
   const [errorTypeSortDescending, setErrorTypeSortDescending] = useState(true);
 
   const routeParams = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch(`/api/debugging/errors/${routeParams.courseId}/${routeParams.assignmentId}/${routeParams.studentId}`,)
@@ -75,12 +77,13 @@ const Errors = () => {
       renderCell: (params) => (
         <Box sx={{ display: "flex", alignItems: "center", height: "100%" }}>
           <Tooltip title="Open in timeline" arrow>
-            {/* TODO implement this */}
             <Link
               component="button"
               variant="body2"
               onClick={() =>
-                console.log(`Navigating to backup: ${params.value}`)
+                navigate(
+            `/courses/${routeParams.courseId}/assignments/${routeParams.assignmentId}/students/${routeParams.studentId}/timeline/${params.value}`,
+          )
               }
             >
               {params.value}

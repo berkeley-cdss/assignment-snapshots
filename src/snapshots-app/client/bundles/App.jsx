@@ -25,16 +25,15 @@ function App() {
           element={<Assignment />}
         />
         <Route
-          path="/courses/:courseId/assignments/:assignmentId/students/:studentId"
-          element={<SubmissionLayout />}
-        />
-        {/* TODO make this a real route later */}
-        <Route
-          path="/tabs/:courseId/assignments/:assignmentId/students/:studentId/:tabId"
+          path="/courses/:courseId/assignments/:assignmentId/students/:studentId/:tabId"
           element={<TabsLayout />}
         />
         <Route
-          path="/tabs/:courseId/assignments/:assignmentId/students/:studentId"
+          path="/courses/:courseId/assignments/:assignmentId/students/:studentId/:tabId/:backupId"
+          element={<TabsLayout />}
+        />
+        <Route
+          path="/courses/:courseId/assignments/:assignmentId/students/:studentId"
           element={<TabsLayout />}
         />
       </Routes>
