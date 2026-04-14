@@ -19,11 +19,11 @@ import {
   Dangerous,
 } from "@mui/icons-material";
 
-import AutograderSpam from "./debugging/AutograderSpam";
-import PrintStatements from "./debugging/PrintStatements";
-import TestRegressions from "./debugging/TestRegressions";
-import PseudocodeDetection from "./debugging/PseudocodeDetection";
-import Errors from "./debugging/Errors";
+import AutograderSpam from "./AutograderSpam";
+import PrintStatements from "./PrintStatements";
+import TestRegressions from "./TestRegressions";
+import PseudocodeDetection from "./PseudocodeDetection";
+import Errors from "./Errors";
 
 function DebuggingTab({}) {
   const [activeIndex, setActiveIndex] = useState(0);

@@ -18,14 +18,14 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import { FormControl, InputLabel } from "@mui/material";
 import DifferenceIcon from "@mui/icons-material/Difference";
 
-import FileViewer from "../components/submission/FileViewer";
-import Graphs from "../components/submission/Graphs";
-import Timeline from "../components/submission/Timeline";
-import AutograderOutputDialog from "../components/submission/AutograderOutputDialog";
-import UnlockingTestOutputDialog from "../components/submission/UnlockingTestOutputDialog";
-import InfoTooltip from "../../common/InfoTooltip";
-import DiffViewer from "../components/submission/DiffViewer";
-import { backupsAtom } from "../../../state/atoms";
+import FileViewer from "./FileViewer";
+import Graphs from "./Graphs";
+import Timeline from "./Timeline";
+import AutograderOutputDialog from "./AutograderOutputDialog";
+import UnlockingTestOutputDialog from "./UnlockingTestOutputDialog";
+import DiffViewer from "./DiffViewer";
+import InfoTooltip from "../../../common/InfoTooltip";
+import { backupsAtom } from "../../../../state/atoms";
 
 // TODO minWidth: 0 prevent main content from stretching out to sidebars, but this seems rather hacky?
 

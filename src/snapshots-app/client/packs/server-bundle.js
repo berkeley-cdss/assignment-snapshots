@@ -6,13 +6,6 @@ import BreadcrumbNav from "../bundles/components/common/BreadcrumbNavServer";
 import Header from "../bundles/components/common/HeaderServer";
 import Footer from "../bundles/components/common/FooterServer";
 
-import DiffViewer from "../bundles/components/submission/DiffViewerServer";
-import FileViewer from "../bundles/components/submission/FileViewerServer";
-import Graphs from "../bundles/components/submission/GraphsServer";
-import Timeline from "../bundles/components/submission/TimelineServer";
-import AutograderOutputDialog from "../bundles/components/submission/AutograderOutputDialogServer";
-import UnlockingTestOutputDialog from "../bundles/components/submission/UnlockingTestOutputDialogServer";
-
 import Login from "../bundles/pages/LoginServer";
 import Courses from "../bundles/pages/CoursesServer";
 import Assignments from "../bundles/pages/AssignmentsServer";
@@ -24,12 +17,6 @@ ReactOnRails.register({
   BreadcrumbNav,
   Header,
   Footer,
-  DiffViewer,
-  FileViewer,
-  Graphs,
-  Timeline,
-  AutograderOutputDialog,
-  UnlockingTestOutputDialog,
   Login,
   Courses,
   Assignments,

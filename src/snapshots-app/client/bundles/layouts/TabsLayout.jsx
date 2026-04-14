@@ -4,12 +4,12 @@ import { useParams, useNavigate } from "react-router";
 import { Box, Tab } from "@mui/material";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 
-import SummaryTab from "../components/submission/tabs/SummaryTab";
-import StyleTab from "../components/submission/tabs/StyleTab";
-import DebuggingTab from "../components/submission/tabs/DebuggingTab";
+import SummaryTab from "../components/submission/tabs/summary/SummaryTab";
+import StyleTab from "../components/submission/tabs/style/StyleTab";
+import DebuggingTab from "../components/submission/tabs/debugging/DebuggingTab";
 import DesignTab from "../components/submission/tabs/DesignTab";
 import IntegrityTab from "../components/submission/tabs/IntegrityTab";
-import TimelineTab from "../components/submission/tabs/TimelineTab";
+import TimelineTab from "../components/submission/tabs/timeline/TimelineTab";
 
 function TabsLayout() {
   const { courseId, assignmentId, studentId, tabId } = useParams();

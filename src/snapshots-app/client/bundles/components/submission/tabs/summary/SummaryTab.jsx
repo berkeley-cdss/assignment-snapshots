@@ -22,8 +22,8 @@ import {
 
 import { useParams } from "react-router";
 
-import StatisticsDashboard from "./debugging/StatisticsDashboard";
-import InfoTooltip from "../../common/InfoTooltip";
+import StatisticsDashboard from "../debugging/StatisticsDashboard";
+import InfoTooltip from "../../../common/InfoTooltip";
 
 // TODO: move graphs from Submission Layout into here
 // TODO: lines added/removed rich git diff chart like encourse

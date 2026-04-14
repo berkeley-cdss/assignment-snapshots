@@ -5,7 +5,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import { Typography } from "@mui/material";
 
-import { getOkpyCommand } from "./utils";
+import { getOkpyCommand } from "../../utils";
 
 function AutograderOutputDialog({
   open,

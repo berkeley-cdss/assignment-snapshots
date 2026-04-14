@@ -24,12 +24,12 @@ import SkipNextIcon from "@mui/icons-material/SkipNext";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 import { useAtom } from "jotai";
-import { backupsAtom } from "../../../state/atoms";
+import { backupsAtom } from "../../../../state/atoms";
 
 import { useParams } from "react-router";
 
-import FileViewer from "./style/FileViewer";
-import InfoTooltip from "../../common/InfoTooltip";
+import FileViewer from "./FileViewer";
+import InfoTooltip from "../../../common/InfoTooltip";
 
 const URL_PREFIX = "https://docs.astral.sh/ruff/rules/";
 
