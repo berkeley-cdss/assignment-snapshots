@@ -176,7 +176,6 @@ result.push({
         padding: "1rem",
         borderBottom: "1px solid lightGrey",
         backgroundColor: "white",
-        marginBottom: "1rem",
       }}
     >
       <Breadcrumbs separator="›" aria-label="breadcrumb">
