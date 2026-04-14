@@ -99,7 +99,7 @@ function StyleTab() {
     const codeQueryParams = new URLSearchParams();
     codeQueryParams.append(
       "object_key",
-      `${backups[backups.length - 1].file_contents_location}/${file}`,
+      `${backups[0].file_contents_location}/${file}`,
     );
 
     fetch(`/api/files?${codeQueryParams}`)
@@ -112,7 +112,7 @@ function StyleTab() {
     const lintErrorsQueryParams = new URLSearchParams();
     lintErrorsQueryParams.append(
       "file_contents_location",
-      `${backups[backups.length - 1].file_contents_location}/${file}`,
+      `${backups[0].file_contents_location}/${file}`,
     );
 
     fetch(`/api/lint_errors?${lintErrorsQueryParams}`)
