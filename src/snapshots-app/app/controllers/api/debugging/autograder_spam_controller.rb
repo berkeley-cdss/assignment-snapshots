@@ -43,7 +43,7 @@ class Api::Debugging::AutograderSpamController < ApplicationController
     sessions = []
     current_session = nil
 
-    backups.each do |backup|
+    backups.each_with_index do |backup, index|
       backup_time = Time.zone.parse(backup.created)
 
       if current_session.nil? || (backup_time - current_session[:end_time] > session_gap_limit)
@@ -53,13 +53,15 @@ class Api::Debugging::AutograderSpamController < ApplicationController
           end_time: backup_time,
           num_backups: 0,
           problems: Set.new,
-          start_backup_id: backup.backup_id
+          start_backup_id: backup.backup_id,
+          start_index: index
         }
         sessions << current_session
       end
 
       current_session[:end_time] = backup_time
       current_session[:num_backups] += 1
+      current_session[:end_index] = index
 
       if backup.analytics_location
         analytics = AnalyticsMessage.find_by(backup_id: backup.backup_id)
@@ -82,7 +84,10 @@ class Api::Debugging::AutograderSpamController < ApplicationController
         startTimestamp: s[:start_time].iso8601,
         endTimestamp: s[:end_time].iso8601,
         numBackups: s[:num_backups],
-        problems: s[:problems].to_a.sort
+        problems: s[:problems].to_a.sort,
+        startIndex: s[:start_index],
+        endIndex: s[:end_index],
+        totalBackups: backups.count
       }
     end
 
