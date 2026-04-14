@@ -1,16 +1,15 @@
 import React from "react";
 
 import { useParams } from "react-router";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { TextField, Box } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { styled } from "@mui/material/styles";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtomValue } from "jotai";
 
-import { coursesAtom, assignmentsAtom } from "../state/atoms";
+import { assignmentsAtom } from "../state/atoms";
 import TableCellNavLink from "../components/common/TableCellNavLink";
 
-// TODO: rename paths and components to be consistent
 function AssignmentsTable({ courseId, assignments }) {
   const [search, setSearch] = useState("");
 
@@ -26,7 +25,7 @@ function AssignmentsTable({ courseId, assignments }) {
       headerClassName: "column-header",
       renderCell: (params) => (
         <TableCellNavLink
-          pathname={`/courses/${courseId}/assignments/${params.row.id}`}
+          pathname={`/courses/${courseId}/assignments/${params.row.id}/students`}
         >
           {params.value}
         </TableCellNavLink>
@@ -93,40 +92,18 @@ function AssignmentsTable({ courseId, assignments }) {
   );
 }
 
-function Course() {
+function Assignments() {
   const routeParams = useParams();
-  const courses = useAtomValue(coursesAtom);
-  const selectedCourse = courses.find(
-    (course) => course.id.toString() === routeParams.courseId,
-  );
-  const [assignments, setAssignments] = useAtom(assignmentsAtom);
-
-  useEffect(() => {
-    fetch(`/api/assignments/${selectedCourse.id}`, {
-      method: "GET",
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((responseData) => {
-        setAssignments(responseData["assignments"]);
-      })
-      .catch((error) => {
-        throw new Error(`HTTP error! Error: ${error}`);
-      });
-  }, [selectedCourse, setAssignments]);
+  const assignments = useAtomValue(assignmentsAtom);
 
   return (
     <div style={{ paddingLeft: "1rem", paddingRight: "1rem" }}>
       <AssignmentsTable
-        courseId={selectedCourse.id}
+        courseId={routeParams.courseId}
         assignments={assignments}
       />
     </div>
   );
 }
 
-export default Course;
+export default Assignments;

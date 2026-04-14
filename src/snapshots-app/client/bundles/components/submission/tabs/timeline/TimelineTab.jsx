@@ -18,14 +18,14 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import { FormControl, InputLabel } from "@mui/material";
 import DifferenceIcon from "@mui/icons-material/Difference";
 
-import FileViewer from "../components/submission/FileViewer";
-import Graphs from "../components/submission/Graphs";
-import Timeline from "../components/submission/Timeline";
-import AutograderOutputDialog from "../components/submission/AutograderOutputDialog";
-import UnlockingTestOutputDialog from "../components/submission/UnlockingTestOutputDialog";
-import InfoTooltip from "../components/common/InfoTooltip";
-import DiffViewer from "../components/submission/DiffViewer";
-import { backupsAtom } from "../state/atoms";
+import FileViewer from "./FileViewer";
+import Graphs from "./Graphs";
+import Timeline from "./Timeline";
+import AutograderOutputDialog from "./AutograderOutputDialog";
+import UnlockingTestOutputDialog from "./UnlockingTestOutputDialog";
+import DiffViewer from "./DiffViewer";
+import InfoTooltip from "../../../common/InfoTooltip";
+import { backupsAtom } from "../../../../state/atoms";
 
 // TODO minWidth: 0 prevent main content from stretching out to sidebars, but this seems rather hacky?
 
@@ -58,7 +58,7 @@ const ContentWrapper = styled(Box)({
   maxHeight: "100vh",
 });
 
-function SubmissionLayout() {
+function TimelineTab() {
   const [backups, setBackups] = useAtom(backupsAtom);
   const [selectedBackup, setSelectedBackup] = React.useState(0);
   const [files, setFiles] = React.useState([]);
@@ -105,16 +105,20 @@ function SubmissionLayout() {
       })
       .then((responseData) => {
         if (routeParams.backupId) {
-          const index = responseData.backups.toReversed().findIndex(
-            (b) => b.backup_id === routeParams.backupId,
-          );
-          // Default to 0 if ID not found, otherwise use matched index
-          setSelectedBackup(index !== -1 ? index : 0);
+          const index = responseData.backups
+            .toReversed()
+            .findIndex((b) => b.backup_id === routeParams.backupId);
+
+          if (index === -1) {
+            navigate("/404");
+          }
+
+          setSelectedBackup(index);
         } else {
           setSelectedBackup(0);
 
           navigate(
-            `/courses/${routeParams.courseId}/assignments/${routeParams.assignmentId}/students/${routeParams.studentId}/timeline/${responseData.backups.toReversed()[0].backup_id}`,
+            `/courses/${routeParams.courseId}/assignments/${routeParams.assignmentId}/students/${routeParams.studentId}/submission/timeline/${responseData.backups.toReversed()[0].backup_id}`,
             { replace: true },
           );
         }
@@ -312,7 +316,7 @@ function SubmissionLayout() {
 
   function handleBackupSelect(selectedBackupIndex) {
     navigate(
-      `/courses/${routeParams.courseId}/assignments/${routeParams.assignmentId}/students/${routeParams.studentId}/timeline/${backups[selectedBackupIndex].backup_id}`,
+      `/courses/${routeParams.courseId}/assignments/${routeParams.assignmentId}/students/${routeParams.studentId}/submission/timeline/${backups[selectedBackupIndex].backup_id}`,
       { replace: true },
     );
 
@@ -584,4 +588,4 @@ function SubmissionLayout() {
   );
 }
 
-export default SubmissionLayout;
+export default TimelineTab;

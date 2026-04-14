@@ -177,7 +177,6 @@ class Api::SummaryStatisticsController < ApplicationController
     data = [ [ "Student Email", "Lint Errors" ] ]
 
     lint_counts.each do |row|
-      Rails.logger.info("row: #{row.student_email}, #{row.error_count}")
       count = row.error_count
       data << [ row.student_email, count ]
 

@@ -139,10 +139,10 @@ const AutograderSpam = () => {
             color="primary"
             size="small"
             onClick={() => {
-              console.log(params)
-                navigate(
-            `/courses/${routeParams.courseId}/assignments/${routeParams.assignmentId}/students/${routeParams.studentId}/timeline/${params.id}`,
-          )}}
+              navigate(
+                `/courses/${routeParams.courseId}/assignments/${routeParams.assignmentId}/students/${routeParams.studentId}/submission/timeline/${params.id}`,
+              );
+            }}
           >
             <OpenInNewIcon fontSize="small" />
           </IconButton>

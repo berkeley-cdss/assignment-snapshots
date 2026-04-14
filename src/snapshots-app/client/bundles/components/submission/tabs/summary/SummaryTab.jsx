@@ -22,10 +22,10 @@ import {
 
 import { useParams } from "react-router";
 
-import StatisticsDashboard from "./summary/StatisticsDashboard";
 import ProblemsSolvedDashboard from "./summary/ProblemsSolvedDashboard";
-import InfoTooltip from "../../common/InfoTooltip";
 import ScoreDashboard from "./summary/ScoreDashboard";
+import StatisticsDashboard from "./StatisticsDashboard";
+import InfoTooltip from "../../../common/InfoTooltip";
 
 // TODO: move graphs from Submission Layout into here
 // TODO: lines added/removed rich git diff chart like encourse
@@ -56,7 +56,6 @@ function SummaryTab({}) {
         return response.json();
       })
       .then((responseData) => {
-        console.log("response data", responseData);
         setSummaryStats(responseData);
       });
   }, [routeParams]);

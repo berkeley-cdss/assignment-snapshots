@@ -4,12 +4,12 @@ import { useParams, useNavigate } from "react-router";
 import { Box, Tab } from "@mui/material";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 
-import SummaryTab from "../components/submission/tabs/SummaryTab";
-import StyleTab from "../components/submission/tabs/StyleTab";
-import DebuggingTab from "../components/submission/tabs/DebuggingTab";
+import SummaryTab from "../components/submission/tabs/summary/SummaryTab";
+import StyleTab from "../components/submission/tabs/style/StyleTab";
+import DebuggingTab from "../components/submission/tabs/debugging/DebuggingTab";
 import DesignTab from "../components/submission/tabs/DesignTab";
 import IntegrityTab from "../components/submission/tabs/IntegrityTab";
-import SubmissionLayout from "./SubmissionLayout";
+import TimelineTab from "../components/submission/tabs/timeline/TimelineTab";
 
 function TabsLayout() {
   const { courseId, assignmentId, studentId, tabId } = useParams();
@@ -18,7 +18,7 @@ function TabsLayout() {
   React.useEffect(() => {
     if (!tabId) {
       navigate(
-        `/courses/${courseId}/assignments/${assignmentId}/students/${studentId}/summary`,
+        `/courses/${courseId}/assignments/${assignmentId}/students/${studentId}/submission/summary`,
         { replace: true },
       );
     }
@@ -31,15 +31,15 @@ function TabsLayout() {
     { id: "debugging", label: "Debugging", component: <DebuggingTab /> },
     // { id: "design", label: "Design", component: <DesignTab /> },
     // { id: "integrity", label: "Integrity", component: <IntegrityTab /> },
-    { id: "timeline", label: "Timeline", component: <SubmissionLayout /> },
+    { id: "timeline", label: "Timeline", component: <TimelineTab /> },
   ];
 
   // Fallback: If URL has no tabId or an invalid one, default to the first tab
   const activeTab = TABS.find((t) => t.id === tabId) ? tabId : TABS[0].id;
 
-  const handleChange = (event, newValue) => {
+  const handleChange = (event, newTabId) => {
     navigate(
-      `/courses/${courseId}/assignments/${assignmentId}/students/${studentId}/${newValue}`,
+      `/courses/${courseId}/assignments/${assignmentId}/students/${studentId}/submission/${newTabId}`,
     );
   };
 
