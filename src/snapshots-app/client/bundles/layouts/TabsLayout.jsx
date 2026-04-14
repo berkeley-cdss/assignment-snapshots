@@ -18,7 +18,7 @@ function TabsLayout() {
   React.useEffect(() => {
     if (!tabId) {
       navigate(
-        `/courses/${courseId}/assignments/${assignmentId}/students/${studentId}/summary`,
+        `/courses/${courseId}/assignments/${assignmentId}/students/${studentId}/submission/summary`,
         { replace: true },
       );
     }
@@ -39,7 +39,7 @@ function TabsLayout() {
 
   const handleChange = (event, newValue) => {
     navigate(
-      `/courses/${courseId}/assignments/${assignmentId}/students/${studentId}/${newValue}`,
+      `/courses/${courseId}/assignments/${assignmentId}/students/${studentId}/submission/${newValue}`,
     );
   };
 

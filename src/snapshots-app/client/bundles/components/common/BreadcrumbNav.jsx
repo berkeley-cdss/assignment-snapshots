@@ -120,7 +120,7 @@ function BreadcrumbNav() {
       if (course) {
         result.push({
         name: getCourseHumanReadableName(course),
-        path: `/courses/${matchesAssignmentsRoute.params.courseId}`,
+        path: `/courses/${matchesAssignmentsRoute.params.courseId}/assignments`,
       });
       } else {
         result.push({
@@ -140,7 +140,7 @@ function BreadcrumbNav() {
       if (assignment) {
 result.push({
         name: assignment.name,
-        path: `/courses/${matchesStudentsRoute.params.courseId}/assignments/${matchesStudentsRoute.params.assignmentId}`,
+        path: `/courses/${matchesStudentsRoute.params.courseId}/assignments/${matchesStudentsRoute.params.assignmentId}/students`,
       });
       } else {
         result.push({
@@ -156,7 +156,7 @@ result.push({
       if (student) {
         result.push({
         name: `${student.first_name} ${student.last_name} (SID: ${student.student_id})`,
-        path: `/courses/${matchesSubmissionRoute.params.courseId}/assignments/${matchesSubmissionRoute.params.assignmentId}/students/${matchesSubmissionRoute.params.studentId}`,
+        path: `/courses/${matchesSubmissionRoute.params.courseId}/assignments/${matchesSubmissionRoute.params.assignmentId}/students/${matchesSubmissionRoute.params.studentId}/submission/summary`,
       });
       } else {
         result.push({

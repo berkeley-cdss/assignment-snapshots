@@ -118,7 +118,7 @@ function SubmissionLayout() {
           setSelectedBackup(0);
 
           navigate(
-            `/courses/${routeParams.courseId}/assignments/${routeParams.assignmentId}/students/${routeParams.studentId}/timeline/${responseData.backups.toReversed()[0].backup_id}`,
+            `/courses/${routeParams.courseId}/assignments/${routeParams.assignmentId}/students/${routeParams.studentId}/submission/timeline/${responseData.backups.toReversed()[0].backup_id}`,
             { replace: true },
           );
         }

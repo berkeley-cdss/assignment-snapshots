@@ -33,7 +33,7 @@ function App() {
           element={<TabsLayout />}
         />
         <Route
-          path="/courses/:courseId/assignments/:assignmentId/students/submission/:studentId"
+          path="/courses/:courseId/assignments/:assignmentId/students/:studentId/submission"
           element={<TabsLayout />}
         />
 
