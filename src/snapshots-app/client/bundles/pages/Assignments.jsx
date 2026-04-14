@@ -11,7 +11,6 @@ import { assignmentsAtom } from "../state/atoms";
 import TableCellNavLink from "../components/common/TableCellNavLink";
 
 // TODO do below and rename submission layout to timeline and move files around
-// TODO: rename paths and components to be consistent
 function AssignmentsTable({ courseId, assignments }) {
   const [search, setSearch] = useState("");
 
@@ -94,7 +93,7 @@ function AssignmentsTable({ courseId, assignments }) {
   );
 }
 
-function Course() {
+function Assignments() {
   const routeParams = useParams();
   const assignments = useAtomValue(assignmentsAtom);
 
@@ -108,4 +107,4 @@ function Course() {
   );
 }
 
-export default Course;
+export default Assignments;

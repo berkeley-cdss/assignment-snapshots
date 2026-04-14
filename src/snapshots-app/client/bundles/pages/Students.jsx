@@ -10,7 +10,6 @@ import { useAtomValue } from "jotai";
 import { studentsAtom } from "../state/atoms";
 import TableCellNavLink from "../components/common/TableCellNavLink";
 
-// TODO: rename paths and components to be consistent
 function StudentsTable({ courseId, assignmentId, students }) {
   const [search, setSearch] = useState("");
 
@@ -96,7 +95,7 @@ function StudentsTable({ courseId, assignmentId, students }) {
   );
 }
 
-function Assignment() {
+function Students() {
   const routeParams = useParams();
   const students = useAtomValue(studentsAtom);
 
@@ -111,4 +110,4 @@ function Assignment() {
   );
 }
 
-export default Assignment;
+export default Students;

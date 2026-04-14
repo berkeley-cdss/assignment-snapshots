@@ -2,11 +2,10 @@ import React from "react";
 
 import { BrowserRouter, Route, Routes } from "react-router";
 
-import SubmissionLayout from "./layouts/SubmissionLayout";
 import Login from "./pages/Login";
 import Courses from "./pages/Courses";
-import Course from "./pages/Course";
-import Assignment from "./pages/Assignment";
+import Assignments from "./pages/Assignments";
+import Students from "./pages/Students";
 import Header from "./components/common/Header";
 import Footer from "./components/common/Footer";
 import TabsLayout from "./layouts/TabsLayout";
@@ -20,10 +19,10 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/courses" element={<Courses />} />
-        <Route path="/courses/:courseId" element={<Course />} />
+        <Route path="/courses/:courseId" element={<Assignments />} />
         <Route
           path="/courses/:courseId/assignments/:assignmentId"
-          element={<Assignment />}
+          element={<Students />}
         />
         <Route
           path="/courses/:courseId/assignments/:assignmentId/students/:studentId/:tabId"

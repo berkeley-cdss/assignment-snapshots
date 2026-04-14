@@ -1,5 +1,5 @@
-import Course from "./Course";
+import Assignments from "./Assignments";
 // This could be specialized for server rendering
 // For example, if using React-Router, we'd have the SSR setup here.
 
-export default Course;
+export default Assignments;

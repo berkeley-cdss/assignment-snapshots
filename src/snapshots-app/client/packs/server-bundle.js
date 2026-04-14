@@ -17,8 +17,8 @@ import SubmissionLayout from "../bundles/layouts/SubmissionLayoutServer";
 
 import Login from "../bundles/pages/LoginServer";
 import Courses from "../bundles/pages/CoursesServer";
-import Course from "../bundles/pages/CourseServer";
-import Assignment from "../bundles/pages/AssignmentServer";
+import Assignments from "../bundles/pages/AssignmentsServer";
+import Students from "../bundles/pages/StudentsServer";
 
 // This is how react_on_rails can see the HelloWorld in the browser.
 ReactOnRails.register({
@@ -35,6 +35,6 @@ ReactOnRails.register({
   SubmissionLayout,
   Login,
   Courses,
-  Course,
-  Assignment,
+  Assignments,
+  Students,
 });
