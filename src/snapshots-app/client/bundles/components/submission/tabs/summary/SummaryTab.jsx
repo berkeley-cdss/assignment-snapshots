@@ -36,43 +36,39 @@ import InfoTooltip from "../../../common/InfoTooltip";
 // TODO: radar plot
 
 const SCORE_HISTOGRAM_OPTIONS = {
-    histogram: {
-      bucketSize: 10,
-      minValue: 0,
-      maxValue: 50,
+  histogram: {
+    bucketSize: 10,
+    minValue: 0,
+    maxValue: 50,
+  },
 
+  hAxis: {
+    // manually sets the scale of the X-axis
+    viewWindow: {
+      min: 0,
+      max: 50,
     },
-
-    hAxis: {
-      // manually sets the scale of the X-axis
-      viewWindow: {
-        min: 0,
-        max: 50,
-      }
-    },
-    legend: { position: "none" },
-
-  };
+  },
+  legend: { position: "none" },
+};
 
 const PROBLEMS_SOLVED_HISTOGRAM_OPTIONS = {
-    // TODO: don't hardcode this for just ants
-    histogram: {
-      bucketSize: 5,
-      minValue: 0,
-      maxValue: 15,
+  // TODO: don't hardcode this for just ants
+  histogram: {
+    bucketSize: 5,
+    minValue: 0,
+    maxValue: 15,
+  },
 
+  hAxis: {
+    // manually sets the scale of the X-axis
+    viewWindow: {
+      min: 0,
+      max: 15,
     },
-
-    hAxis: {
-      // manually sets the scale of the X-axis
-      viewWindow: {
-        min: 0,
-        max: 15,
-      }
-    },
-    legend: { position: "none" },
-
-  };
+  },
+  legend: { position: "none" },
+};
 
 function SummaryTab({}) {
   const [activeIndex, setActiveIndex] = useState(0);

@@ -6,8 +6,8 @@ import { Chart } from "react-google-charts";
 import InfoTooltip from "../../../common/InfoTooltip";
 
 const DEFAULT_OPTIONS = {
-    legend: { position: "none" },
-  };
+  legend: { position: "none" },
+};
 
 const Histogram = ({ title, tooltip, data, options }) => {
   return (
@@ -28,7 +28,13 @@ const Histogram = ({ title, tooltip, data, options }) => {
   );
 };
 
-const StatisticsDashboard = ({ title, tooltip, studentValue, data, options = DEFAULT_OPTIONS }) => {
+const StatisticsDashboard = ({
+  title,
+  tooltip,
+  studentValue,
+  data,
+  options = DEFAULT_OPTIONS,
+}) => {
   // Calculate the stats based on the full dataset
   const stats = useMemo(() => {
     const values = data
@@ -93,7 +99,12 @@ const StatisticsDashboard = ({ title, tooltip, studentValue, data, options = DEF
       </div>
 
       <div className="chart-placeholder">
-        <Histogram title={title} tooltip={tooltip} data={data} options={options} />
+        <Histogram
+          title={title}
+          tooltip={tooltip}
+          data={data}
+          options={options}
+        />
       </div>
     </div>
   );
