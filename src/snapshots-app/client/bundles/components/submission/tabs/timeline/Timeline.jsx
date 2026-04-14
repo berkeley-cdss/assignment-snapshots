@@ -9,12 +9,12 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { Tooltip } from "@mui/material";
-import InfoTooltip from "../common/InfoTooltip";
+import InfoTooltip from "../../../common/InfoTooltip";
 import Snackbar from "@mui/material/Snackbar";
 
 import { useCopyToClipboard } from "react-use";
 
-import { getOkpyCommand, areArraysEqual } from "./utils";
+import { getOkpyCommand, areArraysEqual } from "../../utils";
 
 function TimelineButton({ backup, selected, index, handleBackupSelect }) {
   function getQuestionsWorkedOn() {

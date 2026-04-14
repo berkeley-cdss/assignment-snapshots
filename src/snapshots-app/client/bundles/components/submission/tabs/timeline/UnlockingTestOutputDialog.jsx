@@ -8,7 +8,7 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import Tooltip from "@mui/material/Tooltip";
 import Divider from "@mui/material/Divider";
 
-import { getOkpyCommand } from "./utils";
+import { getOkpyCommand } from "../../utils";
 
 function UnlockingTestCase({
   testCaseId,

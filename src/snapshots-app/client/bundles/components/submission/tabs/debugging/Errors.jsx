@@ -42,7 +42,9 @@ const Errors = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`/api/debugging/errors/${routeParams.courseId}/${routeParams.assignmentId}/${routeParams.studentId}`,)
+    fetch(
+      `/api/debugging/errors/${routeParams.courseId}/${routeParams.assignmentId}/${routeParams.studentId}`,
+    )
       .then((response) => response.json())
       .then((responseData) => setErrorData(responseData));
   }, [routeParams]);
@@ -82,8 +84,8 @@ const Errors = () => {
               variant="body2"
               onClick={() =>
                 navigate(
-            `/courses/${routeParams.courseId}/assignments/${routeParams.assignmentId}/students/${routeParams.studentId}/timeline/${params.value}`,
-          )
+                  `/courses/${routeParams.courseId}/assignments/${routeParams.assignmentId}/students/${routeParams.studentId}/submission/timeline/${params.value}`,
+                )
               }
             >
               {params.value}

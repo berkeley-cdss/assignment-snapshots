@@ -1,7 +1,7 @@
 import React from "react";
 
 import { LineChart } from "@mui/x-charts/LineChart";
-import InfoTooltip from "../common/InfoTooltip";
+import InfoTooltip from "../../../common/InfoTooltip";
 import DoneIcon from "@mui/icons-material/Done";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { Tooltip } from "@mui/material";
