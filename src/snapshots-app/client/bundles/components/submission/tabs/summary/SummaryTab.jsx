@@ -22,7 +22,7 @@ import {
 
 import { useParams } from "react-router";
 
-import StatisticsDashboard from "../debugging/StatisticsDashboard";
+import StatisticsDashboard from "./StatisticsDashboard";
 import InfoTooltip from "../../../common/InfoTooltip";
 
 // TODO: move graphs from Submission Layout into here
