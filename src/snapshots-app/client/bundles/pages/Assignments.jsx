@@ -10,7 +10,6 @@ import { useAtomValue } from "jotai";
 import { assignmentsAtom } from "../state/atoms";
 import TableCellNavLink from "../components/common/TableCellNavLink";
 
-// TODO do below and rename submission layout to timeline and move files around
 function AssignmentsTable({ courseId, assignments }) {
   const [search, setSearch] = useState("");
 

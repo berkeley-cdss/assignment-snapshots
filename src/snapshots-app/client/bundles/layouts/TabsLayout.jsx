@@ -9,7 +9,7 @@ import StyleTab from "../components/submission/tabs/StyleTab";
 import DebuggingTab from "../components/submission/tabs/DebuggingTab";
 import DesignTab from "../components/submission/tabs/DesignTab";
 import IntegrityTab from "../components/submission/tabs/IntegrityTab";
-import SubmissionLayout from "./SubmissionLayout";
+import TimelineTab from "../components/submission/tabs/TimelineTab";
 
 function TabsLayout() {
   const { courseId, assignmentId, studentId, tabId } = useParams();
@@ -31,7 +31,7 @@ function TabsLayout() {
     { id: "debugging", label: "Debugging", component: <DebuggingTab /> },
     // { id: "design", label: "Design", component: <DesignTab /> },
     // { id: "integrity", label: "Integrity", component: <IntegrityTab /> },
-    { id: "timeline", label: "Timeline", component: <SubmissionLayout /> },
+    { id: "timeline", label: "Timeline", component: <TimelineTab /> },
   ];
 
   // Fallback: If URL has no tabId or an invalid one, default to the first tab

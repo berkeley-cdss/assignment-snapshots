@@ -13,8 +13,6 @@ import Timeline from "../bundles/components/submission/TimelineServer";
 import AutograderOutputDialog from "../bundles/components/submission/AutograderOutputDialogServer";
 import UnlockingTestOutputDialog from "../bundles/components/submission/UnlockingTestOutputDialogServer";
 
-import SubmissionLayout from "../bundles/layouts/SubmissionLayoutServer";
-
 import Login from "../bundles/pages/LoginServer";
 import Courses from "../bundles/pages/CoursesServer";
 import Assignments from "../bundles/pages/AssignmentsServer";
@@ -32,7 +30,6 @@ ReactOnRails.register({
   Timeline,
   AutograderOutputDialog,
   UnlockingTestOutputDialog,
-  SubmissionLayout,
   Login,
   Courses,
   Assignments,

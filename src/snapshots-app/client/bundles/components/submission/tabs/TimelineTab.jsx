@@ -23,9 +23,9 @@ import Graphs from "../components/submission/Graphs";
 import Timeline from "../components/submission/Timeline";
 import AutograderOutputDialog from "../components/submission/AutograderOutputDialog";
 import UnlockingTestOutputDialog from "../components/submission/UnlockingTestOutputDialog";
-import InfoTooltip from "../components/common/InfoTooltip";
+import InfoTooltip from "../../common/InfoTooltip";
 import DiffViewer from "../components/submission/DiffViewer";
-import { backupsAtom } from "../state/atoms";
+import { backupsAtom } from "../../../state/atoms";
 
 // TODO minWidth: 0 prevent main content from stretching out to sidebars, but this seems rather hacky?
 
@@ -58,7 +58,7 @@ const ContentWrapper = styled(Box)({
   maxHeight: "100vh",
 });
 
-function SubmissionLayout() {
+function TimelineTab() {
   const [backups, setBackups] = useAtom(backupsAtom);
   const [selectedBackup, setSelectedBackup] = React.useState(0);
   const [files, setFiles] = React.useState([]);
@@ -588,4 +588,4 @@ function SubmissionLayout() {
   );
 }
 
-export default SubmissionLayout;
+export default TimelineTab;
