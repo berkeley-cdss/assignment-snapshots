@@ -94,45 +94,7 @@ function Graphs({
         allProblemDisplayNames={allProblemDisplayNames}
         numSolved={numQuestionsSolved[selectedBackup]}
       />
-      <LineChart
-        xAxis={xAxis}
-        series={[
-          {
-            curve: "linear",
-            data: fileMetadata.num_lines,
-            label: `# of lines in ${file}`,
-          },
-        ]}
-        height={height}
-      />
-      <LineChart
-        margin={{ top: 100 }}
-        xAxis={xAxis}
-        series={[
-          {
-            curve: "linear",
-            data: numQuestionsSolved,
-            label: "# of questions solved",
-          },
-          {
-            curve: "linear",
-            data: numQuestionsUnsolved,
-            label: "# of questions unsolved",
-          },
-        ]}
-        height={height}
-      />
-      <LineChart
-        xAxis={xAxis}
-        series={[
-          {
-            curve: "linear",
-            data: numAttempts,
-            label: "# of attempts",
-          },
-        ]}
-        height={height}
-      />
+      
     </div>
   );
 }
