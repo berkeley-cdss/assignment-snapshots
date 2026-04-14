@@ -35,6 +35,42 @@ import InfoTooltip from "../../../common/InfoTooltip";
 
 // TODO: radar plot
 
+
+// TODO: don't hardcode these options for just ants
+const SCORE_HISTOGRAM_OPTIONS = {
+  histogram: {
+    bucketSize: 10,
+    minValue: 0,
+    maxValue: 50,
+  },
+
+  hAxis: {
+    // manually sets the scale of the X-axis
+    viewWindow: {
+      min: 0,
+      max: 50,
+    },
+  },
+  legend: { position: "none" },
+};
+
+const PROBLEMS_SOLVED_HISTOGRAM_OPTIONS = {
+  histogram: {
+    bucketSize: 5,
+    minValue: 0,
+    maxValue: 15,
+  },
+
+  hAxis: {
+    // manually sets the scale of the X-axis
+    viewWindow: {
+      min: 0,
+      max: 15,
+    },
+  },
+  legend: { position: "none" },
+};
+
 function SummaryTab({}) {
   const [activeIndex, setActiveIndex] = useState(0);
   const routeParams = useParams();
@@ -71,6 +107,7 @@ function SummaryTab({}) {
                   tooltip="Hover over chart for more details"
                   studentValue={summaryStats.score_distribution.studentValue}
                   data={summaryStats.score_distribution.data}
+                  options={SCORE_HISTOGRAM_OPTIONS}
                 />
               ),
             },
@@ -85,6 +122,7 @@ function SummaryTab({}) {
                     summaryStats.problems_solved_distribution.studentValue
                   }
                   data={summaryStats.problems_solved_distribution.data}
+                  options={PROBLEMS_SOLVED_HISTOGRAM_OPTIONS}
                 />
               ),
             },
