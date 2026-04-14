@@ -22,8 +22,9 @@ import {
 
 import { useParams } from "react-router";
 
-import StatisticsDashboard from "./debugging/StatisticsDashboard";
+import StatisticsDashboard from "./summary/StatisticsDashboard";
 import InfoTooltip from "../../common/InfoTooltip";
+import ScoreDashboard from "./summary/ScoreDashboard";
 
 // TODO: move graphs from Submission Layout into here
 // TODO: lines added/removed rich git diff chart like encourse
@@ -67,7 +68,7 @@ function SummaryTab({}) {
               text: "Score",
               icon: <LeaderboardSharp />,
               component: (
-                <StatisticsDashboard
+                <ScoreDashboard
                   title="Score"
                   tooltip="Hover over chart for more details"
                   studentValue={summaryStats.score_distribution.studentValue}
