@@ -23,6 +23,7 @@ import {
 import { useParams } from "react-router";
 
 import StatisticsDashboard from "./summary/StatisticsDashboard";
+import ProblemsSolvedDashboard from "./summary/ProblemsSolvedDashboard";
 import InfoTooltip from "../../common/InfoTooltip";
 import ScoreDashboard from "./summary/ScoreDashboard";
 
@@ -80,7 +81,7 @@ function SummaryTab({}) {
               text: "Number of Problems Solved",
               icon: <Check />,
               component: (
-                <StatisticsDashboard
+                <ProblemsSolvedDashboard
                   title="Number of Problems Solved"
                   tooltip="Hover over chart for more details"
                   studentValue={
