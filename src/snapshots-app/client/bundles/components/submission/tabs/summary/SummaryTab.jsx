@@ -35,6 +35,8 @@ import InfoTooltip from "../../../common/InfoTooltip";
 
 // TODO: radar plot
 
+
+// TODO: don't hardcode these options for just ants
 const SCORE_HISTOGRAM_OPTIONS = {
   histogram: {
     bucketSize: 10,
@@ -53,7 +55,6 @@ const SCORE_HISTOGRAM_OPTIONS = {
 };
 
 const PROBLEMS_SOLVED_HISTOGRAM_OPTIONS = {
-  // TODO: don't hardcode this for just ants
   histogram: {
     bucketSize: 5,
     minValue: 0,
