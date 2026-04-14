@@ -2,12 +2,12 @@ import React from "react";
 
 import { Link } from "react-router";
 import { Button } from "@mui/material";
-import { useAtom } from "jotai";
+import { useAtomValue } from "jotai";
 
 import { userAtom } from "../state/atoms";
 
 function Login() {
-  const [user, setUser] = useAtom(userAtom);
+  const user = useAtomValue(userAtom);
 
   return (
     <div style={{ padding: "1rem" }}>

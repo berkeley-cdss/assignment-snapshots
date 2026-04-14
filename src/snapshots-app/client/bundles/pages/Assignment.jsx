@@ -1,13 +1,13 @@
 import React from "react";
 
 import { useParams } from "react-router";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { TextField, Box } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { styled } from "@mui/material/styles";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtomValue } from "jotai";
 
-import { coursesAtom, assignmentsAtom, studentsAtom } from "../state/atoms";
+import { studentsAtom } from "../state/atoms";
 import TableCellNavLink from "../components/common/TableCellNavLink";
 
 // TODO: rename paths and components to be consistent
@@ -98,42 +98,13 @@ function StudentsTable({ courseId, assignmentId, students }) {
 
 function Assignment() {
   const routeParams = useParams();
-
-  const courses = useAtomValue(coursesAtom);
-  const selectedCourse = courses.find(
-    (course) => course.id.toString() === routeParams.courseId,
-  );
-
-  const assignments = useAtomValue(assignmentsAtom);
-  const selectedAssignment = assignments.find(
-    (assignment) => assignment.id.toString() === routeParams.assignmentId,
-  );
-
-  const [students, setStudents] = useAtom(studentsAtom);
-
-  useEffect(() => {
-    fetch(`/api/submissions/${selectedCourse.id}/${selectedAssignment.id}`, {
-      method: "GET",
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((responseData) => {
-        setStudents(responseData["submissions"]);
-      })
-      .catch((error) => {
-        throw new Error(`HTTP error! Error: ${error}`);
-      });
-  }, [selectedCourse, selectedAssignment, setStudents]);
+  const students = useAtomValue(studentsAtom);
 
   return (
     <div style={{ paddingLeft: "1rem", paddingRight: "1rem" }}>
       <StudentsTable
-        courseId={selectedCourse.id}
-        assignmentId={selectedAssignment.id}
+        courseId={routeParams.courseId}
+        assignmentId={routeParams.assignmentId}
         students={students}
       />
     </div>

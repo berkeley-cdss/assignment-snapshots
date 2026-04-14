@@ -1,36 +1,17 @@
 import React from "react";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { TextField, Box } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { styled } from "@mui/material/styles";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtomValue } from "jotai";
 
-import { userAtom, coursesAtom } from "../state/atoms";
+import { coursesAtom } from "../state/atoms";
 import TableCellNavLink from "../components/common/TableCellNavLink";
 
 function CoursesTable() {
-  const user = useAtomValue(userAtom);
-  const [courses, setCourses] = useAtom(coursesAtom);
+  const courses = useAtomValue(coursesAtom);
   const [search, setSearch] = useState("");
-
-  useEffect(() => {
-    fetch(`/api/courses?email=${encodeURIComponent(user)}`, {
-      method: "GET",
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((responseData) => {
-        setCourses(responseData["courses"]);
-      })
-      .catch((error) => {
-        throw new Error(`HTTP error! Error: ${error}`);
-      });
-  }, [user, setCourses]);
 
   const termStringToInt = (termString) => {
     switch (termString) {
