@@ -23,18 +23,19 @@ import {
 import { useParams } from "react-router";
 
 import StatisticsDashboard from "./StatisticsDashboard";
+import ProblemGanttPlot from "./ProblemGanttPlot";
+// import ProblemTimeline from "./ProblemTimeline";
+// import GanttPlot from "./GanttPlot";
 import InfoTooltip from "../../../common/InfoTooltip";
 
 // TODO: move graphs from Submission Layout into here
 // TODO: lines added/removed rich git diff chart like encourse
 
 // TODO: problem summaries [subtasks]
-// TODO: duration plots for problems (see slack)
 // TODO: number of backups for each problem
 // TODO: plot time spent on unlocking vs correctness tests for each problem
 
 // TODO: radar plot
-
 
 // TODO: don't hardcode these options for just ants
 const SCORE_HISTOGRAM_OPTIONS = {
@@ -207,55 +208,63 @@ function SummaryTab({}) {
       </div>
 
       {menuItems.length > 0 ? (
-        // TODO: generalize this left sidebar + main area into a component
-        <Box sx={{ display: "flex", gap: 3, minHeight: "80vh" }}>
-          {/* Left Sidebar */}
-          <Paper
-            elevation={2}
-            sx={{
-              width: 240,
-              flexShrink: 0,
-              borderRadius: 2,
-              overflow: "hidden",
-            }}
-          >
-            <List>
-              {menuItems.map((item, index) => (
-                <ListItem key={item.text} disablePadding>
-                  <ListItemButton
-                    selected={activeIndex === index}
-                    onClick={() => setActiveIndex(index)}
-                  >
-                    <ListItemIcon>{item.icon}</ListItemIcon>
-                    <ListItemText primary={item.text} />
-
-                    <Box
-                      onClick={(e) => e.stopPropagation()}
-                      sx={{ ml: "auto", display: "flex", alignItems: "center" }}
+        <>
+          {/* TODO: generalize this left sidebar + main area into a component */}
+          <Box sx={{ display: "flex", gap: 3, minHeight: "80vh" }}>
+            {/* Left Sidebar */}
+            <Paper
+              elevation={2}
+              sx={{
+                width: 240,
+                flexShrink: 0,
+                borderRadius: 2,
+                overflow: "hidden",
+              }}
+            >
+              <List>
+                {menuItems.map((item, index) => (
+                  <ListItem key={item.text} disablePadding>
+                    <ListItemButton
+                      selected={activeIndex === index}
+                      onClick={() => setActiveIndex(index)}
                     >
-                      {item.tooltip ? (
-                        <InfoTooltip info={item.tooltip} />
-                      ) : null}
-                    </Box>
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
-          </Paper>
+                      <ListItemIcon>{item.icon}</ListItemIcon>
+                      <ListItemText primary={item.text} />
 
-          {/* Main Content Area */}
-          <Paper
-            elevation={1}
-            sx={{
-              flexGrow: 1,
-              p: 4,
-              borderRadius: 2,
-              backgroundColor: "#fafafa",
-            }}
-          >
-            {menuItems[activeIndex].component}
-          </Paper>
-        </Box>
+                      <Box
+                        onClick={(e) => e.stopPropagation()}
+                        sx={{
+                          ml: "auto",
+                          display: "flex",
+                          alignItems: "center",
+                        }}
+                      >
+                        {item.tooltip ? (
+                          <InfoTooltip info={item.tooltip} />
+                        ) : null}
+                      </Box>
+                    </ListItemButton>
+                  </ListItem>
+                ))}
+              </List>
+            </Paper>
+
+            {/* Main Content Area */}
+            <Paper
+              elevation={1}
+              sx={{
+                flexGrow: 1,
+                p: 4,
+                borderRadius: 2,
+                backgroundColor: "#fafafa",
+              }}
+            >
+              {menuItems[activeIndex].component}
+            </Paper>
+          </Box>
+
+          <ProblemGanttPlot />
+        </>
       ) : (
         <CircularProgress />
       )}
