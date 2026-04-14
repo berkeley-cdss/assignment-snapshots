@@ -104,8 +104,6 @@ class Api::Debugging::PrintStatementsController < ApplicationController
     # Identify the indices of backups that contain prints
     print_indices = all_data.each_index.select { |i| all_data[i][:has_print] }
 
-    Rails.logger.info("Found print statements in backups with indices: #{print_indices}")
-
     return render json: [] if print_indices.empty?
 
     # Group consecutive print indices into sessions
