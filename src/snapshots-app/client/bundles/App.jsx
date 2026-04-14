@@ -19,7 +19,10 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/courses" element={<Courses />} />
-        <Route path="/courses/:courseId/assignments" element={<Assignments />} />
+        <Route
+          path="/courses/:courseId/assignments"
+          element={<Assignments />}
+        />
         <Route
           path="/courses/:courseId/assignments/:assignmentId/students"
           element={<Students />}
@@ -38,10 +41,7 @@ function App() {
         />
 
         {/* catch all route */}
-        <Route
-          path="*"
-          element={<NotFound />}
-        />
+        <Route path="*" element={<NotFound />} />
       </Routes>
 
       <Footer />

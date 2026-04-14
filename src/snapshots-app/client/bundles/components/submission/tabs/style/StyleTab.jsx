@@ -194,17 +194,15 @@ function StyleTab() {
           </div>
           <div>
             <FormControlLabel
-            control={
-              <Switch
-                checked={lightMode}
-                onChange={(e) => setLightMode(e.target.checked)}
-              />
-            }
-            label={lightMode ? "Light" : "Dark"}
-          />
-
+              control={
+                <Switch
+                  checked={lightMode}
+                  onChange={(e) => setLightMode(e.target.checked)}
+                />
+              }
+              label={lightMode ? "Light" : "Dark"}
+            />
           </div>
-
         </div>
 
         {/* Multi-Select with combined "Code: Name" chips */}

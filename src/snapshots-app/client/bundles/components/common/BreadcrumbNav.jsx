@@ -76,10 +76,16 @@ function BreadcrumbNav() {
   }, [matchesAssignmentsRoute?.params?.courseId, setAssignments]);
 
   useEffect(() => {
-    if (matchesStudentsRoute?.params?.courseId && matchesStudentsRoute?.params?.assignmentId) {
-      fetch(`/api/submissions/${matchesStudentsRoute.params.courseId}/${matchesStudentsRoute.params.assignmentId}`, {
-        method: "GET",
-      })
+    if (
+      matchesStudentsRoute?.params?.courseId &&
+      matchesStudentsRoute?.params?.assignmentId
+    ) {
+      fetch(
+        `/api/submissions/${matchesStudentsRoute.params.courseId}/${matchesStudentsRoute.params.assignmentId}`,
+        {
+          method: "GET",
+        },
+      )
         .then((response) => {
           if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
@@ -93,7 +99,11 @@ function BreadcrumbNav() {
           throw new Error(`HTTP error! Error: ${error}`);
         });
     }
-  }, [matchesStudentsRoute?.params?.courseId, matchesStudentsRoute?.params?.assignmentId, setStudents]);
+  }, [
+    matchesStudentsRoute?.params?.courseId,
+    matchesStudentsRoute?.params?.assignmentId,
+    setStudents,
+  ]);
 
   const breadcrumbs = getBreadcrumbs();
 
@@ -119,17 +129,15 @@ function BreadcrumbNav() {
       const course = findById(courses, matchesAssignmentsRoute.params.courseId);
       if (course) {
         result.push({
-        name: getCourseHumanReadableName(course),
-        path: `/courses/${matchesAssignmentsRoute.params.courseId}/assignments`,
-      });
+          name: getCourseHumanReadableName(course),
+          path: `/courses/${matchesAssignmentsRoute.params.courseId}/assignments`,
+        });
       } else {
         result.push({
           name: "Loading course name",
-          path: "#"
-        })
+          path: "#",
+        });
       }
-
-
     }
 
     if (matchesStudentsRoute) {
@@ -138,33 +146,34 @@ function BreadcrumbNav() {
         matchesStudentsRoute.params.assignmentId,
       );
       if (assignment) {
-result.push({
-        name: assignment.name,
-        path: `/courses/${matchesStudentsRoute.params.courseId}/assignments/${matchesStudentsRoute.params.assignmentId}/students`,
-      });
+        result.push({
+          name: assignment.name,
+          path: `/courses/${matchesStudentsRoute.params.courseId}/assignments/${matchesStudentsRoute.params.assignmentId}/students`,
+        });
       } else {
         result.push({
           name: "Loading assignment name",
-          path: "#"
-        })
+          path: "#",
+        });
       }
-
     }
 
     if (matchesSubmissionRoute) {
-      const student = findById(students, matchesSubmissionRoute.params.studentId);
+      const student = findById(
+        students,
+        matchesSubmissionRoute.params.studentId,
+      );
       if (student) {
         result.push({
-        name: `${student.first_name} ${student.last_name} (SID: ${student.student_id})`,
-        path: `/courses/${matchesSubmissionRoute.params.courseId}/assignments/${matchesSubmissionRoute.params.assignmentId}/students/${matchesSubmissionRoute.params.studentId}/submission/summary`,
-      });
+          name: `${student.first_name} ${student.last_name} (SID: ${student.student_id})`,
+          path: `/courses/${matchesSubmissionRoute.params.courseId}/assignments/${matchesSubmissionRoute.params.assignmentId}/students/${matchesSubmissionRoute.params.studentId}/submission/summary`,
+        });
       } else {
         result.push({
-        name: "Loading student name and SID",
-        path: "#"
-      });
+          name: "Loading student name and SID",
+          path: "#",
+        });
       }
-
     }
 
     return result;

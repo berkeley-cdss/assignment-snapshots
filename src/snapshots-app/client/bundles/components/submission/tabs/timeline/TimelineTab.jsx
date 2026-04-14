@@ -105,9 +105,9 @@ function TimelineTab() {
       })
       .then((responseData) => {
         if (routeParams.backupId) {
-          const index = responseData.backups.toReversed().findIndex(
-            (b) => b.backup_id === routeParams.backupId,
-          );
+          const index = responseData.backups
+            .toReversed()
+            .findIndex((b) => b.backup_id === routeParams.backupId);
 
           if (index === -1) {
             navigate("/404");
