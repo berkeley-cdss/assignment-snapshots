@@ -94,7 +94,6 @@ function Graphs({
         allProblemDisplayNames={allProblemDisplayNames}
         numSolved={numQuestionsSolved[selectedBackup]}
       />
-      
     </div>
   );
 }

@@ -83,10 +83,11 @@ function SummaryTab({}) {
   useEffect(() => {
     fetch(
       `/api/summary_statistics/${routeParams.courseId}/${routeParams.assignmentId}/${routeParams.studentId}`,
-      { method: "GET" }
+      { method: "GET" },
     )
       .then((response) => {
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        if (!response.ok)
+          throw new Error(`HTTP error! Status: ${response.status}`);
         return response.json();
       })
       .then((data) => setSummaryStats(data));
@@ -94,7 +95,7 @@ function SummaryTab({}) {
 
   useEffect(() => {
     fetch(
-      `/api/backups/${routeParams.courseId}/${routeParams.assignmentId}/${routeParams.studentId}`
+      `/api/backups/${routeParams.courseId}/${routeParams.assignmentId}/${routeParams.studentId}`,
     )
       .then((res) => res.json())
       .then((data) => setBackupData(data));
@@ -102,28 +103,34 @@ function SummaryTab({}) {
 
   useEffect(() => {
     fetch(
-      `/api/backup_file_metadata/${routeParams.courseId}/${routeParams.assignmentId}/${routeParams.studentId}`
+      `/api/backup_file_metadata/${routeParams.courseId}/${routeParams.assignmentId}/${routeParams.studentId}`,
     )
       .then((res) => res.json())
       .then((data) => setFileMetadata(data));
   }, [routeParams]);
 
-  const backupTimestamps = backupData?.backups.map((b) => new Date(b.created)) ?? [];
+  const backupTimestamps =
+    backupData?.backups.map((b) => new Date(b.created)) ?? [];
   const xAxis = [{ data: backupTimestamps, scaleType: "time", label: "Date" }];
   const height = 300;
 
-  const firstFile = fileMetadata ? Object.keys(fileMetadata.files_to_metadata)[0] : null;
-  const numLines = firstFile ? fileMetadata.files_to_metadata[firstFile].num_lines : [];
+  const firstFile = fileMetadata
+    ? Object.keys(fileMetadata.files_to_metadata)[0]
+    : null;
+  const numLines = firstFile
+    ? fileMetadata.files_to_metadata[firstFile].num_lines
+    : [];
 
-  const numQuestionsSolved = backupData?.backups.map((b) =>
-    b.history.filter((h) => h.solved).length
-  ) ?? [];
-  const numQuestionsUnsolved = backupData?.backups.map((b) =>
-    b.history.filter((h) => !h.solved).length
-  ) ?? [];
-  const numAttempts = backupData?.backups.map((b) =>
-    b.history.reduce((sum, h) => sum + (h.attempts ?? 0), 0)
-  ) ?? [];
+  const numQuestionsSolved =
+    backupData?.backups.map((b) => b.history.filter((h) => h.solved).length) ??
+    [];
+  const numQuestionsUnsolved =
+    backupData?.backups.map((b) => b.history.filter((h) => !h.solved).length) ??
+    [];
+  const numAttempts =
+    backupData?.backups.map((b) =>
+      b.history.reduce((sum, h) => sum + (h.attempts ?? 0), 0),
+    ) ?? [];
 
   const menuItems = useMemo(
     () =>
@@ -149,7 +156,9 @@ function SummaryTab({}) {
                 <StatisticsDashboard
                   title="Number of Problems Solved"
                   tooltip="Hover over chart for more details"
-                  studentValue={summaryStats.problems_solved_distribution.studentValue}
+                  studentValue={
+                    summaryStats.problems_solved_distribution.studentValue
+                  }
                   data={summaryStats.problems_solved_distribution.data}
                   options={PROBLEMS_SOLVED_HISTOGRAM_OPTIONS}
                 />
@@ -162,7 +171,9 @@ function SummaryTab({}) {
                 <StatisticsDashboard
                   title="Number of Backups"
                   tooltip="Hover over chart for more details"
-                  studentValue={summaryStats.number_of_backups_distribution.studentValue}
+                  studentValue={
+                    summaryStats.number_of_backups_distribution.studentValue
+                  }
                   data={summaryStats.number_of_backups_distribution.data}
                 />
               ),
@@ -170,12 +181,15 @@ function SummaryTab({}) {
             {
               text: "Total Time Spent",
               icon: <AccessTime />,
-              tooltip: "Timestamp of last backup minus timestamp of first backup",
+              tooltip:
+                "Timestamp of last backup minus timestamp of first backup",
               component: (
                 <StatisticsDashboard
                   title="Total Time Spent (min)"
                   tooltip="Hover over chart for more details"
-                  studentValue={summaryStats.total_time_spent_distribution.studentValue}
+                  studentValue={
+                    summaryStats.total_time_spent_distribution.studentValue
+                  }
                   data={summaryStats.total_time_spent_distribution.data}
                 />
               ),
@@ -183,12 +197,15 @@ function SummaryTab({}) {
             {
               text: "Total Active Time Spent",
               icon: <Timer />,
-              tooltip: "Total time spent on task. To compute this, we do not count large gaps in activity.",
+              tooltip:
+                "Total time spent on task. To compute this, we do not count large gaps in activity.",
               component: (
                 <StatisticsDashboard
                   title="Total Active Time Spent (min)"
                   tooltip="Hover over chart for more details"
-                  studentValue={summaryStats.active_time_spent_distribution.studentValue}
+                  studentValue={
+                    summaryStats.active_time_spent_distribution.studentValue
+                  }
                   data={summaryStats.active_time_spent_distribution.data}
                 />
               ),
@@ -201,14 +218,16 @@ function SummaryTab({}) {
                 <StatisticsDashboard
                   title="Number of Lint Errors"
                   tooltip="Hover over chart for more details"
-                  studentValue={summaryStats.lint_errors_distribution.studentValue}
+                  studentValue={
+                    summaryStats.lint_errors_distribution.studentValue
+                  }
                   data={summaryStats.lint_errors_distribution.data}
                 />
               ),
             },
           ]
         : [],
-    [summaryStats]
+    [summaryStats],
   );
 
   const chartsReady = backupData && fileMetadata && backupTimestamps.length > 0;
@@ -228,12 +247,16 @@ function SummaryTab({}) {
       </div>
 
       {menuItems.length > 0 ? (
-
         <Box sx={{ display: "flex", gap: 3, minHeight: "80vh" }}>
           {/* Left Sidebar */}
           <Paper
             elevation={2}
-            sx={{ width: 240, flexShrink: 0, borderRadius: 2, overflow: "hidden" }}
+            sx={{
+              width: 240,
+              flexShrink: 0,
+              borderRadius: 2,
+              overflow: "hidden",
+            }}
           >
             <List>
               {menuItems.map((item, index) => (
@@ -249,7 +272,9 @@ function SummaryTab({}) {
                       onClick={(e) => e.stopPropagation()}
                       sx={{ ml: "auto", display: "flex", alignItems: "center" }}
                     >
-                      {item.tooltip ? <InfoTooltip info={item.tooltip} /> : null}
+                      {item.tooltip ? (
+                        <InfoTooltip info={item.tooltip} />
+                      ) : null}
                     </Box>
                   </ListItemButton>
                 </ListItem>
@@ -260,37 +285,62 @@ function SummaryTab({}) {
           {/* Main Content Area */}
           <Paper
             elevation={1}
-            sx={{ flexGrow: 1, p: 4, borderRadius: 2, backgroundColor: "#fafafa" }}
+            sx={{
+              flexGrow: 1,
+              p: 4,
+              borderRadius: 2,
+              backgroundColor: "#fafafa",
+            }}
           >
             {menuItems[activeIndex].component}
           </Paper>
 
           {/* TODO: move into separate component -- these were graphs moved from timeline view */}
           {chartsReady ? (
-              <>
-                <LineChart
-                  xAxis={xAxis}
-                  series={[{ curve: "linear", data: numLines, label: `# of lines in ${firstFile}` }]}
-                  height={height}
-                />
-                <LineChart
-                  margin={{ top: 100 }}
-                  xAxis={xAxis}
-                  series={[
-                    { curve: "linear", data: numQuestionsSolved, label: "# of questions solved" },
-                    { curve: "linear", data: numQuestionsUnsolved, label: "# of questions unsolved" },
-                  ]}
-                  height={height}
-                />
-                <LineChart
-                  xAxis={xAxis}
-                  series={[{ curve: "linear", data: numAttempts, label: "# of attempts" }]}
-                  height={height}
-                />
-              </>
-            ) : (
-              <CircularProgress />
-            )}
+            <>
+              <LineChart
+                xAxis={xAxis}
+                series={[
+                  {
+                    curve: "linear",
+                    data: numLines,
+                    label: `# of lines in ${firstFile}`,
+                  },
+                ]}
+                height={height}
+              />
+              <LineChart
+                margin={{ top: 100 }}
+                xAxis={xAxis}
+                series={[
+                  {
+                    curve: "linear",
+                    data: numQuestionsSolved,
+                    label: "# of questions solved",
+                  },
+                  {
+                    curve: "linear",
+                    data: numQuestionsUnsolved,
+                    label: "# of questions unsolved",
+                  },
+                ]}
+                height={height}
+              />
+              <LineChart
+                xAxis={xAxis}
+                series={[
+                  {
+                    curve: "linear",
+                    data: numAttempts,
+                    label: "# of attempts",
+                  },
+                ]}
+                height={height}
+              />
+            </>
+          ) : (
+            <CircularProgress />
+          )}
 
           <ProblemGanttPlot />
         </Box>
