@@ -67,6 +67,10 @@ class Api::ProblemTimelineController < ApplicationController
 
   # This works assuming the array contains backups for the same problem
   def get_sessions(backups)
+    if backups.empty?
+      return []
+    end
+
     # A session is defined as a series of backups where:
     # 1. Consecutive timestamps are <= SESSION_TIME_GAP_THRESHOLD, and
     # 2. All labels (and therefore colors) are the same within the session
@@ -113,7 +117,6 @@ class Api::ProblemTimelineController < ApplicationController
 
   def get_timeline_data(problem_to_sessions, problem_name_to_index)
     # then flatten all arrays and assign problemIndex using problem_name_to_index hash
-    # also combine label with numBackups into single label
     result = []
 
     problem_to_sessions.map do |problem_name, sessions|
@@ -123,7 +126,8 @@ class Api::ProblemTimelineController < ApplicationController
         problemIndex: problem_index,
         startTime: session[:startTime],
       endTime: session[:endTime],
-      label: "#{session[:label]} (#{session[:numBackups]} backup#{session[:numBackups] > 1 ? 's' : ''})",
+      label: session[:label],
+      numBackups: session[:numBackups],
       color: session[:color]
       }
       end
