@@ -134,7 +134,7 @@ class Api::ProblemTimelineController < ApplicationController
         startIndex: processed_backups[0][:index],
         endIndex: processed_backups[0][:index] + 1,
         problemName: processed_backups[0][:problem_name],
-        problemIndex: processed_backups[0][:problem_index],
+        problemIndex: processed_backups[0][:problem_index]
       }
 
     processed_backups.each_cons(2) do |a, b|
