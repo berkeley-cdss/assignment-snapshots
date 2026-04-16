@@ -24,10 +24,12 @@ import {
 import { useParams } from "react-router";
 
 import StatisticsDashboard from "./StatisticsDashboard";
-import ProblemGanttPlot from "./ProblemGanttPlot";
+// import ProblemGanttPlot from "./ProblemGanttPlot";
 // import ProblemTimeline from "./ProblemTimeline";
 // import GanttPlot from "./GanttPlot";
 import InfoTooltip from "../../../common/InfoTooltip";
+import BackupGanttPlot from "./BackupGanttPlot";
+import BackupCalendarChart from "./BackupCalendarChart";
 
 // TODO: move graphs from Submission Layout into here
 // TODO: lines added/removed rich git diff chart like encourse
@@ -242,8 +244,8 @@ function SummaryTab({}) {
           marginBottom: "2rem",
         }}
       >
-        <Typography variant="h4">Summary Statistics</Typography>
-        <InfoTooltip info="Summary statistics about this student's performance on this assignment, with comparisons to other students" />
+        <Typography variant="h4">Summary</Typography>
+        <InfoTooltip info="Summary statistics and visualizations about this student's performance on this assignment" />
       </div>
 
       {menuItems.length > 0 ? (
@@ -295,14 +297,16 @@ function SummaryTab({}) {
             {menuItems[activeIndex].component}
           </Paper>
 
-          <ProblemGanttPlot />
         </Box>
       ) : (
         <CircularProgress />
       )}
 
+      <BackupCalendarChart />
+      <BackupGanttPlot />
+
       {chartsReady ? (
-        <>
+        <div style={{ marginTop: '2rem'}}>
           <LineChart
             xAxis={xAxis}
             series={[
@@ -342,7 +346,7 @@ function SummaryTab({}) {
             ]}
             height={height}
           />
-        </>
+        </div>
       ) : (
         <CircularProgress />
       )}
