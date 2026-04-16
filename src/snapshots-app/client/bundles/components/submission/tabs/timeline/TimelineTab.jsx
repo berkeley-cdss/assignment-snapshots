@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { styled } from "@mui/material/styles";
 import Toolbar from "@mui/material/Toolbar";
 import Box from "@mui/material/Box";
@@ -90,6 +90,8 @@ function TimelineTab() {
 
   const routeParams = useParams();
   const navigate = useNavigate();
+
+  const editorRef = useRef(null);
 
   // Fetch backups
   React.useEffect(() => {
@@ -413,6 +415,43 @@ function TimelineTab() {
     return null;
   }
 
+  function goToLine(lineNumber) {
+    if (editorRef.current) {
+      // Centers the line in the viewport
+      editorRef.current.revealLineInCenter(lineNumber);
+
+      // Moves the cursor to that line
+      editorRef.current.setPosition({ lineNumber: lineNumber, column: 1 });
+
+      // Focuses the editor
+      editorRef.current.focus();
+    }
+  }
+
+  function getProblemLines(code, problemNames) {
+    const result = {};
+    problemNames.forEach((name) => {
+      result[name] = [];
+    });
+
+    const lines = code.split("\n");
+
+    lines.forEach((lineText, index) => {
+      const trimmedLine = lineText.trim();
+
+      if (trimmedLine.startsWith("# BEGIN ")) {
+        const problemName = trimmedLine.replace("# BEGIN ", "").trim();
+
+        // If this name is in our target list, add the line number (1-indexed)
+        if (result.hasOwnProperty(problemName)) {
+          result[problemName].push(index + 1);
+        }
+      }
+    });
+
+    return result;
+  }
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       {backups.length === 0 ? (
@@ -534,15 +573,22 @@ function TimelineTab() {
             {code === "" ? (
               <CircularProgress />
             ) : (
-              <div style={{ paddingLeft: "1rem", paddingRight: "1rem", height: "100%" }}>
+              <div
+                style={{
+                  paddingLeft: "1rem",
+                  paddingRight: "1rem",
+                  height: "100%",
+                }}
+              >
                 {selectedBackup === 0 ||
                 code === "" ||
                 prevFileContents === "" ||
                 prevFileContents === code ? (
                   <BasicFileViewer
                     code={code}
-                    language={"python"}
+                    language={getLanguage(file)}
                     lightMode={lightMode}
+                    editorRef={editorRef}
                   />
                 ) : (
                   <DiffViewer
@@ -553,6 +599,7 @@ function TimelineTab() {
                     selectedFile={file}
                     prevFileContents={prevFileContents}
                     lightMode={lightMode}
+                    editorRef={editorRef}
                   />
                 )}
               </div>
@@ -581,6 +628,8 @@ function TimelineTab() {
                 currBackupHistory={backups[selectedBackup].history}
                 allProblemDisplayNames={allProblemDisplayNames}
                 selectedBackup={selectedBackup}
+                problemLines={getProblemLines(code, allProblemDisplayNames)}
+                editorRef={editorRef}
               />
             )}
           </RightSidebar>

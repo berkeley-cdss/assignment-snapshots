@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
@@ -17,12 +17,12 @@ import "@git-diff-view/react/styles/diff-view.css";
 function DiffViewer({
   open,
   onClose,
+  editorRef,
   prevFileContents,
   currentFileContents,
   lightMode = false,
   renderSideBySide = false,
 }) {
-  const editorRef = useRef(null);
 
   const onDiffEditorMount = (editor, monaco) => {
     editorRef.current = editor;
