@@ -1,11 +1,47 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
+import { useParams } from "react-router";
 import ReactECharts from "echarts-for-react";
 import * as echarts from "echarts";
+import { CircularProgress } from "@mui/material";
 
-const BackupCalendarChart = ({
-  startDate = "2026-11-01",
-  endDate = "2026-11-30",
-}) => {
+// TODO don't hardcode release, checkpoint 1, checkpoint 2, due date
+// const highlightedDates = ["2025-10-27", "2025-11-05", "2025-11-14", "2025-11-24", "2025-11-25"];
+
+// TODO rename charts for consistency with titles in frontend
+const BackupCalendarChart = () => {
+  const routeParams = useParams();
+  const [rawCalendarData, setRawCalendarData] = useState([]);
+
+  useEffect(() => {
+    fetch(
+      `/api/problem_calendar/${routeParams.courseId}/${routeParams.assignmentId}/${routeParams.studentId}`,
+      {
+        method: "GET",
+      },
+    )
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((responseData) => {
+        setRawCalendarData(responseData);
+      });
+  }, [routeParams]);
+
+  const startDate = useMemo(() => {
+    const keys = Object.keys(rawCalendarData);
+    if (keys.length === 0) return null;
+    return Math.min(...keys.map((date) => new Date(date).getTime()));
+  }, [rawCalendarData]);
+
+  const endDate = useMemo(() => {
+    const keys = Object.keys(rawCalendarData);
+    if (keys.length === 0) return null;
+    return Math.max(...keys.map((date) => new Date(date).getTime()));
+  }, [rawCalendarData]);
+
   // generate dummy data
   const calendarData = useMemo(() => {
     const data = [];
@@ -22,11 +58,11 @@ const BackupCalendarChart = ({
         "{yyyy}-{MM}-{dd}",
         false,
       );
-      const count = Math.random() > 0.5 ? Math.floor(Math.random() * 20) : 0;
+      const count = rawCalendarData[dateString] || 0;
       data.push([dateString, count]);
     }
     return data;
-  }, [startDate, endDate]);
+  }, [rawCalendarData, startDate, endDate]);
 
   const option = useMemo(
     () => ({
@@ -87,13 +123,19 @@ const BackupCalendarChart = ({
   };
 
   return (
-    <div style={{ height: calculateHeight(), width: "100%" }}>
-      <ReactECharts
-        option={option}
-        style={{ height: "100%" }}
-        notMerge={true}
-      />
-    </div>
+    <>
+      {calendarData.length === 0 || startDate === null || endDate === null ? (
+        <CircularProgress />
+      ) : (
+        <div style={{ height: calculateHeight(), width: "100%" }}>
+          <ReactECharts
+            option={option}
+            style={{ height: "100%" }}
+            notMerge={true}
+          />
+        </div>
+      )}
+    </>
   );
 };
 
