@@ -23,10 +23,12 @@ import {
 import { useParams } from "react-router";
 
 import StatisticsDashboard from "./StatisticsDashboard";
-import ProblemGanttPlot from "./ProblemGanttPlot";
+// import ProblemGanttPlot from "./ProblemGanttPlot";
 // import ProblemTimeline from "./ProblemTimeline";
 // import GanttPlot from "./GanttPlot";
 import InfoTooltip from "../../../common/InfoTooltip";
+import BackupGanttPlot from "./BackupGanttPlot";
+import BackupCalendarChart from "./BackupCalendarChart";
 
 // TODO: move graphs from Submission Layout into here
 // TODO: lines added/removed rich git diff chart like encourse
@@ -263,7 +265,11 @@ function SummaryTab({}) {
             </Paper>
           </Box>
 
-          <ProblemGanttPlot />
+          {/* <ProblemGanttPlot /> */}
+
+          <BackupCalendarChart />
+
+          <BackupGanttPlot />
         </>
       ) : (
         <CircularProgress />

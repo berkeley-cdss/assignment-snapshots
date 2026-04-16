@@ -5,8 +5,6 @@ import { useParams } from "react-router";
 import ReactECharts from "echarts-for-react";
 import * as echarts from "echarts";
 
-// TODO delete this if unused or figure out a better way to present the data
-
 // TODO API endpoint to get problems
 const PROBLEMS = [
   "Problem 0",
@@ -26,7 +24,24 @@ const PROBLEMS = [
   "Problem 12",
 ];
 
-const ProblemGanttPlot = () => {
+const PINK = "#D81B60";
+const BLUE = "#1E88E5";
+const YELLOW = "#FFC107";
+const DARK_GREEN = "#004D40";
+
+const CATEGORIES = [
+  { name: "Correctness Tests Passed", color: DARK_GREEN },
+  { name: "Correctness Tests Failed", color: PINK },
+  { name: "Unlocking Tests Passed", color: BLUE },
+  { name: "Unlocking Tests Failed", color: YELLOW },
+];
+
+// TODO make this more DRY and name it better
+// TODO fetch problem names and problem timeline once
+// TODO add comments explaining options
+// TODO legend instead of label
+// TODO button to auto jump to zoom
+const BackupGanttPlot = () => {
   const [timelineData, setTimelineData] = useState([]);
   const routeParams = useParams();
 
@@ -50,12 +65,18 @@ const ProblemGanttPlot = () => {
 
   const option = useMemo(
     () => ({
+      legend: {
+        data: CATEGORIES.map((c) => c.name),
+        bottom: 40, // Place it below the chart
+        selectedMode: false,
+        itemGap: 40,
+      },
       tooltip: {
         formatter: (params) => {
           const start = params.value[1];
           const end = params.value[2];
           const diff = end - start;
-          const numBackups = params.value[3];
+          const numBackups = params.value[4] - params.value[3];
 
           // Calculate time units
           const seconds = Math.floor((diff / 1000) % 60);
@@ -81,9 +102,6 @@ const ProblemGanttPlot = () => {
 
           // TODO turn this into jsx instead of string?
           return `
-      <div style="border-bottom: 1px solid #ccc; margin-bottom: 5px;">
-        ${params.name}
-      </div>
       <strong>Duration</strong>: ${durationStr}<br/>
       <strong># of backups</strong>: ${numBackups}<br/>
       <strong>Start</strong>: ${startTimeStr}<br/>
@@ -105,22 +123,15 @@ const ProblemGanttPlot = () => {
         top: 80, // Space for the title and top X-axis
         left: 100, // Space for problem labels
         right: 50, // Padding on the right
-        bottom: 80, // This creates the gap where the slider lives
+        bottom: 80, // This creates the gap where the legend and slider live
       },
       xAxis: {
-        type: "time",
+        type: "value",
+        name: "Backup Index",
         position: "top",
         splitLine: { show: true },
-        axisLabel: {
-          hideOverlap: true,
-          formatter: {
-            day: "{MM}-{dd}",
-            hour: "{HH}:{mm}",
-            minute: "{HH}:{mm}",
-            second: "{HH}:{mm}:{ss}",
-            none: "{yyyy}-{MM}-{dd} {HH}:{mm}:{ss}",
-          },
-        },
+        min: "dataMin",
+        max: "dataMax",
       },
       yAxis: {
         data: PROBLEMS,
@@ -136,8 +147,8 @@ const ProblemGanttPlot = () => {
           type: "custom",
           renderItem: (params, api) => {
             const categoryIndex = api.value(0);
-            const start = api.coord([api.value(1), categoryIndex]);
-            const end = api.coord([api.value(2), categoryIndex]);
+            const start = api.coord([api.value(3), categoryIndex]);
+            const end = api.coord([api.value(4), categoryIndex]);
             const height = api.size([0, 1])[1] * 0.6; // Bar height is 60% of row height
 
             const rectShape = echarts.graphic.clipRectByRect(
@@ -145,7 +156,8 @@ const ProblemGanttPlot = () => {
                 x: start[0],
                 y: start[1] - height / 2,
                 // enforce min width of 5 pixels so that graph doesn't look blank
-                width: Math.max(end[0] - start[0], 5),
+                // width: Math.max(end[0] - start[0], 5),
+                width: end[0] - start[0],
                 height: height,
               },
               {
@@ -169,19 +181,27 @@ const ProblemGanttPlot = () => {
             );
           },
           itemStyle: { opacity: 0.8 },
-          encode: { x: [1, 2], y: 0 },
+          encode: { x: [3, 4], y: 0 },
           // Map to ECharts internal format
           data: timelineData.map((item) => ({
-            name: item.label,
+            name: item.label, // This must match CATEGORIES names for interactivity
             value: [
               item.problemIndex,
               new Date(item.startTime).getTime(),
               new Date(item.endTime).getTime(),
-              item.endIndex - item.startIndex, // number of backups
+              item.startIndex,
+              item.endIndex,
             ],
             itemStyle: { color: item.color },
           })),
         },
+        ...CATEGORIES.map((cat) => ({
+          name: cat.name,
+          type: "bar", // Can be anything, bar works well
+          itemStyle: { color: cat.color },
+
+          // data: [], // Empty so it doesn't render bars
+        })),
       ],
     }),
     [timelineData],
@@ -189,9 +209,9 @@ const ProblemGanttPlot = () => {
 
   return (
     <div style={{ height: "800px", width: "100%" }}>
-      <ReactECharts option={option} style={{ height: "100%", width: "100%" }} />
+      <ReactECharts option={option} style={{ height: "100%" }} />
     </div>
   );
 };
 
-export default ProblemGanttPlot;
+export default BackupGanttPlot;

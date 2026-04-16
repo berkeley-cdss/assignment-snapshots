@@ -112,6 +112,7 @@ assignments = [
     okpy_endpoint: "ants",
     files: [ "ants.py" ],
     problems: [
+                "Problem 0", # only unlocking tests
                 "Problem 1",
                 "Problem 2",
                 "Problem 3",
@@ -211,8 +212,8 @@ courses.each do |course|
       AssignmentFile.create!(assignment_id: assignment_record.id, file_name: file_name)
     end
 
-    assignment[:problems].each do |problem_name|
-      AssignmentProblem.create!(assignment_id: assignment_record.id, display_name: problem_name)
+    assignment[:problems].each_with_index do |problem_name, index|
+      AssignmentProblem.create!(assignment_id: assignment_record.id, display_name: problem_name, problem_index: index)
     end
   end
 end
