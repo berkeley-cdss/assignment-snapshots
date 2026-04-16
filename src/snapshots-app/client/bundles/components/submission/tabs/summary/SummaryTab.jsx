@@ -294,9 +294,14 @@ function SummaryTab({}) {
           >
             {menuItems[activeIndex].component}
           </Paper>
+          
+          <ProblemGanttPlot />
+        </Box>
+      ) : (
+        <CircularProgress />
+      )}
 
-          {/* TODO: move into separate component -- these were graphs moved from timeline view */}
-          {chartsReady ? (
+      {chartsReady ? (
             <>
               <LineChart
                 xAxis={xAxis}
@@ -342,11 +347,7 @@ function SummaryTab({}) {
             <CircularProgress />
           )}
 
-          <ProblemGanttPlot />
-        </Box>
-      ) : (
-        <CircularProgress />
-      )}
+
     </Container>
   );
 }
