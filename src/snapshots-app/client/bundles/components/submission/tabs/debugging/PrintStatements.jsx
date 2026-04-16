@@ -163,6 +163,7 @@ const PrintStatements = () => {
                       justifyContent: "center",
                     }}
                   >
+                    {/* TODO investigate bug where backend doesn't have has_print true correctly?? */}
                     {selectedFileName &&
                       item.files.find((f) => f.name === selectedFileName)
                         ?.hasPrint && (
