@@ -298,6 +298,7 @@ def store(
         print(f"Finished storing backups in {database} in {end - start} seconds")
 
 
+# TODO need to rerun lint with new schema for 61a and c88c fa25
 @app.command()
 def lint(
     database: Annotated[
