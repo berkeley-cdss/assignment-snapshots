@@ -91,7 +91,7 @@ class Api::Debugging::PrintStatementsController < ApplicationController
       has_print = contains_user_print?(contents)
 
       {
-        id: index + 1,
+        id: backup.backup_id,
         problem: problem_names.join(", "),
         timestamp: backup.created,
         passing: is_passing,
