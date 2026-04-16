@@ -5,14 +5,12 @@ import Editor from "@monaco-editor/react";
 import "./FileViewer.css";
 
 function BasicFileViewer({ code, language, lightMode, editorRef }) {
-
-
   return (
     <>
       <Editor
-      onMount={(editor) => {
-    editorRef.current = editor;
-  }}
+        onMount={(editor) => {
+          editorRef.current = editor;
+        }}
         defaultLanguage={language}
         defaultValue={code}
         theme={lightMode ? "light" : "vs-dark"}

@@ -23,7 +23,6 @@ function DiffViewer({
   lightMode = false,
   renderSideBySide = false,
 }) {
-
   const onDiffEditorMount = (editor, monaco) => {
     editorRef.current = editor;
 
@@ -95,13 +94,13 @@ function DiffViewer({
           scrollBeyondLastLine: false,
           renderSideBySide: renderSideBySide,
           // Enable the auto-collapse feature
-    hideUnchangedRegions: {
-      enabled: true,
-      contextLineCount: 5,      // Lines of unchanged code to show around a diff
-      minimumLineCount: 3,      // Minimum unchanged lines required to trigger a collapse
-      // TODO this isn't working properly
-      revealLineCount: 20,      // How many lines to reveal when clicking the "expand" button
-    },
+          hideUnchangedRegions: {
+            enabled: true,
+            contextLineCount: 5, // Lines of unchanged code to show around a diff
+            minimumLineCount: 3, // Minimum unchanged lines required to trigger a collapse
+            // TODO this isn't working properly
+            revealLineCount: 20, // How many lines to reveal when clicking the "expand" button
+          },
         }}
       />
     </>

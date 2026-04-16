@@ -6,9 +6,8 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { Tooltip } from "@mui/material";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import { Link } from '@mui/material';
-import { List, ListItem } from '@mui/material';
-
+import { Link } from "@mui/material";
+import { List, ListItem } from "@mui/material";
 
 function LinearProgressWithLabel(props) {
   return (
@@ -53,14 +52,14 @@ const ProblemJumpLink = ({ lineNumber, editorRef, label }) => {
       variant="body2"
       onClick={handleJump}
       sx={{
-        textAlign: 'left',
-        verticalAlign: 'baseline',
-        textDecoration: 'none',
-        '&:hover': {
-          textDecoration: 'underline',
+        textAlign: "left",
+        verticalAlign: "baseline",
+        textDecoration: "none",
+        "&:hover": {
+          textDecoration: "underline",
         },
-        cursor: 'pointer',
-        color: 'primary.main',
+        cursor: "pointer",
+        color: "primary.main",
         fontWeight: 500,
       }}
     >
@@ -68,7 +67,6 @@ const ProblemJumpLink = ({ lineNumber, editorRef, label }) => {
     </Link>
   );
 };
-
 
 function AssignmentProblems({
   history,
@@ -115,59 +113,70 @@ function AssignmentProblems({
     return (numSolved / allProblemDisplayNames.length) * 100;
   }
 
-
   // TODO span styling and improve accessibility?
   const problems = allProblemDisplayNames.map((problemDisplayName) => {
     const lines = problemLines[problemDisplayName];
 
     if (problemLines[problemDisplayName].length === 0) {
       return (
-      <Box key={problemDisplayName} sx={{ display: 'flex', alignItems: 'center', my: 0.5 }}>
-        {getIcon(problemDisplayName)}
-        <Typography variant="body2" sx={{ ml: 1, color: 'text.disabled' }}>
-          {problemDisplayName} (Not found)
-        </Typography>
-      </Box>
-    );
+        <Box
+          key={problemDisplayName}
+          sx={{ display: "flex", alignItems: "center", my: 0.5 }}
+        >
+          {getIcon(problemDisplayName)}
+          <Typography variant="body2" sx={{ ml: 1, color: "text.disabled" }}>
+            {problemDisplayName} (Not found)
+          </Typography>
+        </Box>
+      );
     } else if (problemLines[problemDisplayName].length === 1) {
       return (
-      <Box key={problemDisplayName} sx={{ display: 'flex', alignItems: 'center', my: 0.5 }}>
-        {getIcon(problemDisplayName)}
-        <Box sx={{ ml: 1 }}>
-          <ProblemJumpLink
-            lineNumber={lines[0]}
-            editorRef={editorRef}
-            label={problemDisplayName}
-          />
+        <Box
+          key={problemDisplayName}
+          sx={{ display: "flex", alignItems: "center", my: 0.5 }}
+        >
+          {getIcon(problemDisplayName)}
+          <Box sx={{ ml: 1 }}>
+            <ProblemJumpLink
+              lineNumber={lines[0]}
+              editorRef={editorRef}
+              label={problemDisplayName}
+            />
+          </Box>
         </Box>
-      </Box>
-    );
+      );
     } else {
       return (
-    <Box key={problemDisplayName} sx={{ my: 1 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        {getIcon(problemDisplayName)}
-        <Typography variant="body2" sx={{ ml: 1 }}>
-          {problemDisplayName}
-        </Typography>
-      </Box>
-      <Box sx={{ pl: 4, display: 'flex', flexDirection: 'column', flexWrap: 'wrap' }}>
-
-        <List sx={{ listStyleType: 'disc', pl: '1rem' }}>
-        {lines.map((lineNumber) => (
-          <ListItem disablePadding sx={{ display: 'list-item' }}>
-          <ProblemJumpLink
-            key={`${problemDisplayName}-${lineNumber}`}
-            lineNumber={lineNumber}
-            editorRef={editorRef}
-            label={`Line ${lineNumber}`}
-          />
-          </ListItem>
-        ))}
-        </List>
-      </Box>
-    </Box>
-  );
+        <Box key={problemDisplayName} sx={{ my: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            {getIcon(problemDisplayName)}
+            <Typography variant="body2" sx={{ ml: 1 }}>
+              {problemDisplayName}
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              pl: 4,
+              display: "flex",
+              flexDirection: "column",
+              flexWrap: "wrap",
+            }}
+          >
+            <List sx={{ listStyleType: "disc", pl: "1rem" }}>
+              {lines.map((lineNumber) => (
+                <ListItem disablePadding sx={{ display: "list-item" }}>
+                  <ProblemJumpLink
+                    key={`${problemDisplayName}-${lineNumber}`}
+                    lineNumber={lineNumber}
+                    editorRef={editorRef}
+                    label={`Line ${lineNumber}`}
+                  />
+                </ListItem>
+              ))}
+            </List>
+          </Box>
+        </Box>
+      );
     }
   });
 
