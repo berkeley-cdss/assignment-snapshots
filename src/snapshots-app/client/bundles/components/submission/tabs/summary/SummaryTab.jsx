@@ -296,7 +296,6 @@ function SummaryTab({}) {
           >
             {menuItems[activeIndex].component}
           </Paper>
-
         </Box>
       ) : (
         <CircularProgress />
@@ -306,7 +305,7 @@ function SummaryTab({}) {
       <BackupGanttPlot />
 
       {chartsReady ? (
-        <div style={{ marginTop: '2rem'}}>
+        <div style={{ marginTop: "2rem" }}>
           <LineChart
             xAxis={xAxis}
             series={[
