@@ -294,7 +294,7 @@ function SummaryTab({}) {
           >
             {menuItems[activeIndex].component}
           </Paper>
-          
+
           <ProblemGanttPlot />
         </Box>
       ) : (
@@ -302,52 +302,50 @@ function SummaryTab({}) {
       )}
 
       {chartsReady ? (
-            <>
-              <LineChart
-                xAxis={xAxis}
-                series={[
-                  {
-                    curve: "linear",
-                    data: numLines,
-                    label: `# of lines in ${firstFile}`,
-                  },
-                ]}
-                height={height}
-              />
-              <LineChart
-                margin={{ top: 100 }}
-                xAxis={xAxis}
-                series={[
-                  {
-                    curve: "linear",
-                    data: numQuestionsSolved,
-                    label: "# of questions solved",
-                  },
-                  {
-                    curve: "linear",
-                    data: numQuestionsUnsolved,
-                    label: "# of questions unsolved",
-                  },
-                ]}
-                height={height}
-              />
-              <LineChart
-                xAxis={xAxis}
-                series={[
-                  {
-                    curve: "linear",
-                    data: numAttempts,
-                    label: "# of attempts",
-                  },
-                ]}
-                height={height}
-              />
-            </>
-          ) : (
-            <CircularProgress />
-          )}
-
-
+        <>
+          <LineChart
+            xAxis={xAxis}
+            series={[
+              {
+                curve: "linear",
+                data: numLines,
+                label: `# of lines in ${firstFile}`,
+              },
+            ]}
+            height={height}
+          />
+          <LineChart
+            margin={{ top: 100 }}
+            xAxis={xAxis}
+            series={[
+              {
+                curve: "linear",
+                data: numQuestionsSolved,
+                label: "# of questions solved",
+              },
+              {
+                curve: "linear",
+                data: numQuestionsUnsolved,
+                label: "# of questions unsolved",
+              },
+            ]}
+            height={height}
+          />
+          <LineChart
+            xAxis={xAxis}
+            series={[
+              {
+                curve: "linear",
+                data: numAttempts,
+                label: "# of attempts",
+              },
+            ]}
+            height={height}
+          />
+        </>
+      ) : (
+        <CircularProgress />
+      )}
     </Container>
   );
 }
