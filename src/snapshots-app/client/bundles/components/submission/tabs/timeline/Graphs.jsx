@@ -1,16 +1,16 @@
 import React from "react";
 
-import {LinearProgress} from "@mui/material";
+import { LinearProgress } from "@mui/material";
 import DoneIcon from "@mui/icons-material/Done";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { Tooltip } from "@mui/material";
-import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
 
 function LinearProgressWithLabel(props) {
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
-      <Box sx={{ width: '100%', mr: 1 }}>
+    <Box sx={{ display: "flex", alignItems: "center", marginBottom: "1rem" }}>
+      <Box sx={{ width: "100%", mr: 1 }}>
         <LinearProgress
           variant="determinate"
           aria-label="Upload photos"
@@ -20,7 +20,7 @@ function LinearProgressWithLabel(props) {
       <Box sx={{ minWidth: 35 }}>
         <Typography
           variant="body2"
-          sx={{ color: 'text.secondary' }}
+          sx={{ color: "text.secondary" }}
         >{`${Math.round(props.value)}%`}</Typography>
       </Box>
     </Box>
@@ -59,7 +59,7 @@ function AssignmentProblems({ history, allProblemDisplayNames, numSolved }) {
 
   return (
     <div style={{ paddingTop: "1rem", paddingBottom: "1rem" }}>
-    <LinearProgressWithLabel value={Math.round(getPercentSolved())} />
+      <LinearProgressWithLabel value={Math.round(getPercentSolved())} />
       <div>{problems}</div>
     </div>
   );
@@ -74,9 +74,7 @@ function Graphs({
 }) {
   return (
     <div>
-      <div style={{ fontSize: "1.5rem" }}>
-        Progress
-      </div>
+      <div style={{ fontSize: "1.5rem" }}>Progress</div>
       <AssignmentProblems
         history={currBackupHistory}
         allProblemDisplayNames={allProblemDisplayNames}
