@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { styled } from "@mui/material/styles";
 import Toolbar from "@mui/material/Toolbar";
 import Box from "@mui/material/Box";
@@ -19,6 +19,7 @@ import { FormControl, InputLabel } from "@mui/material";
 import DifferenceIcon from "@mui/icons-material/Difference";
 
 import FileViewer from "./FileViewer";
+import BasicFileViewer from "./BasicFileViewer";
 import Graphs from "./Graphs";
 import Timeline from "./Timeline";
 import AutograderOutputDialog from "./AutograderOutputDialog";
@@ -26,6 +27,7 @@ import UnlockingTestOutputDialog from "./UnlockingTestOutputDialog";
 import DiffViewer from "./DiffViewer";
 import InfoTooltip from "../../../common/InfoTooltip";
 import { backupsAtom } from "../../../../state/atoms";
+import { Editor } from "@monaco-editor/react";
 
 // TODO minWidth: 0 prevent main content from stretching out to sidebars, but this seems rather hacky?
 
@@ -88,6 +90,8 @@ function TimelineTab() {
 
   const routeParams = useParams();
   const navigate = useNavigate();
+
+  const editorRef = useRef(null);
 
   // Fetch backups
   React.useEffect(() => {
@@ -411,6 +415,43 @@ function TimelineTab() {
     return null;
   }
 
+  function goToLine(lineNumber) {
+    if (editorRef.current) {
+      // Centers the line in the viewport
+      editorRef.current.revealLineInCenter(lineNumber);
+
+      // Moves the cursor to that line
+      editorRef.current.setPosition({ lineNumber: lineNumber, column: 1 });
+
+      // Focuses the editor
+      editorRef.current.focus();
+    }
+  }
+
+  function getProblemLines(code, problemNames) {
+    const result = {};
+    problemNames.forEach((name) => {
+      result[name] = [];
+    });
+
+    const lines = code.split("\n");
+
+    lines.forEach((lineText, index) => {
+      const trimmedLine = lineText.trim();
+
+      if (trimmedLine.startsWith("# BEGIN ")) {
+        const problemName = trimmedLine.replace("# BEGIN ", "").trim();
+
+        // If this name is in our target list, add the line number (1-indexed)
+        if (result.hasOwnProperty(problemName)) {
+          result[problemName].push(index + 1);
+        }
+      }
+    });
+
+    return result;
+  }
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       {backups.length === 0 ? (
@@ -428,11 +469,12 @@ function TimelineTab() {
           {/* TODO make width more responsive */}
           <MainContent>
             {/* Main Content Area */}
+            {/* TODO make scrolling less awkward */}
             <div
               style={{
-                position: "sticky",
-                top: -20,
-                zIndex: 10,
+                // position: "sticky",
+                // top: -20,
+                // zIndex: 10,
                 background: "white",
                 paddingBottom: "1rem",
                 marginBottom: "1rem",
@@ -467,7 +509,7 @@ function TimelineTab() {
                   ></FormControlLabel>
                 </FormGroup>
 
-                {selectedBackup !== 0 &&
+                {/* {selectedBackup !== 0 &&
                 code === "" &&
                 prevFileContents === "" ? (
                   <CircularProgress />
@@ -495,7 +537,7 @@ function TimelineTab() {
                       ? "No diff available"
                       : "Diff available"}
                   </Tooltip>
-                )}
+                )} */}
 
                 <Tooltip title="Copy code">
                   <IconButton
@@ -531,17 +573,47 @@ function TimelineTab() {
             {code === "" ? (
               <CircularProgress />
             ) : (
-              <FileViewer
-                code={code}
-                language={getLanguage(file)}
-                lightMode={lightMode}
-                lintErrors={lintErrors}
-                // NOTE: This is needed so that the FileViewer component
-                // re-mounts after DiffViewer dialog closes, otherwise
-                // error occurs because Monaco editor ref gets disposed
-                // when DiffViewer dialog opens
-                key={`${file}-${diffViewerOpen}`}
-              />
+              <div
+                style={{
+                  paddingLeft: "1rem",
+                  paddingRight: "1rem",
+                  height: "100%",
+                }}
+              >
+                {selectedBackup === 0 ||
+                code === "" ||
+                prevFileContents === "" ||
+                prevFileContents === code ? (
+                  <BasicFileViewer
+                    code={code}
+                    language={getLanguage(file)}
+                    lightMode={lightMode}
+                    editorRef={editorRef}
+                  />
+                ) : (
+                  <DiffViewer
+                    open={true}
+                    onClose={() => setDiffViewerOpen(false)}
+                    prevBackup={backups[selectedBackup - 1]}
+                    currentFileContents={code}
+                    selectedFile={file}
+                    prevFileContents={prevFileContents}
+                    lightMode={lightMode}
+                    editorRef={editorRef}
+                  />
+                )}
+              </div>
+              // <FileViewer
+              //   code={code}
+              //   language={getLanguage(file)}
+              //   lightMode={lightMode}
+              //   lintErrors={lintErrors}
+              //   // NOTE: This is needed so that the FileViewer component
+              //   // re-mounts after DiffViewer dialog closes, otherwise
+              //   // error occurs because Monaco editor ref gets disposed
+              //   // when DiffViewer dialog opens
+              //   key={`${file}-${diffViewerOpen}`}
+              // />
             )}
 
             <Toolbar />
@@ -556,6 +628,8 @@ function TimelineTab() {
                 currBackupHistory={backups[selectedBackup].history}
                 allProblemDisplayNames={allProblemDisplayNames}
                 selectedBackup={selectedBackup}
+                problemLines={getProblemLines(code, allProblemDisplayNames)}
+                editorRef={editorRef}
               />
             )}
           </RightSidebar>
@@ -571,14 +645,14 @@ function TimelineTab() {
 
       {getOutputDialog()}
 
-      <DiffViewer
+      {/* <DiffViewer
         open={diffViewerOpen}
         onClose={() => setDiffViewerOpen(false)}
         prevBackup={backups[selectedBackup - 1]}
         currentFileContents={code}
         selectedFile={file}
         prevFileContents={prevFileContents}
-      />
+      /> */}
     </Box>
   );
 }
