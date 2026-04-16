@@ -1,4 +1,4 @@
-require 'active_support/time'
+require "active_support/time"
 
 # TODO unit tests
 class Api::ProblemTimelineController < ApplicationController
@@ -26,7 +26,7 @@ class Api::ProblemTimelineController < ApplicationController
       return
     end
 
-    # TODO error if student doesn't have any backups for this assignment and course
+      # TODO error if student doesn't have any backups for this assignment and course
 
       problem_name_to_index = AssignmentProblem.where(assignment_id: assignment.id)
       .pluck(:display_name, :problem_index)
@@ -40,17 +40,17 @@ class Api::ProblemTimelineController < ApplicationController
       )
       .order(:created)
 
-    problem_to_backups = get_problem_to_backups(backups, problem_name_to_index.keys)
-    problem_to_sessions = get_problem_to_sessions(problem_to_backups)
-    timeline_data = get_timeline_data(problem_to_sessions, problem_name_to_index)
+    processed_backups = process_backups(backups, problem_name_to_index)
+    sessions = get_sessions(processed_backups)
 
-    render json: timeline_data, status: :ok
+    render json: sessions, status: :ok
   end
 
   private
 
   SESSION_TIME_GAP_THRESHOLD = 15.minutes
 
+  # TODO move this logic into frontend since it's about styling
   # color blind color palette from https://davidmathlogic.com/colorblind/#%23D81B60-%231E88E5-%23FFC107-%23004D40
   PINK = "#D81B60"
   BLUE = "#1E88E5"
@@ -58,39 +58,40 @@ class Api::ProblemTimelineController < ApplicationController
   DARK_GREEN = "#004D40"
 
   def get_grading_backup_status(grading_message_question)
+    # TODO separate label into backup type (unlock vs. correctness) and status (passed boolean), then format label in frontend
     if grading_message_question.failed == 0
-      { :label => "Correctness Tests Passed", :color => DARK_GREEN }
+      { label: "Correctness Tests Passed", color: DARK_GREEN }
     else
-      { :label => "Correctness Tests Failed", :color => PINK }
+      { label: "Correctness Tests Failed", color: PINK }
     end
   end
 
   # This works assuming that the unlock_message_cases are all belonging to the same problem
   def get_unlocking_backup_status(unlock_message_cases)
     if unlock_message_cases.map { |umc| umc.correct }.all?
-      { :label => "Unlocking Tests Passed", :color => BLUE }
+      { label: "Unlocking Tests Passed", color: BLUE }
     else
-      { :label => "Unlocking Tests Failed", :color => YELLOW }
+      { label: "Unlocking Tests Failed", color: YELLOW }
     end
   end
 
-  def get_problem_to_backups(backups, problem_names)
-    # problem name to array of hashes where each hash represents relevant data from a single backup
-    # hash has: timestamp, label, color
-    result = problem_names.map { |name| [name, []] }.to_h
+  def process_backups(backups, problem_name_to_index)
+    # returns an array of hashes where each hash represents relevant data from a single backup
+    # hash has: timestamp, label, color, index, problem_name
+    result = []
 
     backups.each_with_index do |backup, index|
       if backup.grading_location.present?
         backup.grading_message_questions.each do |gmq|
           status = get_grading_backup_status(gmq)
-          result[gmq.question_display_name] << { :timestamp => Time.iso8601(backup.created), :index => index }.merge(status)
+          result << { timestamp: Time.iso8601(backup.created), index: index, problem_name: gmq.question_display_name, problem_index: problem_name_to_index[gmq.question_display_name] }.merge(status)
         end
       end
 
       if backup.unlock_location.present?
         # annoyingly, unlock.json doesn't have question display name so we fetch it from analytics.json
         backup_problem_names = backup.analytics_message.question_display_names
-        umc_grouped_by_problem_name = backup_problem_names.map { |name| [name, []] }.to_h
+        umc_grouped_by_problem_name = backup_problem_names.map { |name| [ name, [] ] }.to_h
         backup.unlock_message_cases.each do |umc|
           # TODO dangerously (?) assume that unlock message cases
           # will always match exactly one of the backup problem names
@@ -102,9 +103,9 @@ class Api::ProblemTimelineController < ApplicationController
           end
         end
 
-        umc_grouped_by_problem_name.each do |name, unlock_message_cases|
+        umc_grouped_by_problem_name.each do |problem_name, unlock_message_cases|
           status = get_unlocking_backup_status(unlock_message_cases)
-          result[name] << { :timestamp => Time.iso8601(backup.created), :index => index }.merge(status)
+          result << { timestamp: Time.iso8601(backup.created), index: index, problem_name: problem_name, problem_index: problem_name_to_index[problem_name] }.merge(status)
         end
       end
     end
@@ -112,33 +113,36 @@ class Api::ProblemTimelineController < ApplicationController
     result
   end
 
-  # This works assuming the array contains backups for the same problem
-  def get_sessions(backups)
-    if backups.empty?
+  def get_sessions(processed_backups)
+    if processed_backups.empty?
       return []
     end
 
     # A session is defined as a series of backups where:
-    # 1. Consecutive timestamps are <= SESSION_TIME_GAP_THRESHOLD, and
-    # 2. All labels (and therefore colors) are the same within the session
+    # 1. All problems worked on are the same within the session, AND
+    # 2. All labels (and therefore colors) are the same within the session, AND
+    # 3. Consecutive timestamps are <= SESSION_TIME_GAP_THRESHOLD
 
     result = []
-    # TODO redo sessions computation -- do not group by problem first bc then leads to weird overlap
+    # TODO only convert to camel case at the end for consistency. generally fix naming conventions in all files...
     curr_session =
       {
-        startTime: backups[0][:timestamp],
-        endTime: backups[0][:timestamp],
-        label: backups[0][:label],
-        color: backups[0][:color],
-        startIndex: backups[0][:index],
-        endIndex: backups[0][:index] + 1,
+        startTime: processed_backups[0][:timestamp],
+        endTime: processed_backups[0][:timestamp],
+        label: processed_backups[0][:label],
+        color: processed_backups[0][:color],
+        startIndex: processed_backups[0][:index],
+        endIndex: processed_backups[0][:index] + 1,
+        problemName: processed_backups[0][:problem_name],
+        problemIndex: processed_backups[0][:problem_index],
       }
 
-    backups.each_cons(2) do |a, b|
+    processed_backups.each_cons(2) do |a, b|
+      problems_differ = a[:problem_index] != b[:problem_index]
       has_time_gap = b[:timestamp] - a[:timestamp] > SESSION_TIME_GAP_THRESHOLD
       labels_differ = a[:label] != b[:label]
 
-      if has_time_gap or labels_differ
+      if problems_differ or has_time_gap or labels_differ
         result << curr_session
         curr_session =
       {
@@ -147,7 +151,9 @@ class Api::ProblemTimelineController < ApplicationController
         label: b[:label],
         color: b[:color],
         startIndex: b[:index],
-        endIndex: b[:index] + 1
+        endIndex: b[:index] + 1,
+        problemName: b[:problem_name],
+        problemIndex: b[:problem_index]
       }
       else
         curr_session[:endTime] = b[:timestamp]
@@ -156,34 +162,6 @@ class Api::ProblemTimelineController < ApplicationController
     end
 
     result << curr_session
-    result
-  end
-
-  def get_problem_to_sessions(problem_to_backups)
-    # then have helper function to turn each array into sessions (use threshold)
-    # compute startTime and endTime, color
-    problem_to_backups.map { |name, backups| [name, get_sessions(backups)] }.to_h
-  end
-
-  def get_timeline_data(problem_to_sessions, problem_name_to_index)
-    # then flatten all arrays and assign problemIndex using problem_name_to_index hash
-    result = []
-
-    problem_to_sessions.map do |problem_name, sessions|
-      problem_index = problem_name_to_index[problem_name]
-      sessions.each do |session|
-        result << {
-        problemIndex: problem_index,
-        startTime: session[:startTime],
-      endTime: session[:endTime],
-      label: session[:label],
-      startIndex: session[:startIndex],
-      endIndex: session[:endIndex],
-      color: session[:color]
-      }
-      end
-    end
-
     result
   end
 end

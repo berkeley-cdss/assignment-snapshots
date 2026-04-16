@@ -264,7 +264,7 @@ function SummaryTab({}) {
             </Paper>
           </Box>
 
-          <ProblemGanttPlot />
+          {/* <ProblemGanttPlot /> */}
 
           <BackupGanttPlot />
         </>

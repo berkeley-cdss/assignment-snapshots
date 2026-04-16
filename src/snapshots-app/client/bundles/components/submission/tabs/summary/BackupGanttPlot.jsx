@@ -24,6 +24,18 @@ const PROBLEMS = [
   "Problem 12",
 ];
 
+const PINK = "#D81B60";
+const BLUE = "#1E88E5";
+const YELLOW = "#FFC107";
+const DARK_GREEN = "#004D40";
+
+const CATEGORIES = [
+  { name: "Correctness Tests Passed", color: DARK_GREEN },
+  { name: "Correctness Tests Failed", color: PINK },
+  { name: "Unlocking Tests Passed", color: BLUE },
+  { name: "Unlocking Tests Failed", color: YELLOW },
+];
+
 // TODO make this more DRY and name it better
 // TODO fetch problem names and problem timeline once
 // TODO add comments explaining options
@@ -53,6 +65,12 @@ const BackupGanttPlot = () => {
 
   const option = useMemo(
     () => ({
+      legend: {
+        data: CATEGORIES.map((c) => c.name),
+        bottom: 40, // Place it below the chart
+        selectedMode: false,
+        itemGap: 40,
+      },
       tooltip: {
         formatter: (params) => {
           const start = params.value[1];
@@ -84,9 +102,6 @@ const BackupGanttPlot = () => {
 
           // TODO turn this into jsx instead of string?
           return `
-      <div style="border-bottom: 1px solid #ccc; margin-bottom: 5px;">
-        ${params.name}
-      </div>
       <strong>Duration</strong>: ${durationStr}<br/>
       <strong># of backups</strong>: ${numBackups}<br/>
       <strong>Start</strong>: ${startTimeStr}<br/>
@@ -108,7 +123,7 @@ const BackupGanttPlot = () => {
         top: 80, // Space for the title and top X-axis
         left: 100, // Space for problem labels
         right: 50, // Padding on the right
-        bottom: 80, // This creates the gap where the slider lives
+        bottom: 80, // This creates the gap where the legend and slider live
       },
       xAxis: {
         type: "value",
@@ -169,7 +184,7 @@ const BackupGanttPlot = () => {
           encode: { x: [3, 4], y: 0 },
           // Map to ECharts internal format
           data: timelineData.map((item) => ({
-            name: item.label,
+            name: item.label, // This must match CATEGORIES names for interactivity
             value: [
               item.problemIndex,
               new Date(item.startTime).getTime(),
@@ -180,6 +195,13 @@ const BackupGanttPlot = () => {
             itemStyle: { color: item.color },
           })),
         },
+        ...CATEGORIES.map((cat) => ({
+          name: cat.name,
+          type: "bar", // Can be anything, bar works well
+          itemStyle: { color: cat.color },
+
+          // data: [], // Empty so it doesn't render bars
+        })),
       ],
     }),
     [timelineData],
