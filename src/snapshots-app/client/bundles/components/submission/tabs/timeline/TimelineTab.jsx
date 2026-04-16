@@ -19,6 +19,7 @@ import { FormControl, InputLabel } from "@mui/material";
 import DifferenceIcon from "@mui/icons-material/Difference";
 
 import FileViewer from "./FileViewer";
+import BasicFileViewer from "./BasicFileViewer";
 import Graphs from "./Graphs";
 import Timeline from "./Timeline";
 import AutograderOutputDialog from "./AutograderOutputDialog";
@@ -26,6 +27,7 @@ import UnlockingTestOutputDialog from "./UnlockingTestOutputDialog";
 import DiffViewer from "./DiffViewer";
 import InfoTooltip from "../../../common/InfoTooltip";
 import { backupsAtom } from "../../../../state/atoms";
+import { Editor } from "@monaco-editor/react";
 
 // TODO minWidth: 0 prevent main content from stretching out to sidebars, but this seems rather hacky?
 
@@ -428,11 +430,12 @@ function TimelineTab() {
           {/* TODO make width more responsive */}
           <MainContent>
             {/* Main Content Area */}
+            {/* TODO make scrolling less awkward */}
             <div
               style={{
-                position: "sticky",
-                top: -20,
-                zIndex: 10,
+                // position: "sticky",
+                // top: -20,
+                // zIndex: 10,
                 background: "white",
                 paddingBottom: "1rem",
                 marginBottom: "1rem",
@@ -467,7 +470,7 @@ function TimelineTab() {
                   ></FormControlLabel>
                 </FormGroup>
 
-                {selectedBackup !== 0 &&
+                {/* {selectedBackup !== 0 &&
                 code === "" &&
                 prevFileContents === "" ? (
                   <CircularProgress />
@@ -495,7 +498,7 @@ function TimelineTab() {
                       ? "No diff available"
                       : "Diff available"}
                   </Tooltip>
-                )}
+                )} */}
 
                 <Tooltip title="Copy code">
                   <IconButton
@@ -531,17 +534,39 @@ function TimelineTab() {
             {code === "" ? (
               <CircularProgress />
             ) : (
-              <FileViewer
-                code={code}
-                language={getLanguage(file)}
-                lightMode={lightMode}
-                lintErrors={lintErrors}
-                // NOTE: This is needed so that the FileViewer component
-                // re-mounts after DiffViewer dialog closes, otherwise
-                // error occurs because Monaco editor ref gets disposed
-                // when DiffViewer dialog opens
-                key={`${file}-${diffViewerOpen}`}
-              />
+              <div style={{ paddingLeft: "1rem", paddingRight: "1rem", height: "100%" }}>
+                {selectedBackup === 0 ||
+                code === "" ||
+                prevFileContents === "" ||
+                prevFileContents === code ? (
+                  <BasicFileViewer
+                    code={code}
+                    language={"python"}
+                    lightMode={lightMode}
+                  />
+                ) : (
+                  <DiffViewer
+                    open={true}
+                    onClose={() => setDiffViewerOpen(false)}
+                    prevBackup={backups[selectedBackup - 1]}
+                    currentFileContents={code}
+                    selectedFile={file}
+                    prevFileContents={prevFileContents}
+                    lightMode={lightMode}
+                  />
+                )}
+              </div>
+              // <FileViewer
+              //   code={code}
+              //   language={getLanguage(file)}
+              //   lightMode={lightMode}
+              //   lintErrors={lintErrors}
+              //   // NOTE: This is needed so that the FileViewer component
+              //   // re-mounts after DiffViewer dialog closes, otherwise
+              //   // error occurs because Monaco editor ref gets disposed
+              //   // when DiffViewer dialog opens
+              //   key={`${file}-${diffViewerOpen}`}
+              // />
             )}
 
             <Toolbar />
@@ -571,14 +596,14 @@ function TimelineTab() {
 
       {getOutputDialog()}
 
-      <DiffViewer
+      {/* <DiffViewer
         open={diffViewerOpen}
         onClose={() => setDiffViewerOpen(false)}
         prevBackup={backups[selectedBackup - 1]}
         currentFileContents={code}
         selectedFile={file}
         prevFileContents={prevFileContents}
-      />
+      /> */}
     </Box>
   );
 }
