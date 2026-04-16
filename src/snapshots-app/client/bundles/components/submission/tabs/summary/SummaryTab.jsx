@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { LineChart } from "@mui/x-charts/LineChart";
 import {
   Box,
   Container,
@@ -78,24 +79,60 @@ function SummaryTab({}) {
   const [activeIndex, setActiveIndex] = useState(0);
   const routeParams = useParams();
   const [summaryStats, setSummaryStats] = useState(null);
+  const [backupData, setBackupData] = useState(null);
+  const [fileMetadata, setFileMetadata] = useState(null);
 
   useEffect(() => {
     fetch(
       `/api/summary_statistics/${routeParams.courseId}/${routeParams.assignmentId}/${routeParams.studentId}`,
-      {
-        method: "GET",
-      },
+      { method: "GET" },
     )
       .then((response) => {
-        if (!response.ok) {
+        if (!response.ok)
           throw new Error(`HTTP error! Status: ${response.status}`);
-        }
         return response.json();
       })
-      .then((responseData) => {
-        setSummaryStats(responseData);
-      });
+      .then((data) => setSummaryStats(data));
   }, [routeParams]);
+
+  useEffect(() => {
+    fetch(
+      `/api/backups/${routeParams.courseId}/${routeParams.assignmentId}/${routeParams.studentId}`,
+    )
+      .then((res) => res.json())
+      .then((data) => setBackupData(data));
+  }, [routeParams]);
+
+  useEffect(() => {
+    fetch(
+      `/api/backup_file_metadata/${routeParams.courseId}/${routeParams.assignmentId}/${routeParams.studentId}`,
+    )
+      .then((res) => res.json())
+      .then((data) => setFileMetadata(data));
+  }, [routeParams]);
+
+  const backupTimestamps =
+    backupData?.backups.map((b) => new Date(b.created)) ?? [];
+  const xAxis = [{ data: backupTimestamps, scaleType: "time", label: "Date" }];
+  const height = 300;
+
+  const firstFile = fileMetadata
+    ? Object.keys(fileMetadata.files_to_metadata)[0]
+    : null;
+  const numLines = firstFile
+    ? fileMetadata.files_to_metadata[firstFile].num_lines
+    : [];
+
+  const numQuestionsSolved =
+    backupData?.backups.map((b) => b.history.filter((h) => h.solved).length) ??
+    [];
+  const numQuestionsUnsolved =
+    backupData?.backups.map((b) => b.history.filter((h) => !h.solved).length) ??
+    [];
+  const numAttempts =
+    backupData?.backups.map((b) =>
+      b.history.reduce((sum, h) => sum + (h.attempts ?? 0), 0),
+    ) ?? [];
 
   const menuItems = useMemo(
     () =>
@@ -195,6 +232,8 @@ function SummaryTab({}) {
     [summaryStats],
   );
 
+  const chartsReady = backupData && fileMetadata && backupTimestamps.length > 0;
+
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
       <div
@@ -205,72 +244,108 @@ function SummaryTab({}) {
           marginBottom: "2rem",
         }}
       >
-        <Typography variant="h4">Summary Statistics</Typography>
-        <InfoTooltip info="Summary statistics about this student's performance on this assignment, with comparisons to other students" />
+        <Typography variant="h4">Summary</Typography>
+        <InfoTooltip info="Summary statistics and visualizations about this student's performance on this assignment" />
       </div>
 
       {menuItems.length > 0 ? (
-        <>
-          {/* TODO: generalize this left sidebar + main area into a component */}
-          <Box sx={{ display: "flex", gap: 3, minHeight: "80vh" }}>
-            {/* Left Sidebar */}
-            <Paper
-              elevation={2}
-              sx={{
-                width: 240,
-                flexShrink: 0,
-                borderRadius: 2,
-                overflow: "hidden",
-              }}
-            >
-              <List>
-                {menuItems.map((item, index) => (
-                  <ListItem key={item.text} disablePadding>
-                    <ListItemButton
-                      selected={activeIndex === index}
-                      onClick={() => setActiveIndex(index)}
+        <Box sx={{ display: "flex", gap: 3, minHeight: "80vh" }}>
+          {/* Left Sidebar */}
+          <Paper
+            elevation={2}
+            sx={{
+              width: 240,
+              flexShrink: 0,
+              borderRadius: 2,
+              overflow: "hidden",
+            }}
+          >
+            <List>
+              {menuItems.map((item, index) => (
+                <ListItem key={item.text} disablePadding>
+                  <ListItemButton
+                    selected={activeIndex === index}
+                    onClick={() => setActiveIndex(index)}
+                  >
+                    <ListItemIcon>{item.icon}</ListItemIcon>
+                    <ListItemText primary={item.text} />
+
+                    <Box
+                      onClick={(e) => e.stopPropagation()}
+                      sx={{ ml: "auto", display: "flex", alignItems: "center" }}
                     >
-                      <ListItemIcon>{item.icon}</ListItemIcon>
-                      <ListItemText primary={item.text} />
+                      {item.tooltip ? (
+                        <InfoTooltip info={item.tooltip} />
+                      ) : null}
+                    </Box>
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          </Paper>
 
-                      <Box
-                        onClick={(e) => e.stopPropagation()}
-                        sx={{
-                          ml: "auto",
-                          display: "flex",
-                          alignItems: "center",
-                        }}
-                      >
-                        {item.tooltip ? (
-                          <InfoTooltip info={item.tooltip} />
-                        ) : null}
-                      </Box>
-                    </ListItemButton>
-                  </ListItem>
-                ))}
-              </List>
-            </Paper>
+          {/* Main Content Area */}
+          <Paper
+            elevation={1}
+            sx={{
+              flexGrow: 1,
+              p: 4,
+              borderRadius: 2,
+              backgroundColor: "#fafafa",
+            }}
+          >
+            {menuItems[activeIndex].component}
+          </Paper>
+        </Box>
+      ) : (
+        <CircularProgress />
+      )}
 
-            {/* Main Content Area */}
-            <Paper
-              elevation={1}
-              sx={{
-                flexGrow: 1,
-                p: 4,
-                borderRadius: 2,
-                backgroundColor: "#fafafa",
-              }}
-            >
-              {menuItems[activeIndex].component}
-            </Paper>
-          </Box>
+      <BackupCalendarChart />
+      <BackupGanttPlot />
 
-          {/* <ProblemGanttPlot /> */}
-
-          <BackupCalendarChart />
-
-          <BackupGanttPlot />
-        </>
+      {chartsReady ? (
+        <div style={{ marginTop: "2rem" }}>
+          <LineChart
+            xAxis={xAxis}
+            series={[
+              {
+                curve: "linear",
+                data: numLines,
+                label: `# of lines in ${firstFile}`,
+              },
+            ]}
+            height={height}
+          />
+          <LineChart
+            margin={{ top: 100 }}
+            xAxis={xAxis}
+            series={[
+              {
+                curve: "linear",
+                data: numQuestionsSolved,
+                label: "# of questions solved",
+              },
+              {
+                curve: "linear",
+                data: numQuestionsUnsolved,
+                label: "# of questions unsolved",
+              },
+            ]}
+            height={height}
+          />
+          <LineChart
+            xAxis={xAxis}
+            series={[
+              {
+                curve: "linear",
+                data: numAttempts,
+                label: "# of attempts",
+              },
+            ]}
+            height={height}
+          />
+        </div>
       ) : (
         <CircularProgress />
       )}
