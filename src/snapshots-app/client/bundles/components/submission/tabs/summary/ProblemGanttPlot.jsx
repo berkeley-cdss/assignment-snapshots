@@ -5,6 +5,8 @@ import { useParams } from "react-router";
 import ReactECharts from "echarts-for-react";
 import * as echarts from "echarts";
 
+// TODO delete this if unused or figure out a better way to present the data
+
 // TODO API endpoint to get problems
 const PROBLEMS = [
   "Problem 0",
