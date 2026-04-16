@@ -1,6 +1,54 @@
 require 'active_support/time'
 
+# TODO unit tests
 class Api::ProblemTimelineController < ApplicationController
+  def show
+    # Validate params
+    course_id = params[:course_id].to_i
+    assignment_id = params[:assignment_id].to_i
+    user_id = params[:user_id].to_i
+
+    course = Course.find_by(id: course_id)
+    if course.nil?
+      render json: { "error": "Course ID #{course_id} not found" }, status: :not_found
+      return
+    end
+
+    assignment = course.assignments.find_by(id: assignment_id)
+    if assignment.nil?
+      render json: { "error": "Assignment ID #{assignment_id} not found within course ID #{course_id}" }, status: :not_found
+      return
+    end
+
+    student = course.students.find_by(id: user_id)
+    if student.nil?
+      render json: { "error": "User ID #{user_id} not a student in course ID #{course_id}" }, status: :not_found
+      return
+    end
+
+    # TODO error if student doesn't have any backups for this assignment and course
+
+      problem_name_to_index = AssignmentProblem.where(assignment_id: assignment.id)
+      .pluck(:display_name, :problem_index)
+      .to_h
+
+    backups = BackupMetadatum
+      .where(
+        course: course.okpy_endpoint,
+        assignment: assignment.okpy_endpoint,
+        student_email: student.email
+      )
+      .order(:created)
+
+    problem_to_backups = get_problem_to_backups(backups, problem_name_to_index.keys)
+    problem_to_sessions = get_problem_to_sessions(problem_to_backups)
+    timeline_data = get_timeline_data(problem_to_sessions, problem_name_to_index)
+
+    render json: timeline_data, status: :ok
+  end
+
+  private
+
   SESSION_TIME_GAP_THRESHOLD = 15.minutes
 
   # color blind color palette from https://davidmathlogic.com/colorblind/#%23D81B60-%231E88E5-%23FFC107-%23004D40
@@ -31,12 +79,11 @@ class Api::ProblemTimelineController < ApplicationController
     # hash has: timestamp, label, color
     result = problem_names.map { |name| [name, []] }.to_h
 
-    backups.each do |backup|
-      Rails.logger.info("backup #{backup}")
+    backups.each_with_index do |backup, index|
       if backup.grading_location.present?
         backup.grading_message_questions.each do |gmq|
           status = get_grading_backup_status(gmq)
-          result[gmq.question_display_name] << { :timestamp => Time.iso8601(backup.created) }.merge(status)
+          result[gmq.question_display_name] << { :timestamp => Time.iso8601(backup.created), :index => index }.merge(status)
         end
       end
 
@@ -57,7 +104,7 @@ class Api::ProblemTimelineController < ApplicationController
 
         umc_grouped_by_problem_name.each do |name, unlock_message_cases|
           status = get_unlocking_backup_status(unlock_message_cases)
-          result[name] << { :timestamp => Time.iso8601(backup.created) }.merge(status)
+          result[name] << { :timestamp => Time.iso8601(backup.created), :index => index }.merge(status)
         end
       end
     end
@@ -76,13 +123,15 @@ class Api::ProblemTimelineController < ApplicationController
     # 2. All labels (and therefore colors) are the same within the session
 
     result = []
+    # TODO redo sessions computation -- do not group by problem first bc then leads to weird overlap
     curr_session =
       {
         startTime: backups[0][:timestamp],
         endTime: backups[0][:timestamp],
         label: backups[0][:label],
         color: backups[0][:color],
-        numBackups: 1,
+        startIndex: backups[0][:index],
+        endIndex: backups[0][:index] + 1,
       }
 
     backups.each_cons(2) do |a, b|
@@ -97,11 +146,12 @@ class Api::ProblemTimelineController < ApplicationController
         endTime: b[:timestamp],
         label: b[:label],
         color: b[:color],
-        numBackups: 1,
+        startIndex: b[:index],
+        endIndex: b[:index] + 1
       }
       else
         curr_session[:endTime] = b[:timestamp]
-        curr_session[:numBackups] += 1
+        curr_session[:endIndex] = b[:index] + 1
       end
     end
 
@@ -127,57 +177,13 @@ class Api::ProblemTimelineController < ApplicationController
         startTime: session[:startTime],
       endTime: session[:endTime],
       label: session[:label],
-      numBackups: session[:numBackups],
+      startIndex: session[:startIndex],
+      endIndex: session[:endIndex],
       color: session[:color]
       }
       end
     end
 
     result
-  end
-
-  def show
-    # Validate params
-    course_id = params[:course_id].to_i
-    assignment_id = params[:assignment_id].to_i
-    user_id = params[:user_id].to_i
-
-    course = Course.find_by(id: course_id)
-    if course.nil?
-      render json: { "error": "Course ID #{course_id} not found" }, status: :not_found
-      return
-    end
-
-    assignment = course.assignments.find_by(id: assignment_id)
-    if assignment.nil?
-      render json: { "error": "Assignment ID #{assignment_id} not found within course ID #{course_id}" }, status: :not_found
-      return
-    end
-
-    student = course.students.find_by(id: user_id)
-    if student.nil?
-      render json: { "error": "User ID #{user_id} not a student in course ID #{course_id}" }, status: :not_found
-      return
-    end
-
-    # TODO error if student doesn't have any backups for this assignment and course
-
-    problem_name_to_index = AssignmentProblem.where(assignment_id: assignment.id)
-      .pluck(:display_name, :problem_index)
-      .to_h
-
-    backups = BackupMetadatum
-      .where(
-        course: course.okpy_endpoint,
-        assignment: assignment.okpy_endpoint,
-        student_email: student.email
-      )
-      .order(:created)
-
-    problem_to_backups = get_problem_to_backups(backups, problem_name_to_index.keys)
-    problem_to_sessions = get_problem_to_sessions(problem_to_backups)
-    timeline_data = get_timeline_data(problem_to_sessions, problem_name_to_index)
-
-    render json: timeline_data, status: :ok
   end
 end

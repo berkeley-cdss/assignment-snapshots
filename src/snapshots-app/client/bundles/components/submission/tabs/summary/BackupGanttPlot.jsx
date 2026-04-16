@@ -24,7 +24,12 @@ const PROBLEMS = [
   "Problem 12",
 ];
 
-const ProblemGanttPlot = () => {
+// TODO make this more DRY and name it better
+// TODO fetch problem names and problem timeline once
+// TODO add comments explaining options
+// TODO legend instead of label
+// TODO button to auto jump to zoom
+const BackupGanttPlot = () => {
   const [timelineData, setTimelineData] = useState([]);
   const routeParams = useParams();
 
@@ -53,7 +58,7 @@ const ProblemGanttPlot = () => {
           const start = params.value[1];
           const end = params.value[2];
           const diff = end - start;
-          const numBackups = params.value[3];
+          const numBackups = params.value[4] - params.value[3];
 
           // Calculate time units
           const seconds = Math.floor((diff / 1000) % 60);
@@ -106,19 +111,12 @@ const ProblemGanttPlot = () => {
         bottom: 80, // This creates the gap where the slider lives
       },
       xAxis: {
-        type: "time",
+        type: "value",
+        name: "Backup Index",
         position: "top",
         splitLine: { show: true },
-        axisLabel: {
-          hideOverlap: true,
-          formatter: {
-            day: "{MM}-{dd}",
-            hour: "{HH}:{mm}",
-            minute: "{HH}:{mm}",
-            second: "{HH}:{mm}:{ss}",
-            none: "{yyyy}-{MM}-{dd} {HH}:{mm}:{ss}",
-          },
-        },
+        min: "dataMin",
+        max: "dataMax",
       },
       yAxis: {
         data: PROBLEMS,
@@ -134,8 +132,8 @@ const ProblemGanttPlot = () => {
           type: "custom",
           renderItem: (params, api) => {
             const categoryIndex = api.value(0);
-            const start = api.coord([api.value(1), categoryIndex]);
-            const end = api.coord([api.value(2), categoryIndex]);
+            const start = api.coord([api.value(3), categoryIndex]);
+            const end = api.coord([api.value(4), categoryIndex]);
             const height = api.size([0, 1])[1] * 0.6; // Bar height is 60% of row height
 
             const rectShape = echarts.graphic.clipRectByRect(
@@ -143,7 +141,8 @@ const ProblemGanttPlot = () => {
                 x: start[0],
                 y: start[1] - height / 2,
                 // enforce min width of 5 pixels so that graph doesn't look blank
-                width: Math.max(end[0] - start[0], 5),
+                // width: Math.max(end[0] - start[0], 5),
+                width: end[0] - start[0],
                 height: height,
               },
               {
@@ -167,7 +166,7 @@ const ProblemGanttPlot = () => {
             );
           },
           itemStyle: { opacity: 0.8 },
-          encode: { x: [1, 2], y: 0 },
+          encode: { x: [3, 4], y: 0 },
           // Map to ECharts internal format
           data: timelineData.map((item) => ({
             name: item.label,
@@ -175,7 +174,8 @@ const ProblemGanttPlot = () => {
               item.problemIndex,
               new Date(item.startTime).getTime(),
               new Date(item.endTime).getTime(),
-              item.endIndex - item.startIndex, // number of backups
+              item.startIndex,
+              item.endIndex,
             ],
             itemStyle: { color: item.color },
           })),
@@ -187,9 +187,9 @@ const ProblemGanttPlot = () => {
 
   return (
     <div style={{ height: "800px", width: "100%" }}>
-      <ReactECharts option={option} style={{ height: "100%", width: "100%" }} />
+      <ReactECharts option={option} style={{ height: "100%" }} />
     </div>
   );
 };
 
-export default ProblemGanttPlot;
+export default BackupGanttPlot;

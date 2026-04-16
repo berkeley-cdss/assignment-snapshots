@@ -27,6 +27,7 @@ import ProblemGanttPlot from "./ProblemGanttPlot";
 // import ProblemTimeline from "./ProblemTimeline";
 // import GanttPlot from "./GanttPlot";
 import InfoTooltip from "../../../common/InfoTooltip";
+import BackupGanttPlot from "./BackupGanttPlot";
 
 // TODO: move graphs from Submission Layout into here
 // TODO: lines added/removed rich git diff chart like encourse
@@ -264,6 +265,8 @@ function SummaryTab({}) {
           </Box>
 
           <ProblemGanttPlot />
+
+          <BackupGanttPlot />
         </>
       ) : (
         <CircularProgress />
