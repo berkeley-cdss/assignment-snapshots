@@ -45,7 +45,7 @@ const MainContent = styled("main")(({ theme }) => ({
 }));
 
 const RightSidebar = styled("aside")(({ theme }) => ({
-  flex: "2 0 0",
+  flex: "1 0 0",
   borderLeft: `1px solid ${theme.palette.divider}`,
   padding: theme.spacing(2),
   minWidth: 0,
@@ -70,7 +70,7 @@ function TimelineTab() {
   const [code, setCode] = React.useState("");
   const [autograderOutput, setAutograderOutput] = React.useState("");
 
-  const [lightMode, setLightMode] = React.useState(true);
+  const [lightMode, setLightMode] = React.useState(false);
 
   const [lintErrors, setLintErrors] = React.useState([]);
   const [filesToMetadata, setFilesToMetadata] = React.useState(null);
@@ -552,12 +552,7 @@ function TimelineTab() {
               <CircularProgress />
             ) : (
               <Graphs
-                file={file}
-                backupCreatedTimestamps={backupCreatedTimestamps}
-                fileMetadata={filesToMetadata[file]}
                 numQuestionsSolved={numQuestionsSolved}
-                numQuestionsUnsolved={numQuestionsUnsolved}
-                numAttempts={numAttempts}
                 currBackupHistory={backups[selectedBackup].history}
                 allProblemDisplayNames={allProblemDisplayNames}
                 selectedBackup={selectedBackup}
