@@ -30,22 +30,22 @@ user = {
 }
 
 courses = [
-  {
-    dept: "DATA",
-    code: "C88C",
-    name: "Computational Structures in Data Science",
-    term: 3, # fall
-    year: 2025,
-    okpy_endpoint: "cal/cs88/fa25"
-  }
   # {
-  #   dept: "CS",
-  #   code: "61A",
-  #   name: "Structure and Interpretation of Computer Programs",
+  #   dept: "DATA",
+  #   code: "C88C",
+  #   name: "Computational Structures in Data Science",
   #   term: 3, # fall
   #   year: 2025,
-  #   okpy_endpoint: "cal/cs61a/fa25"
+  #   okpy_endpoint: "cal/cs88/fa25"
   # }
+  {
+    dept: "CS",
+    code: "61A",
+    name: "Structure and Interpretation of Computer Programs",
+    term: 3, # fall
+    year: 2025,
+    okpy_endpoint: "cal/cs61a/fa25"
+  }
 ]
 
 assignments = [
@@ -82,37 +82,13 @@ assignments = [
   # }
 
   # CS 61A ants
-  # {
-  #   name: "Ants",
-  #   due_date: "2025-10-23 23:59:00",
-  #   okpy_endpoint: "ants",
-  #   files: [ "ants.py" ],
-  #   problems: [
-  #               "Problem 1",
-  #               "Problem 2",
-  #               "Problem 3",
-  #               "Problem 4",
-  #               "Problem 5",
-  #               "Problem 6",
-  #               "Problem 7",
-  #               "Problem 8a",
-  #               "Problem 8b",
-  #               "Problem 8c",
-  #               "Problem 9",
-  #               "Problem 10",
-  #               "Problem 11",
-  #               "Problem 12"
-  #           ]
-  # }
-
-  # DATA C88C ants
   {
     name: "Ants",
-    due_date: "2025-11-25 23:59:00",
+    due_date: "2025-10-23 23:59:00",
     okpy_endpoint: "ants",
     files: [ "ants.py" ],
     problems: [
-                "Problem 0", # only unlocking tests
+      "Problem 0", # only unlocking tests
                 "Problem 1",
                 "Problem 2",
                 "Problem 3",
@@ -129,6 +105,31 @@ assignments = [
                 "Problem 12"
             ]
   }
+
+  # DATA C88C ants
+  # {
+  #   name: "Ants",
+  #   due_date: "2025-11-25 23:59:00",
+  #   okpy_endpoint: "ants",
+  #   files: [ "ants.py" ],
+  #   problems: [
+  #               "Problem 0", # only unlocking tests
+  #               "Problem 1",
+  #               "Problem 2",
+  #               "Problem 3",
+  #               "Problem 4",
+  #               "Problem 5",
+  #               "Problem 6",
+  #               "Problem 7",
+  #               "Problem 8a",
+  #               "Problem 8b",
+  #               "Problem 8c",
+  #               "Problem 9",
+  #               "Problem 10",
+  #               "Problem 11",
+  #               "Problem 12"
+  #           ]
+  # }
 ]
 
 # cs61a_hashes = [
@@ -147,8 +148,60 @@ assignments = [
 #   "620ee0eb",
 #   "483b88d6"
 # ]
-c88c_hashes = [ '7dcfb139', 'cf7b9cab', '88e94290' ]
-student_email_hashes = c88c_hashes
+
+cs61a_hashes = [ 'e3384165',
+ '1faf1492',
+ '0757b4af',
+ '5e0b5dff',
+ '55d9e0b2',
+ '4349b29d',
+ '27f16a00',
+ '1bcf17a8',
+ 'bbb281e4',
+ '18e36d10',
+ 'd0d1b4b0',
+ '94d2cb91',
+ '09e6bcbc',
+ '08a08a79',
+ '1a3aee97',
+ '3ff28b43',
+ '4972bef4',
+ 'a8faf137',
+ 'd6797b5b',
+ 'fc1888f1',
+ 'c2b307c8',
+ '395b6a1a',
+ 'f0cd1289',
+ '90cfed97',
+ '41a86dbb' ]
+
+# c88c_hashes = [ '7dcfb139', 'cf7b9cab', '88e94290' ]
+# c88c_hashes = ['e3384165',
+#  '1faf1492',
+#  '0757b4af',
+#  '5e0b5dff',
+#  '55d9e0b2',
+#  '4349b29d',
+#  '27f16a00',
+#  '1bcf17a8',
+#  'bbb281e4',
+#  '18e36d10',
+#  'd0d1b4b0',
+#  '94d2cb91',
+#  '09e6bcbc',
+#  '08a08a79',
+#  '1a3aee97',
+#  '3ff28b43',
+#  '4972bef4',
+#  'a8faf137',
+#  'd6797b5b',
+#  'fc1888f1',
+#  'c2b307c8',
+#  '395b6a1a',
+#  'f0cd1289',
+#  '90cfed97',
+#  '41a86dbb']
+student_email_hashes = cs61a_hashes
 
 # TODO figure out email vs email_hash
 students = [
@@ -181,7 +234,7 @@ def create_fake_student(hash)
     last_name: Faker::Name.unique.last_name,
     email: hash,
     email_hash: hash,
-    student_id: Faker::IdNumber.unique.valid
+    student_id: Faker::Number.unique.number(digits: 10)
   }
 end
 

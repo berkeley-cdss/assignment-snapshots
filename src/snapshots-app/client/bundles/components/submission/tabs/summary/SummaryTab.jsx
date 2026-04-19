@@ -43,16 +43,16 @@ import BackupCalendarChart from "./BackupCalendarChart";
 // TODO: don't hardcode these options for just ants
 const SCORE_HISTOGRAM_OPTIONS = {
   histogram: {
-    bucketSize: 10,
+    bucketSize: 5,
     minValue: 0,
-    maxValue: 50,
+    maxValue: 25,
   },
 
   hAxis: {
     // manually sets the scale of the X-axis
     viewWindow: {
       min: 0,
-      max: 50,
+      max: 25,
     },
   },
   legend: { position: "none" },
@@ -60,7 +60,7 @@ const SCORE_HISTOGRAM_OPTIONS = {
 
 const PROBLEMS_SOLVED_HISTOGRAM_OPTIONS = {
   histogram: {
-    bucketSize: 5,
+    bucketSize: 1,
     minValue: 0,
     maxValue: 15,
   },
@@ -187,7 +187,7 @@ function SummaryTab({}) {
                 "Timestamp of last backup minus timestamp of first backup",
               component: (
                 <StatisticsDashboard
-                  title="Total Time Spent (min)"
+                  title="Total Time Spent (days)"
                   tooltip="Hover over chart for more details"
                   studentValue={
                     summaryStats.total_time_spent_distribution.studentValue
@@ -249,7 +249,7 @@ function SummaryTab({}) {
       </div>
 
       {menuItems.length > 0 ? (
-        <Box sx={{ display: "flex", gap: 3, minHeight: "80vh" }}>
+        <Box sx={{ display: "flex", gap: 3, minHeight: "50vh" }}>
           {/* Left Sidebar */}
           <Paper
             elevation={2}
