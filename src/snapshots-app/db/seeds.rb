@@ -149,7 +149,7 @@ assignments = [
 #   "483b88d6"
 # ]
 
-cs61a_hashes = ['e3384165',
+cs61a_hashes = [ 'e3384165',
  '1faf1492',
  '0757b4af',
  '5e0b5dff',
@@ -173,7 +173,7 @@ cs61a_hashes = ['e3384165',
  '395b6a1a',
  'f0cd1289',
  '90cfed97',
- '41a86dbb']
+ '41a86dbb' ]
 
 # c88c_hashes = [ '7dcfb139', 'cf7b9cab', '88e94290' ]
 # c88c_hashes = ['e3384165',

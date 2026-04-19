@@ -193,15 +193,15 @@ class Api::SummaryStatisticsController < ApplicationController
 
   # Total lint errors across all files for the student's latest backup
   def get_lint_errors_distribution(course_endpoint, assignment_endpoint, student_email)
-    # lint_counts = BackupMetadatum
-    #   .where(course: course_endpoint, assignment: assignment_endpoint)
-    #   .group(:student_email)
-    #   .having("created = MAX(created)")
-    #   # TODO don't hardcode ants.py
-    #   .joins("INNER JOIN lint_errors ON lint_errors.file_contents_location = CONCAT(backup_metadata.file_contents_location, '/ants.py')")
-    #   .select("student_email, COUNT(lint_errors.id) as error_count")
+# lint_counts = BackupMetadatum
+#   .where(course: course_endpoint, assignment: assignment_endpoint)
+#   .group(:student_email)
+#   .having("created = MAX(created)")
+#   # TODO don't hardcode ants.py
+#   .joins("INNER JOIN lint_errors ON lint_errors.file_contents_location = CONCAT(backup_metadata.file_contents_location, '/ants.py')")
+#   .select("student_email, COUNT(lint_errors.id) as error_count")
 
-    # Subquery to rank backups for each student by date
+# Subquery to rank backups for each student by date
 subquery = BackupMetadatum
   .where(course: course_endpoint, assignment: assignment_endpoint)
   .select("*, ROW_NUMBER() OVER (PARTITION BY student_email ORDER BY created DESC) as rank")
