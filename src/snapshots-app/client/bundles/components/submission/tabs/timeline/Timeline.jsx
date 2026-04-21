@@ -17,7 +17,7 @@ import { useCopyToClipboard } from "react-use";
 
 import { getOkpyCommand, areArraysEqual } from "../../utils";
 
-function TimelineButton({ backup, selected, index, handleBackupSelect }) {
+function TimelineButton({ backup, selected, index, handleBackupSelect, ref }) {
   function getQuestionsWorkedOn() {
     return backup.question_display_names.join(" ");
   }
@@ -106,6 +106,7 @@ function TimelineButton({ backup, selected, index, handleBackupSelect }) {
   return (
     <Tooltip title={getTooltipTitle()} placement="right">
       <Button
+        ref={ref}
         key={backup.id}
         variant={selected ? "contained" : "outlined"}
         onClick={() => handleBackupSelect(index)}
@@ -123,6 +124,7 @@ function TimelineButtonGroup({
   handleBackupSelect,
   absoluteStartIndex,
   setIsSnackbarOpen,
+  selectedRef,
 }) {
   const [_, copyOkpyCommand] = useCopyToClipboard();
   const okpyCommand = getOkpyCommand(
@@ -169,14 +171,17 @@ function TimelineButtonGroup({
         aria-label="Vertical button group"
         style={{ width: "100%" }}
       >
-        {backups.map((backup, relativeIndex) => (
-          <TimelineButton
+        {backups.map((backup, relativeIndex) => {
+          const isSelected = relativeIndex + absoluteStartIndex === selectedBackup;
+
+          return (<TimelineButton
             backup={backup}
-            selected={relativeIndex + absoluteStartIndex === selectedBackup}
+            selected={isSelected}
             index={relativeIndex + absoluteStartIndex}
             handleBackupSelect={handleBackupSelect}
-          />
-        ))}
+            ref={isSelected ? selectedRef : null}
+          />);
+})}
       </ButtonGroup>
     </div>
   );
@@ -187,6 +192,18 @@ function Timeline({ backups, selectedBackup, handleBackupSelect }) {
     "A timeline of this student's OkPy backups, most recent backup first. A backup is formed every time they run unlocking or coding tests for a particular question.";
 
   const [isSnackbarOpen, setIsSnackbarOpen] = React.useState(false);
+  const selectedRef = React.useRef(null);
+
+  // Add an effect that scrolls when selectedBackup changes or on initial load
+  // TODO only scroll left sidebar, not entire page
+  useEffect(() => {
+    if (selectedRef.current) {
+      selectedRef.current.scrollIntoView({
+        behavior: "smooth", // Use "auto" for instant jump on page load
+        block: "center",    // Centers the button in the viewport
+      });
+    }
+  }, [selectedBackup]); // Re-run if the selection changes
 
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -269,6 +286,7 @@ function Timeline({ backups, selectedBackup, handleBackupSelect }) {
           handleBackupSelect={handleBackupSelect}
           absoluteStartIndex={absoluteStartIndex}
           setIsSnackbarOpen={setIsSnackbarOpen}
+          selectedRef={selectedRef}
         />,
       );
       absoluteStartIndex += backupGroup.length;
