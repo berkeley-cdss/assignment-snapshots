@@ -47,8 +47,6 @@ const PrintStatements = () => {
       .then((responseData) => setDiffData(responseData));
   }, [routeParams]);
 
-
-
   // Sort by timestamp, descending order (Newest first)
   const sortedData = useMemo(
     () =>
@@ -61,15 +59,14 @@ const PrintStatements = () => {
   const [selectedId, setSelectedId] = useState(null);
   const [selectedFileName, setSelectedFileName] = useState(
     // sortedData[0]?.files[0]?.name || "",
-    "ants.py"
+    "ants.py",
   );
 
   // Default to the most recent event (first in sorted array)
   useEffect(() => {
     if (sortedData.length > 0) {
-      setSelectedId(sortedData[0].id)
+      setSelectedId(sortedData[0].id);
     }
-
   }, [sortedData]);
 
   // Group by problem (this maintains the descending order from sortedData)
@@ -85,8 +82,6 @@ const PrintStatements = () => {
     () => sortedData.find((d) => d.id === selectedId),
     [selectedId, sortedData],
   );
-
-
 
   // Auto-select first file
   // useMemo(() => {
