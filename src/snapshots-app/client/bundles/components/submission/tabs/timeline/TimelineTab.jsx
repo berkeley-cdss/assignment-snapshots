@@ -241,14 +241,15 @@ function TimelineTab() {
 
   // Fetch previous backup file contents
   React.useEffect(() => {
-    if (selectedBackup === 0 || backups.length === 0 || file === "") {
+    if (backups.length === 0 || file === "") {
       return;
     }
 
     const queryParams = new URLSearchParams();
+    const prevBackupIndex = Math.min(selectedBackup + 1, backups.length - 1);
     queryParams.append(
       "object_key",
-      `${backups[selectedBackup - 1].file_contents_location}/${file}`,
+      `${backups[prevBackupIndex].file_contents_location}/${file}`,
     );
 
     fetch(`/api/files?${queryParams}`, {
@@ -264,14 +265,6 @@ function TimelineTab() {
         setPrevFileContents(responseData.file_contents);
       });
   }, [backups, selectedBackup, file]);
-
-  const backupCreatedTimestamps = React.useMemo(() => {
-    if (backups.length === 0) {
-      return [];
-    }
-
-    return backups.map((backup) => backup.created);
-  }, [backups]);
 
   function getTotalQuestionsSolved(history) {
     return history.reduce(
@@ -580,8 +573,7 @@ function TimelineTab() {
                   height: "100%",
                 }}
               >
-                {selectedBackup === 0 ||
-                code === "" ||
+                {code === "" ||
                 prevFileContents === "" ||
                 prevFileContents === code ? (
                   <BasicFileViewer
@@ -594,7 +586,6 @@ function TimelineTab() {
                   <DiffViewer
                     open={true}
                     onClose={() => setDiffViewerOpen(false)}
-                    prevBackup={backups[selectedBackup - 1]}
                     currentFileContents={code}
                     selectedFile={file}
                     prevFileContents={prevFileContents}
@@ -644,15 +635,6 @@ function TimelineTab() {
       />
 
       {getOutputDialog()}
-
-      {/* <DiffViewer
-        open={diffViewerOpen}
-        onClose={() => setDiffViewerOpen(false)}
-        prevBackup={backups[selectedBackup - 1]}
-        currentFileContents={code}
-        selectedFile={file}
-        prevFileContents={prevFileContents}
-      /> */}
     </Box>
   );
 }
