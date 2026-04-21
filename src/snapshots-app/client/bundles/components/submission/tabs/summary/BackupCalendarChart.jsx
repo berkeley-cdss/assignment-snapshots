@@ -31,33 +31,32 @@ const BackupCalendarChart = () => {
   }, [routeParams]);
 
   const startDate = useMemo(() => {
-  const keys = Object.keys(rawCalendarData);
-  if (keys.length === 0) return null;
-  // Sort alphabetically to get the earliest string
-  return keys.sort()[0];
-}, [rawCalendarData]);
+    const keys = Object.keys(rawCalendarData);
+    if (keys.length === 0) return null;
+    // Sort alphabetically to get the earliest string
+    return keys.sort()[0];
+  }, [rawCalendarData]);
 
-const endDate = useMemo(() => {
-  const keys = Object.keys(rawCalendarData);
-  if (keys.length === 0) return null;
-  // Sort alphabetically to get the latest string
-  return keys.sort()[keys.length - 1];
-}, [rawCalendarData]);
-
+  const endDate = useMemo(() => {
+    const keys = Object.keys(rawCalendarData);
+    if (keys.length === 0) return null;
+    // Sort alphabetically to get the latest string
+    return keys.sort()[keys.length - 1];
+  }, [rawCalendarData]);
 
   const calendarData = useMemo(() => {
-  if (!startDate || !endDate) return [];
-  const data = [];
-  let curr = new Date(startDate + "T00:00:00"); // Force local time start
-  const last = new Date(endDate + "T00:00:00");
+    if (!startDate || !endDate) return [];
+    const data = [];
+    let curr = new Date(startDate + "T00:00:00"); // Force local time start
+    const last = new Date(endDate + "T00:00:00");
 
-  while (curr <= last) {
-    const dateString = echarts.time.format(curr, "{yyyy}-{MM}-{dd}", false);
-    data.push([dateString, rawCalendarData[dateString] || 0]);
-    curr.setDate(curr.getDate() + 1); // Native way to increment day
-  }
-  return data;
-}, [rawCalendarData, startDate, endDate]);
+    while (curr <= last) {
+      const dateString = echarts.time.format(curr, "{yyyy}-{MM}-{dd}", false);
+      data.push([dateString, rawCalendarData[dateString] || 0]);
+      curr.setDate(curr.getDate() + 1); // Native way to increment day
+    }
+    return data;
+  }, [rawCalendarData, startDate, endDate]);
 
   const option = useMemo(
     () => ({

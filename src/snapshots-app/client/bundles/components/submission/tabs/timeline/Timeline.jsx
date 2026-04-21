@@ -172,16 +172,19 @@ function TimelineButtonGroup({
         style={{ width: "100%" }}
       >
         {backups.map((backup, relativeIndex) => {
-          const isSelected = relativeIndex + absoluteStartIndex === selectedBackup;
+          const isSelected =
+            relativeIndex + absoluteStartIndex === selectedBackup;
 
-          return (<TimelineButton
-            backup={backup}
-            selected={isSelected}
-            index={relativeIndex + absoluteStartIndex}
-            handleBackupSelect={handleBackupSelect}
-            ref={isSelected ? selectedRef : null}
-          />);
-})}
+          return (
+            <TimelineButton
+              backup={backup}
+              selected={isSelected}
+              index={relativeIndex + absoluteStartIndex}
+              handleBackupSelect={handleBackupSelect}
+              ref={isSelected ? selectedRef : null}
+            />
+          );
+        })}
       </ButtonGroup>
     </div>
   );
@@ -200,7 +203,7 @@ function Timeline({ backups, selectedBackup, handleBackupSelect }) {
     if (selectedRef.current) {
       selectedRef.current.scrollIntoView({
         behavior: "smooth", // Use "auto" for instant jump on page load
-        block: "center",    // Centers the button in the viewport
+        block: "center", // Centers the button in the viewport
       });
     }
   }, [selectedBackup]); // Re-run if the selection changes
