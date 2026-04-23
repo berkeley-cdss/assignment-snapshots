@@ -1,8 +1,6 @@
-# TODO unit tests
 class Api::Debugging::PrintStatementsController < ApplicationController
   CACHE_TTL = 1.hour
 
-  # TODO: don't hardcode this
   IGNORE_LINES = [
     "print('All bees are vanquished. You win!')",
     "print('The bees reached homebase or the queen ant queen has perished. Please try again :(')",
@@ -12,7 +10,6 @@ class Api::Debugging::PrintStatementsController < ApplicationController
   # Regex for Python print statements: print(...)
   PRINT_REGEX = /^\s*print\s*\(.*\)/
 
-  # TODO deduplicate from FilesController
   def fetch_file_from_local(object_key)
     file_path = Rails.root.join("../../data/private/#{object_key}")
     if File.exist?(file_path)
@@ -65,8 +62,6 @@ class Api::Debugging::PrintStatementsController < ApplicationController
       return
     end
 
-    # TODO error if student doesn't have any backups for this assignment and course
-
     backups = BackupMetadatum.where(
       course: course.okpy_endpoint,
       assignment: assignment.okpy_endpoint,
@@ -95,14 +90,12 @@ class Api::Debugging::PrintStatementsController < ApplicationController
         problem: problem_names.join(", "),
         timestamp: backup.created,
         passing: is_passing,
-        # TODO don't hardcode this (other assignments may have multiple files)
         files: [ { name: "ants.py", contents: contents, hasPrint: has_print } ],
         has_print: has_print # internal flag for grouping
       }
     end
 
     # Identify the indices of backups that contain prints
-    # TODO investigate why problem name can be empty. perhaps they just ran `python3 ok` without specifying a problem?
     print_indices = all_data.each_index.select { |i| all_data[i][:has_print] and all_data[i][:problem] != "" }
 
     return render json: [] if print_indices.empty?

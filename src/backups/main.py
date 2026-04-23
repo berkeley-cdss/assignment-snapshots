@@ -237,7 +237,6 @@ def store(
 
     If any arguments are not specified, this command will use the values in the CONFIG .json file.
     """
-    # TODO add prompt when overwriting db or actual files
     config_dict = read_config(config)
 
     if course_endpoint is None:
@@ -298,7 +297,6 @@ def store(
         print(f"Finished storing backups in {database} in {end - start} seconds")
 
 
-# TODO need to rerun lint with new schema for 61a and c88c fa25
 @app.command()
 def lint(
     database: Annotated[
@@ -325,7 +323,6 @@ def lint(
 
     If any arguments are not specified, this command will use the values in the CONFIG .json file.
     """
-    # TODO add prompt when overwriting db or actual files
     config_dict = read_config(config)
 
     if database is None:
@@ -375,7 +372,6 @@ def backup_file_metadata(
 
     If any arguments are not specified, this command will use the values in the CONFIG .json file.
     """
-    # TODO add prompt when overwriting db or actual files
     config_dict = read_config(config)
 
     if database is None:

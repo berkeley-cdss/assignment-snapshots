@@ -29,8 +29,6 @@ import InfoTooltip from "../../../common/InfoTooltip";
 import { backupsAtom } from "../../../../state/atoms";
 import { Editor } from "@monaco-editor/react";
 
-// TODO minWidth: 0 prevent main content from stretching out to sidebars, but this seems rather hacky?
-
 const LeftSidebar = styled("aside")(({ theme }) => ({
   flex: "1.5 0 0",
   borderRight: `1px solid ${theme.palette.divider}`,
@@ -351,8 +349,6 @@ function TimelineTab() {
 
   function getOutputButton() {
     if (backups.length !== 0) {
-      // TODO not really sure why but sometimes even if a test case is unlocking type, there are no unlock messages.
-      // if this is the case, don't display the "unlocking tests output" button
       if (
         backups[selectedBackup].unlock &&
         backups[selectedBackup].unlock_message_cases.length !== 0
@@ -459,10 +455,8 @@ function TimelineTab() {
               handleBackupSelect={handleBackupSelect}
             />
           </LeftSidebar>
-          {/* TODO make width more responsive */}
           <MainContent>
             {/* Main Content Area */}
-            {/* TODO make scrolling less awkward */}
             <div
               style={{
                 // position: "sticky",

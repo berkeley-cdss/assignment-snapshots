@@ -40,7 +40,6 @@ from models import (
 
 PREFIX = "../../data/private"
 
-# TODO make this programmatically adjustable
 FILENAME_PREFIX = "/Users/rebeccadang/Desktop/Code/ucb/berkeley-cdss/assignment-snapshots/data/private/"
 
 
@@ -79,7 +78,6 @@ def create_backup_and_write_messages(
             continue
 
         if kind not in MESSAGE_KIND_TO_CLASS:
-            # TODO use typer error output formatting
             print(
                 f"OkPy message kind {kind} in backup_id {backup_id} unrecognized, skipping"
             )

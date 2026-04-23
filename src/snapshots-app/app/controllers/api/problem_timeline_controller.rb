@@ -1,6 +1,5 @@
 require "active_support/time"
 
-# TODO unit tests
 class Api::ProblemTimelineController < ApplicationController
   def show
     # Validate params
@@ -26,8 +25,6 @@ class Api::ProblemTimelineController < ApplicationController
       return
     end
 
-      # TODO error if student doesn't have any backups for this assignment and course
-
       problem_name_to_index = AssignmentProblem.where(assignment_id: assignment.id)
       .pluck(:display_name, :problem_index)
       .to_h
@@ -50,7 +47,6 @@ class Api::ProblemTimelineController < ApplicationController
 
   SESSION_TIME_GAP_THRESHOLD = 15.minutes
 
-  # TODO move this logic into frontend since it's about styling
   # color blind color palette from https://davidmathlogic.com/colorblind/#%23D81B60-%231E88E5-%23FFC107-%23004D40
   PINK = "#D81B60"
   BLUE = "#1E88E5"
@@ -58,7 +54,6 @@ class Api::ProblemTimelineController < ApplicationController
   DARK_GREEN = "#004D40"
 
   def get_grading_backup_status(grading_message_question)
-    # TODO separate label into backup type (unlock vs. correctness) and status (passed boolean), then format label in frontend
     if grading_message_question.failed == 0
       { label: "Correctness Tests Passed", color: DARK_GREEN }
     else
@@ -93,8 +88,6 @@ class Api::ProblemTimelineController < ApplicationController
         backup_problem_names = backup.analytics_message.question_display_names
         umc_grouped_by_problem_name = backup_problem_names.map { |name| [ name, [] ] }.to_h
         backup.unlock_message_cases.each do |umc|
-          # TODO dangerously (?) assume that unlock message cases
-          # will always match exactly one of the backup problem names
           backup_problem_names.each do |name|
             if umc.case_id.start_with?(name)
               umc_grouped_by_problem_name[name] << umc
@@ -124,7 +117,6 @@ class Api::ProblemTimelineController < ApplicationController
     # 3. Consecutive timestamps are <= SESSION_TIME_GAP_THRESHOLD
 
     result = []
-    # TODO only convert to camel case at the end for consistency. generally fix naming conventions in all files...
     curr_session =
       {
         startTime: processed_backups[0][:timestamp],

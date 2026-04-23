@@ -24,23 +24,10 @@ import {
 import { useParams } from "react-router";
 
 import StatisticsDashboard from "./StatisticsDashboard";
-// import ProblemGanttPlot from "./ProblemGanttPlot";
-// import ProblemTimeline from "./ProblemTimeline";
-// import GanttPlot from "./GanttPlot";
 import InfoTooltip from "../../../common/InfoTooltip";
 import BackupGanttPlot from "./BackupGanttPlot";
 import BackupCalendarChart from "./BackupCalendarChart";
 
-// TODO: move graphs from Submission Layout into here
-// TODO: lines added/removed rich git diff chart like encourse
-
-// TODO: problem summaries [subtasks]
-// TODO: number of backups for each problem
-// TODO: plot time spent on unlocking vs correctness tests for each problem
-
-// TODO: radar plot
-
-// TODO: don't hardcode these options for just ants
 const SCORE_HISTOGRAM_OPTIONS = {
   histogram: {
     bucketSize: 5,

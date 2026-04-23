@@ -158,7 +158,6 @@ const PrintStatements = () => {
                       justifyContent: "center",
                     }}
                   >
-                    {/* TODO investigate bug where backend doesn't have has_print true correctly?? */}
                     {selectedFileName &&
                       item.files.find((f) => f.name === selectedFileName)
                         ?.hasPrint && (
@@ -289,7 +288,6 @@ const PrintStatements = () => {
                   enabled: true,
                   contextLineCount: 5, // Lines of unchanged code to show around a diff
                   minimumLineCount: 3, // Minimum unchanged lines required to trigger a collapse
-                  // TODO this isn't working properly
                   revealLineCount: 20, // How many lines to reveal when clicking the "expand" button
                 },
               }}

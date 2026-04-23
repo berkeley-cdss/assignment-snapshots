@@ -203,7 +203,6 @@ cs61a_hashes = [ 'e3384165',
 #  '41a86dbb']
 student_email_hashes = cs61a_hashes
 
-# TODO figure out email vs email_hash
 students = [
   # {
   #   first_name: "Alice",
