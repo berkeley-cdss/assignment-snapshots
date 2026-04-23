@@ -40,7 +40,6 @@ function DebuggingTab({}) {
       component: <PrintStatements />,
     },
     { text: "Errors", icon: <Dangerous />, component: <Errors /> },
-    // TODO(stretch): implement these pages
     // { text: 'Test Regressions', icon: <SyncProblem />, component: <TestRegressions /> },
     // { text: 'Pseudocode Detection', icon: <Lightbulb />, component: <PseudocodeDetection /> },
   ];

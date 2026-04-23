@@ -23,8 +23,6 @@ class Api::ProblemCalendarController < ApplicationController
       return
     end
 
-    # TODO error if student doesn't have any backups for this assignment and course
-
     calendar_data = BackupMetadatum
       .where(
         course: course.okpy_endpoint,

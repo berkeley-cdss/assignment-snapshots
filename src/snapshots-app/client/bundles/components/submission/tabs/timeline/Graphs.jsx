@@ -9,8 +9,6 @@ import Box from "@mui/material/Box";
 import { Link } from "@mui/material";
 import { List, ListItem } from "@mui/material";
 
-// TODO jump to EC problems
-
 function LinearProgressWithLabel(props) {
   return (
     <Box sx={{ display: "flex", alignItems: "center", marginBottom: "1rem" }}>
@@ -115,7 +113,6 @@ function AssignmentProblems({
     return (numSolved / allProblemDisplayNames.length) * 100;
   }
 
-  // TODO span styling and improve accessibility?
   const problems = allProblemDisplayNames.map((problemDisplayName) => {
     const lines = problemLines[problemDisplayName];
 
@@ -190,7 +187,6 @@ function AssignmentProblems({
   );
 }
 
-// TODO rename for consistency with UI
 function Graphs({
   numQuestionsSolved,
   currBackupHistory,

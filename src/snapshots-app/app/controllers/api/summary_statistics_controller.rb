@@ -1,6 +1,3 @@
-# TODO unit tests
-
-# TODO don't hardcode this
 # based on DATA C88C FA25 Ants
 # SCORING = {
 #   "Problem 0" => 0,
@@ -11,7 +8,7 @@
 #   "Problem 5" => 6,
 #   "Problem 6" => 2,
 #   "Problem 7" => 6,
-#   "Problem 8" => 6, # TODO combined??
+#   "Problem 8" => 6, # combined point values of 8a, 8b, 8c
 #   "Problem 8a" => 2,
 #   "Problem 8b" => 2,
 #   "Problem 8c" => 2,
@@ -32,7 +29,7 @@ SCORING = {
   "Problem 5" => 3,
   "Problem 6" => 1,
   "Problem 7" => 3,
-  "Problem 8" => 3, # TODO combined??
+  "Problem 8" => 3, # combined point values of 8a, 8b, 8c
   "Problem 8a" => 1,
   "Problem 8b" => 1,
   "Problem 8c" => 1,
@@ -86,7 +83,6 @@ class Api::SummaryStatisticsController < ApplicationController
     { "studentValue": student_score, "data": data }
   end
 
-  # TODO make this more DRY (a lot of repeated code from previous method)
   def get_problems_solved_distribution(course_endpoint, assignment_endpoint, student_email)
     latest_analytics = get_latest_analytics(course_endpoint, assignment_endpoint)
 
@@ -190,26 +186,18 @@ class Api::SummaryStatisticsController < ApplicationController
 
   # Total lint errors across all files for the student's latest backup
   def get_lint_errors_distribution(course_endpoint, assignment_endpoint, student_email)
-# lint_counts = BackupMetadatum
-#   .where(course: course_endpoint, assignment: assignment_endpoint)
-#   .group(:student_email)
-#   .having("created = MAX(created)")
-#   # TODO don't hardcode ants.py
-#   .joins("INNER JOIN lint_errors ON lint_errors.file_contents_location = CONCAT(backup_metadata.file_contents_location, '/ants.py')")
-#   .select("student_email, COUNT(lint_errors.id) as error_count")
+    # Subquery to rank backups for each student by date
+    subquery = BackupMetadatum
+      .where(course: course_endpoint, assignment: assignment_endpoint)
+      .select("*, ROW_NUMBER() OVER (PARTITION BY student_email ORDER BY created DESC) as rank")
 
-# Subquery to rank backups for each student by date
-subquery = BackupMetadatum
-  .where(course: course_endpoint, assignment: assignment_endpoint)
-  .select("*, ROW_NUMBER() OVER (PARTITION BY student_email ORDER BY created DESC) as rank")
-
-# Wrap that subquery and join the lint errors
-lint_counts = BackupMetadatum
-  .from("(#{subquery.to_sql}) AS backup_metadata")
-  .where("backup_metadata.rank = 1")
-  .joins("INNER JOIN lint_errors ON lint_errors.file_contents_location = backup_metadata.file_contents_location || '/ants.py'")
-  .group(:student_email)
-  .select("student_email, COUNT(lint_errors.id) as error_count")
+    # Wrap that subquery and join the lint errors
+    lint_counts = BackupMetadatum
+      .from("(#{subquery.to_sql}) AS backup_metadata")
+      .where("backup_metadata.rank = 1")
+      .joins("INNER JOIN lint_errors ON lint_errors.file_contents_location = backup_metadata.file_contents_location || '/ants.py'")
+      .group(:student_email)
+      .select("student_email, COUNT(lint_errors.id) as error_count")
 
     student_lint_errors = 0
     data = [ [ "Student Email", "Lint Errors" ] ]
@@ -222,8 +210,6 @@ lint_counts = BackupMetadatum
         student_lint_errors = count
       end
     end
-
-    # TODO Handle case where students have 0 lint errors (they won't appear in the INNER JOIN)
 
     {
       "studentValue": student_lint_errors,
@@ -254,8 +240,6 @@ lint_counts = BackupMetadatum
       render json: { "error": "User ID #{user_id} not a student in course ID #{course_id}" }, status: :not_found
       return
     end
-
-    # TODO error if student doesn't have any backups for this assignment and course
 
     render json: {
       "course_id": course_id,

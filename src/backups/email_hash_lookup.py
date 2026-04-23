@@ -39,7 +39,6 @@ def find_emails_by_hashes(input_file, output_file, target_hashes):
         print(f"Error: The file '{input_file}' or '{output_file}' was not found.")
 
 
-# TODO parameterize as CLI
 if __name__ == "__main__":
     target_list = [
         "e3384165",

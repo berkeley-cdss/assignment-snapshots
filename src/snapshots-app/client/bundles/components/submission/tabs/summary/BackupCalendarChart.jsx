@@ -4,10 +4,6 @@ import ReactECharts from "echarts-for-react";
 import * as echarts from "echarts";
 import { CircularProgress } from "@mui/material";
 
-// TODO don't hardcode release, checkpoint 1, checkpoint 2, due date
-// const highlightedDates = ["2025-10-27", "2025-11-05", "2025-11-14", "2025-11-24", "2025-11-25"];
-
-// TODO rename charts for consistency with titles in frontend
 const BackupCalendarChart = () => {
   const routeParams = useParams();
   const [rawCalendarData, setRawCalendarData] = useState([]);

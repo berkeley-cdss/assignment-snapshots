@@ -9,11 +9,8 @@ import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 
 import { DiffEditor } from "@monaco-editor/react";
 
-// TODO uninstall git-diff-view once this is removed
-// TODO I have been accidentally relying on this import for styling the entire website
 import "@git-diff-view/react/styles/diff-view.css";
 
-// TODO refactor properly
 function DiffViewer({
   open,
   onClose,
@@ -98,7 +95,6 @@ function DiffViewer({
             enabled: true,
             contextLineCount: 5, // Lines of unchanged code to show around a diff
             minimumLineCount: 3, // Minimum unchanged lines required to trigger a collapse
-            // TODO this isn't working properly
             revealLineCount: 20, // How many lines to reveal when clicking the "expand" button
           },
         }}

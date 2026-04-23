@@ -35,11 +35,4 @@ Rails.application.routes.draw do
   # # fallback: any HTML request not handled above should render the react SPA (single page application)
   # react-router handles client-side routing
   get "*path", to: "login#index", constraints: ->(req) { req.format.html? }
-
-  # TODO setup nested routes?
-  # TODO these routes don't work with react-router client-side routing
-  # get "courses" => "courses#index"
-  # get "courses/:courseId" => "courses#show", as: :course
-  # get "courses/:courseId/assignments/:assignmentId" => "assignments#show", as: :assignment
-  # get "courses/:courseId/assignments/:assignmentId/students/:studentId" => "submissions#show", as: :submission
 end

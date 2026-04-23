@@ -5,7 +5,6 @@ import { useParams } from "react-router";
 import ReactECharts from "echarts-for-react";
 import * as echarts from "echarts";
 
-// TODO API endpoint to get problems
 const PROBLEMS = [
   "Problem 0",
   "Problem 1",
@@ -36,11 +35,6 @@ const CATEGORIES = [
   { name: "Unlocking Tests Failed", color: YELLOW },
 ];
 
-// TODO make this more DRY and name it better
-// TODO fetch problem names and problem timeline once
-// TODO add comments explaining options
-// TODO legend instead of label
-// TODO button to auto jump to zoom
 const BackupGanttPlot = () => {
   const [timelineData, setTimelineData] = useState([]);
   const routeParams = useParams();
@@ -100,7 +94,6 @@ const BackupGanttPlot = () => {
             false,
           );
 
-          // TODO turn this into jsx instead of string?
           return `
       <strong>Duration</strong>: ${durationStr}<br/>
       <strong># of backups</strong>: ${numBackups}<br/>
@@ -141,7 +134,6 @@ const BackupGanttPlot = () => {
           interval: 0, // Force show ALL problems
         },
       },
-      // TODO(stretch): add another series to compare the current student with the average gantt plot of all other students
       series: [
         {
           type: "custom",

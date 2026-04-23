@@ -198,7 +198,6 @@ function Timeline({ backups, selectedBackup, handleBackupSelect }) {
   const selectedRef = React.useRef(null);
 
   // Add an effect that scrolls when selectedBackup changes or on initial load
-  // TODO only scroll left sidebar, not entire page
   useEffect(() => {
     if (selectedRef.current) {
       selectedRef.current.scrollIntoView({

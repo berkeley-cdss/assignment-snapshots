@@ -96,7 +96,6 @@ function FileViewer({ code, language, lightMode, lintErrors }) {
 
   return (
     <>
-      {/* TODO fix alignment and scroll */}
       <div
         style={{
           display: "flex",
