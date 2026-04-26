@@ -31,7 +31,10 @@ function App() {
           path="/courses/:courseId/assignments/:assignmentId/students/:studentId/submission/:tabId"
           element={<TabsLayout />}
         />
-        <Route path="/courses/:courseId/assignments/:assignmentId/students/:studentId/submission/:tabId/:backupId" element={<TabsLayout />}/>
+        <Route
+          path="/courses/:courseId/assignments/:assignmentId/students/:studentId/submission/:tabId/:backupId"
+          element={<TabsLayout />}
+        />
         <Route
           path="/courses/:courseId/assignments/:assignmentId/students/:studentId/submission"
           element={<TabsLayout />}
