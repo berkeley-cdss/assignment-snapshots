@@ -5,7 +5,7 @@
 1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/)
 2. `cd` into this directory (`src/backups`)
 3. Run `uv sync` to install dependencies and create the virtual environment (`.venv/`)
-4. **Optional**, only if you wish to run the `request` command to request OkPy backups: Create** a `.env` file (follow the `.env-template`):
+4. **Optional**, only if you wish to run the `request` command to request OkPy backups: Create a `.env` file (follow the `.env-template`):
     - Update the `.env` file with your [OkPy access token](https://okpy.github.io/documentation/ok-api.html#ok-server-api-authentication). You must have staff permissions for the course you want to query and you must periodically re-request your token.
 
 > [!NOTE]
