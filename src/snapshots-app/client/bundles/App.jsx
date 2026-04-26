@@ -32,7 +32,10 @@ function App() {
           element={<TabsLayout />}
         />
         {/* TODO fake change to try and trigger CI */}
-        <Route path="/courses/:courseId/assignments/:assignmentId/students/:studentId/submission/:tabId/:backupId" element={<TabsLayout />}/>
+        <Route
+          path="/courses/:courseId/assignments/:assignmentId/students/:studentId/submission/:tabId/:backupId"
+          element={<TabsLayout />}
+        />
         <Route
           path="/courses/:courseId/assignments/:assignmentId/students/:studentId/submission"
           element={<TabsLayout />}
