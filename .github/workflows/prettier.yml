@@ -1,0 +1,23 @@
+name: autofix.ci
+on:
+  push:
+permissions: {}
+jobs:
+  prettier:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/snapshots-app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+            node-version: 22
+            cache: 'npm'
+            cache-dependency-path: src/snapshots-app/package-lock.json
+      - run: |
+          npm install
+          npx prettier client/ --write
+      - uses: autofix-ci/action@v1
+        with:
+          commit-message: "Apply Prettier format"
