@@ -26,7 +26,7 @@ const MultiStudentCalendar = () => {
   }, [routeParams]);
 
   const releaseDate = "2025-10-10";
-  // TODO highlight checkpoint dates
+  // TODO highlight checkpoint dates (not sure if this is possible with apache echarts in a non-janky way)
   const checkpointOneDueDate = "2025-10-16";
   const checkpointTwoDueDate = "2025-10-21";
   const dueDate = "2025-10-23";
