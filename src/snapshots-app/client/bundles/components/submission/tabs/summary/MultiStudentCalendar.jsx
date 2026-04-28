@@ -1,37 +1,33 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect, useState } from "react";
 import ReactECharts from "echarts-for-react";
+import { useParams } from "react-router";
 
 const MultiStudentCalendar = () => {
-  // Dummy Data: Simulating the schema { [date]: { [studentName]: count } }
-  const rawData = {
-    "2024-03-01": { "Alice": 12, "Bob": 5, "Charlie": 2 },
-    "2024-03-02": { "Alice": 2, "Bob": 15, "Charlie": 8 },
-    "2024-03-05": { "Alice": 20, "Bob": 1, "Charlie": 5 },
-    "2024-03-10": { "Alice": 5, "Bob": 5, "Charlie": 5 },
-    "2024-03-15": { "Alice": 8, "Bob": 12, "Charlie": 25 },
-  };
-  const startDate = "2024-03-01";
-  const endDate = "2024-03-31";
+  const routeParams = useParams();
+  const [calendarData, setCalendarData] = useState([]);
 
-  // Flatten data for ECharts scatter series
-  // Format: [ [date, count, studentName], ... ]
-  const scatterData = useMemo(() => {
-    const points = [];
-    const sortedDates = Object.keys(rawData).sort((a, b) => new Date(a) - new Date(b));
-
-    sortedDates.forEach((date) => {
-      const studentCounts = rawData[date];
-      const sortedStudents = Object.keys(studentCounts).sort();
-
-      sortedStudents.forEach((name, localIndex) => {
-        // We add the localIndex as the 4th element [3]
-        points.push([date, studentCounts[name], name, localIndex]);
+  useEffect(() => {
+    fetch(
+      `/api/problem_calendar/${routeParams.courseId}/${routeParams.assignmentId}`,
+      {
+        method: "GET",
+      },
+    )
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((responseData) => {
+        setCalendarData(responseData);
       });
-    });
+  }, [routeParams]);
 
-    return points;
-  }, [rawData]);
-
+  const releaseDate = "2025-10-10";
+  const checkpointOneDueDate = "2025-10-16";
+  const checkpointTwoDueDate = "2025-10-21";
+  const dueDate = "2025-10-23";
 
   const option = {
     title: {
@@ -64,7 +60,7 @@ const MultiStudentCalendar = () => {
       left: 30,
       right: 30,
       cellSize: [50, 50], // larger for jitter grid
-      range: [startDate, endDate],
+      range: [releaseDate, dueDate],
       itemStyle: {
         borderWidth: 0.5,
         borderColor: "#ccc",
@@ -83,7 +79,7 @@ const MultiStudentCalendar = () => {
     series: [{
       type: "custom",
       coordinateSystem: "calendar",
-      data: scatterData,
+      data: calendarData,
 
       renderItem: (params, api) => {
         const cellPoint = api.coord(api.value(0));

@@ -19,19 +19,34 @@ class Api::ProblemCalendarController < ApplicationController
 
     student = course.students.find_by(id: user_id)
     if student.nil?
-      render json: { "error": "User ID #{user_id} not a student in course ID #{course_id}" }, status: :not_found
-      return
+
+  query = BackupMetadatum
+    .where(course: course.okpy_endpoint, assignment: assignment.okpy_endpoint)
+    .joins("INNER JOIN users ON users.email = backup_metadata.student_email")
+    .group("DATE(backup_metadata.created)", "users.email", "users.first_name", "users.last_name")
+    .order("DATE(backup_metadata.created)", "users.first_name", "users.last_name")
+    .count
+
+    date_counts = Hash.new(0)
+  calendar_data = query.map do |(date, email, first_name, last_name), count|
+    local_index = date_counts[date]
+    date_counts[date] += 1
+    [date, count, "#{first_name} #{last_name}", local_index]
+  end
+
+  render json: calendar_data, status: :ok
+
+    else
+      calendar_data = BackupMetadatum
+        .where(
+          course: course.okpy_endpoint,
+          assignment: assignment.okpy_endpoint,
+          student_email: student.email
+        )
+        .group("date(created)")
+        .count
+
+      render json: calendar_data, status: :ok
     end
-
-    calendar_data = BackupMetadatum
-      .where(
-        course: course.okpy_endpoint,
-        assignment: assignment.okpy_endpoint,
-        student_email: student.email
-      )
-      .group("date(created)")
-      .count
-
-    render json: calendar_data, status: :ok
   end
 end
