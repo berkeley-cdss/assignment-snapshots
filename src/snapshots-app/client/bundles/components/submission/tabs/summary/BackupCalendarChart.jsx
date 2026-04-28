@@ -82,8 +82,8 @@ const BackupCalendarChart = () => {
         cellSize: [40, "auto"],
         yearLabel: { show: false },
         dayLabel: {
-          firstDay: 1,
-          nameMap: "en",
+          firstDay: 0,
+          nameMap: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
         },
         monthLabel: {
           position: "start", // Places month names to the left of the grid

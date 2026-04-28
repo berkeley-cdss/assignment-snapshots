@@ -21,7 +21,7 @@ Rails.application.routes.draw do
     get "backup_file_metadata/:course_id/:assignment_id/:user_id", to: "backup_file_metadata#show"
     get "summary_statistics/:course_id/:assignment_id/:user_id", to: "summary_statistics#show"
     get "problem_timeline/:course_id/:assignment_id/:user_id", to: "problem_timeline#show"
-    get "problem_calendar/:course_id/:assignment_id/:user_id", to: "problem_calendar#show"
+    get "problem_calendar/:course_id/:assignment_id(/:user_id)", to: "problem_calendar#show"
 
     namespace :debugging, defaults: { format: :json } do
       get "autograder_spam/:course_id/:assignment_id/:user_id", to: "autograder_spam#show"
