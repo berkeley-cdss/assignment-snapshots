@@ -1,6 +1,7 @@
-import React, { useMemo, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import { useParams } from "react-router";
+import { CircularProgress } from "@mui/material";
 
 const MultiStudentCalendar = () => {
   const routeParams = useParams();
@@ -25,6 +26,7 @@ const MultiStudentCalendar = () => {
   }, [routeParams]);
 
   const releaseDate = "2025-10-10";
+  // TODO highlight checkpoint dates
   const checkpointOneDueDate = "2025-10-16";
   const checkpointTwoDueDate = "2025-10-21";
   const dueDate = "2025-10-23";
@@ -44,11 +46,11 @@ const MultiStudentCalendar = () => {
     // This controls the color of the dots based on the 'count' (index 1)
     visualMap: {
       min: 0,
-      max: 25,
+      max: Math.max(...calendarData.map((val) => val[1])),
       calculable: true,
-      orient: "horizontal",
-      left: "center",
-      bottom: 20,
+      orient: "vertical",
+      right: "5%",
+      top: "center",
       dimension: 1, // Point to the 'count' value in the data array
       inRange: {
         color: ["#ebedf0", "#c6e48b", "#7bc96f", "#239a3b", "#196127"],
@@ -56,10 +58,11 @@ const MultiStudentCalendar = () => {
     },
     calendar: {
       orient: "vertical",
-      top: 80,
-      left: 30,
-      right: 30,
-      cellSize: [50, 50], // larger for jitter grid
+      top: 100,
+      bottom: 40,
+      left: 80,
+      right: 150,
+      cellSize: ["auto", "auto"], // larger for jitter grid
       range: [releaseDate, dueDate],
       itemStyle: {
         borderWidth: 0.5,
@@ -110,12 +113,16 @@ const MultiStudentCalendar = () => {
   };
 
   return (
-    <div style={{ width: "100%", background: "#fff", padding: "20px" }}>
-      <ReactECharts
-        option={option}
-        style={{ height: "500px", width: "100%" }}
-      />
-    </div>
+    <>
+      {calendarData.length === 0 ? <CircularProgress /> : <div style={{ width: "100%", background: "#fff", padding: "20px" }}>
+        <ReactECharts
+          option={option}
+          style={{ height: "500px", width: "100%" }}
+        />
+      </div>
+      }
+    </>
+
   );
 };
 
