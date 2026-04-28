@@ -31,7 +31,7 @@ class Api::ProblemCalendarController < ApplicationController
   calendar_data = query.map do |(date, email, first_name, last_name), count|
     local_index = date_counts[date]
     date_counts[date] += 1
-    [date, count, "#{first_name} #{last_name}", local_index]
+    [ date, count, "#{first_name} #{last_name}", local_index ]
   end
 
   render json: calendar_data, status: :ok
