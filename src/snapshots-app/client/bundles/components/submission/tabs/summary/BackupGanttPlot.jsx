@@ -34,6 +34,15 @@ const CATEGORIES = [
   { name: "Unlocking Tests Passed", color: BLUE },
   { name: "Unlocking Tests Failed", color: YELLOW },
 ];
+const CATEGORY_COLOR_BY_LABEL = CATEGORIES.reduce((acc, category) => {
+  acc[category.name] = category.color;
+  return acc;
+}, {});
+const getCategoryLabel = ({ isUnlockingTest, passed }) => {
+  const backupType = isUnlockingTest ? "Unlocking" : "Correctness";
+  const status = passed ? "Passed" : "Failed";
+  return `${backupType} Tests ${status}`;
+};
 
 const BackupGanttPlot = () => {
   const [timelineData, setTimelineData] = useState([]);
@@ -176,7 +185,7 @@ const BackupGanttPlot = () => {
           encode: { x: [3, 4], y: 0 },
           // Map to ECharts internal format
           data: timelineData.map((item) => ({
-            name: item.label, // This must match CATEGORIES names for interactivity
+            name: getCategoryLabel(item), // This must match CATEGORIES names for interactivity
             value: [
               item.problemIndex,
               new Date(item.startTime).getTime(),
@@ -184,7 +193,9 @@ const BackupGanttPlot = () => {
               item.startIndex,
               item.endIndex,
             ],
-            itemStyle: { color: item.color },
+            itemStyle: {
+              color: CATEGORY_COLOR_BY_LABEL[getCategoryLabel(item)] || DARK_GREEN,
+            },
           })),
         },
         ...CATEGORIES.map((cat) => ({

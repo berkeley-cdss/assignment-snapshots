@@ -106,6 +106,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_14_193627) do
     t.integer "start_location_col", null: false
     t.integer "end_location_row", null: false
     t.integer "end_location_col", null: false
+    
+    t.integer "line_number", null: false
+    
     t.string "message", null: false
     t.string "code", null: false
     t.string "url"

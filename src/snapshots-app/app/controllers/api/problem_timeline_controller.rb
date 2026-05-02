@@ -47,32 +47,18 @@ class Api::ProblemTimelineController < ApplicationController
 
   SESSION_TIME_GAP_THRESHOLD = 15.minutes
 
-  # color blind color palette from https://davidmathlogic.com/colorblind/#%23D81B60-%231E88E5-%23FFC107-%23004D40
-  PINK = "#D81B60"
-  BLUE = "#1E88E5"
-  YELLOW = "#FFC107"
-  DARK_GREEN = "#004D40"
-
   def get_grading_backup_status(grading_message_question)
-    if grading_message_question.failed == 0
-      { label: "Correctness Tests Passed", color: DARK_GREEN }
-    else
-      { label: "Correctness Tests Failed", color: PINK }
-    end
+    { is_unlocking_test: false, passed: grading_message_question.failed == 0 }
   end
 
   # This works assuming that the unlock_message_cases are all belonging to the same problem
   def get_unlocking_backup_status(unlock_message_cases)
-    if unlock_message_cases.map { |umc| umc.correct }.all?
-      { label: "Unlocking Tests Passed", color: BLUE }
-    else
-      { label: "Unlocking Tests Failed", color: YELLOW }
-    end
+    { is_unlocking_test: true, passed: unlock_message_cases.map { |umc| umc.correct }.all? }
   end
 
   def process_backups(backups, problem_name_to_index)
     # returns an array of hashes where each hash represents relevant data from a single backup
-    # hash has: timestamp, label, color, index, problem_name
+    # hash has: timestamp, is_unlocking_test, passed, index, problem_name
     result = []
 
     backups.each_with_index do |backup, index|
@@ -113,7 +99,7 @@ class Api::ProblemTimelineController < ApplicationController
 
     # A session is defined as a series of backups where:
     # 1. All problems worked on are the same within the session, AND
-    # 2. All labels (and therefore colors) are the same within the session, AND
+    # 2. Backup type and passing status are the same within the session, AND
     # 3. Consecutive timestamps are <= SESSION_TIME_GAP_THRESHOLD
 
     result = []
@@ -121,8 +107,8 @@ class Api::ProblemTimelineController < ApplicationController
       {
         startTime: processed_backups[0][:timestamp],
         endTime: processed_backups[0][:timestamp],
-        label: processed_backups[0][:label],
-        color: processed_backups[0][:color],
+        isUnlockingTest: processed_backups[0][:is_unlocking_test],
+        passed: processed_backups[0][:passed],
         startIndex: processed_backups[0][:index],
         endIndex: processed_backups[0][:index] + 1,
         problemName: processed_backups[0][:problem_name],
@@ -132,16 +118,16 @@ class Api::ProblemTimelineController < ApplicationController
     processed_backups.each_cons(2) do |a, b|
       problems_differ = a[:problem_index] != b[:problem_index]
       has_time_gap = b[:timestamp] - a[:timestamp] > SESSION_TIME_GAP_THRESHOLD
-      labels_differ = a[:label] != b[:label]
+      backup_status_differs = a[:is_unlocking_test] != b[:is_unlocking_test] || a[:passed] != b[:passed]
 
-      if problems_differ or has_time_gap or labels_differ
+      if problems_differ or has_time_gap or backup_status_differs
         result << curr_session
         curr_session =
       {
         startTime: b[:timestamp],
         endTime: b[:timestamp],
-        label: b[:label],
-        color: b[:color],
+        isUnlockingTest: b[:is_unlocking_test],
+        passed: b[:passed],
         startIndex: b[:index],
         endIndex: b[:index] + 1,
         problemName: b[:problem_name],
