@@ -194,7 +194,8 @@ const BackupGanttPlot = () => {
               item.endIndex,
             ],
             itemStyle: {
-              color: CATEGORY_COLOR_BY_LABEL[getCategoryLabel(item)] || DARK_GREEN,
+              color:
+                CATEGORY_COLOR_BY_LABEL[getCategoryLabel(item)] || DARK_GREEN,
             },
           })),
         },
