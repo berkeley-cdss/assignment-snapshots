@@ -12,9 +12,21 @@ It was used to separate:
 - CS 61A FA24 (superset), DATA C88C FA24 (subset)
 
 ```sh
-uv run --active python3 scripts/separate_rosters.py ../../data/private/out/datac88c/sp24/roster.csv ../../data/private/out/datac88c/su24/roster.csv ../../data/private/out/datac88c/sp24/emails_separated.txt ../../data/private/out/datac88c/su24/emails_separated.txt
+$ uv run --active python3 scripts/separate_rosters.py ../../data/private/out/datac88c/sp24/roster.csv ../../data/private/out/datac88c/su24/roster.csv ../../data/private/out/datac88c/sp24/emails_separated.txt ../../data/private/out/datac88c/su24/emails_separated.txt
+
+Read 590 student records in superset roster file ../../data/private/out/datac88c/sp24/roster.csv
+Read 106 student records in subset roster file ../../data/private/out/datac88c/su24/roster.csv
+Computed set difference superset - subset. Roster A has 581 emails; Roster B has 106 emails
+Wrote Roster A emails to ../../data/private/out/datac88c/sp24/emails_separated.txt
+Wrote Roster A emails to ../../data/private/out/datac88c/su24/emails_separated.txt
 ```
 
 ```sh
-uv run --active python3 scripts/separate_rosters.py ../../data/private/out/cs61a/fa24/roster.csv ../../data/private/out/datac88c/fa24/roster.csv ../../data/private/out/cs61a/fa24/emails_separated.txt ../../data/private/out/datac88c/fa24/emails_separated.txt
+$ uv run --active python3 scripts/separate_rosters.py ../../data/private/out/cs61a/fa24/roster.csv ../../data/private/out/datac88c/fa24/roster.csv ../../data/private/out/cs61a/fa24/emails_separated.txt ../../data/private/out/datac88c/fa24/emails_separated.txt
+
+Read 2040 student records in superset roster file ../../data/private/out/cs61a/fa24/roster.csv
+Read 522 student records in subset roster file ../../data/private/out/datac88c/fa24/roster.csv
+Computed set difference superset - subset. Roster A has 1526 emails; Roster B has 522 emails
+Wrote Roster A emails to ../../data/private/out/cs61a/fa24/emails_separated.txt
+Wrote Roster A emails to ../../data/private/out/datac88c/fa24/emails_separated.txt
 ```
