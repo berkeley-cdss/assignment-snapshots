@@ -360,6 +360,11 @@ def responses_to_backups(
     num_backups = 0
     for student_email, assignment_response_dict in emails_to_responses.items():
         for assignment, response in assignment_response_dict.items():
+            # NOTE: For older semesters, the Ants project endpoint was 'proj03' instead of 'ants',
+            # so here we manually correct it when storing the data for consistency
+            if assignment == "proj03":
+                assignment = "ants"
+
             if response["code"] == 200:  # skip backups that had an error
                 curr_backups = response["data"]["backups"]
                 for backup_dict in curr_backups:
