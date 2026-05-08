@@ -1,0 +1,96 @@
+// // Paste this into https://dbdiagram.io/d to generate ERD diagram
+// // Use DBML to define your database structure
+// // Docs: https://dbml.dbdiagram.io/docs
+
+Table backup_metadata {
+  backup_id text [pk]
+  created text [not null, note: 'ISO8601 string']
+  course text [not null, note: 'okpy endpoint for course (includes semester, e.g. cal/cs88/sp25)']
+  assignment text [not null, note: 'okpy assignment endpoint (not including course endpoint prefix e.g. lab00. to get full endpoint, do {course}/{assignment})']
+  student_email text [not null]
+  is_late bool [not null]
+  submitted bool [not null, note: 'whether student used --submit flag (educated guess)']
+
+  autograder_output_location text
+  grading_location text
+  file_contents_location text
+  analytics_location text
+  scoring_location text
+  unlock_location text
+
+  Note: '''
+    Each backup has one or more kinds of okpy "messages"
+    which contain different data about the student's work.
+    See okpy_messages table for more information.
+    The *_location columns contain the path to the file
+    containing the contents of the OkPy message, or NULL if it doesn't exist.
+  '''
+}
+
+Table okpy_messages {
+  id integer [pk]
+  type text [not null]
+  description text [not null]
+}
+
+Table lint_errors {
+  id integer [primary key, increment]
+  file_contents_location text [not null]
+  start_location_row integer [not null]
+  start_location_col integer [not null]
+  end_location_row integer [not null]
+  end_location_col integer [not null]
+  message text [not null]
+  code text [not null, note: 'lint error code']
+  url text [note: 'lint error URL for more information']
+}
+
+Table backup_file_metadata {
+  file_contents_location text
+  file_name text
+  num_lines integer [not null]
+
+  indexes {
+    (file_contents_location, file_name) [pk]
+  }
+}
+
+Table analytics_messages {
+  backup_id text [pk, not null]
+  unlock bool [not null]
+
+  // JSON fields stored as text strings under the hood
+  question_cli_names json [note: 'names of questions passed into -q flag of python3 ok command']
+  question_display_names json
+  history json [not null, note: 'past problems solved bool and attempts']
+}
+
+Ref: analytics_messages.backup_id - backup_metadata.backup_id
+
+
+Table grading_message_questions {
+  backup_id text [not null]
+  question_display_name text [not null]
+  locked integer [not null, note: 'number of locked tests for this question']
+  passed integer [not null, note: 'number of passed tests for this question']
+  failed integer [not null, note: 'number of failed tests for this question']
+
+  indexes {
+    (backup_id, question_display_name) [pk]
+  }
+}
+
+Ref: grading_message_questions.backup_id > backup_metadata.backup_id
+
+Table unlock_message_cases {
+  backup_id text [not null]
+  correct bool [not null]
+  prompt text [not null]
+  student_answer json [not null]
+  printed_msg json [not null]
+  case_id text [not null]
+  question_timestamp text [not null, note: 'ISO8601 string']
+  answer_timestamp text [not null, note: 'ISO8601 string']
+}
+
+Ref: unlock_message_cases.backup_id > backup_metadata.backup_id

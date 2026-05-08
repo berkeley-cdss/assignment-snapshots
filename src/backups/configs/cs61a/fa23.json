@@ -9,7 +9,7 @@
         "lab_end": 0,
         "hw_start": 1,
         "hw_end": 0,
-        "projects": ["ants"],
+        "projects": ["proj03"],
         "assignment_files": {
             "ants": ["ants.py"]
         }
