@@ -27,6 +27,7 @@ import StatisticsDashboard from "./StatisticsDashboard";
 import InfoTooltip from "../../../common/InfoTooltip";
 import BackupGanttPlot from "./BackupGanttPlot";
 import BackupCalendarChart from "./BackupCalendarChart";
+import MultiStudentCalendar from "./MultiStudentCalendar";
 
 const SCORE_HISTOGRAM_OPTIONS = {
   histogram: {
@@ -288,6 +289,7 @@ function SummaryTab({}) {
         <CircularProgress />
       )}
 
+      <MultiStudentCalendar />
       <BackupCalendarChart />
       <BackupGanttPlot />
 
