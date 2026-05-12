@@ -144,7 +144,7 @@ def request(
 
     if limit is None:
         limit = config_dict["okpy_api"]["limit"]
-    assert limit >= 0, "limit should be non-negative"
+    assert limit is None or limit >= 0, "limit should be null or non-negative"
 
     if offset is None:
         offset = config_dict["okpy_api"]["offset"]

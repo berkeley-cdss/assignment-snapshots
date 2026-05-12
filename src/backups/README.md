@@ -48,6 +48,12 @@ uv run python3 main.py backup-file-metadata
 > activate and deactivate the virtual environment manually with
 > `source .venv/bin/activate` and `deactivate`, respectively.
 
+> [!WARNING]
+> If you are running the `request` command in multiple shells at once,
+> anecdotally we have encountered 502 Bad Gateway errors in the OkPy API responses.
+> We recommend limiting yourself to no more than 3 concurrent `request` commands
+> to prevent this issue.
+
 Run `--help` with any of the commands for more information.
 
 Create a configuration file to save yourself the effort of typing a bunch of CLI arguments.
