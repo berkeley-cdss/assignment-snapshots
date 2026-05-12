@@ -51,7 +51,7 @@ def get_backups(
         BASE_URL + api_endpoint,
         params=params,
         headers=headers,
-        timeout=30, # seconds (10 is too low)
+        timeout=30,  # seconds (10 is too low)
     )
 
 
@@ -146,16 +146,20 @@ def get_backups_for_all_assignments(
                     if merged_responses is None:
                         merged_responses = response
                     else:
-                        merged_responses["data"]["backups"].extend(response["data"]["backups"])
+                        merged_responses["data"]["backups"].extend(
+                            response["data"]["backups"]
+                        )
                         merged_responses["data"]["count"] = response["data"]["count"]
                         merged_responses["data"]["limit"] = response["data"]["limit"]
                         merged_responses["data"]["offset"] = response["data"]["offset"]
-                        merged_responses["data"]["has_more"] = response["data"]["has_more"]
+                        merged_responses["data"]["has_more"] = response["data"][
+                            "has_more"
+                        ]
 
                         merged_responses["code"] = response["code"]
                         merged_responses["message"] = response["message"]
 
-                    has_more = response['data']['has_more']
+                    has_more = response["data"]["has_more"]
                     offset += BACKUP_BATCH_SIZE
 
                 all_responses[assignment_name] = merged_responses
