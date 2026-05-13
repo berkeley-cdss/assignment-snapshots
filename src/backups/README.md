@@ -48,8 +48,15 @@ uv run python3 main.py backup-file-metadata
 > activate and deactivate the virtual environment manually with
 > `source .venv/bin/activate` and `deactivate`, respectively.
 
+> [!TIP]
+> If the `request` command is in progress and you have to leave
+> causing you to lose internet, you can pause the process on Linux/MacOS
+> using `Ctrl + Z` and then resume the process in the foreground with `fg`
+> to prevent losing your progress. (This has only been tested on MacOS
+> and using Eduroam wifi before and after pausing. Switching networks might not work.)
+
 > [!WARNING]
-> OkPy tokens expire within a few hours. If you are in the middle of
+> OkPy tokens expire within < 12 hours. If you are in the middle of
 > running the `request` command and your token expires, making an API
 > request will cause a 401 Forbidden error and then the script will terminate,
 > losing all your progress. Therefore, we recommend always getting a fresh
@@ -101,19 +108,19 @@ cd data/private/cal/cs88/fa25/ants
 ```
 1. Run the following command to synchronize the contents of the folder you are currently inside to the folder in our AWS S3 bucket, replacing `$BUCKET_NAME` with your desired bucket and `$FILE_PATH` with your desired path:
 ```sh
+# Regular sync: Upload all files in current directory to destination path in the bucket
 aws s3 sync . s3://$BUCKET_NAME/$FILE_PATH
 
-# Example
+# Sync + delete: Same as above + delete any files in destination that aren't in current directory
+aws s3 sync . s3://$BUCKET_NAME/$FILE_PATH --delete
+
+# Examples
 aws s3 sync . s3://ucb-assignment-snapshots-eae254943a2c4f51bef67654e99560dd/cal/cs88/fa25/ants
+aws s3 sync . s3://ucb-assignment-snapshots-eae254943a2c4f51bef67654e99560dd/cal/cs88/fa25/ants --delete
 ```
 
 > [!NOTE]
 > We recommend keeping the `$FILE_PATH` the same for steps 1-2 above for consistency, although technically they can differ.
-
-> [!TIP]
-> You can pass the `--delete` flag with `aws s3 sync` so that files that
-> are in the destination but not in the source are deleted.
-> See the [AWS CLI docs](https://docs.aws.amazon.com/cli/latest/reference/s3/sync.html) for more.
 
 ## Dumping database from OkPy Backups CLI into Rails database
 
