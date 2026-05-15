@@ -48,6 +48,38 @@ uv run python3 main.py backup-file-metadata
 > activate and deactivate the virtual environment manually with
 > `source .venv/bin/activate` and `deactivate`, respectively.
 
+> [!TIP]
+> If the `request` command is in progress and you have to leave
+> causing you to lose internet, you can pause the process on Linux/MacOS
+> using `Ctrl + Z` and then resume the process in the foreground with `fg`
+> to prevent losing your progress. (This has only been tested on MacOS
+> and using Eduroam wifi before and after pausing. Switching networks might not work.)
+
+> [!WARNING]
+> OkPy tokens expire within < 12 hours. If you are in the middle of
+> running the `request` command and your token expires, making an API
+> request will cause a 401 Forbidden error and then the script will terminate,
+> losing all your progress. Therefore, we recommend always getting a fresh
+> OkPy token before running the `request` command, especially for courses
+> with > 500 students.
+
+> [!WARNING]
+> If you are running the `request` command in multiple shells at once,
+> anecdotally we have encountered 502 Bad Gateway errors in the OkPy API responses.
+> We recommend limiting yourself to no more than 3 concurrent `request` commands
+> to prevent this issue.
+
+> [!WARNING]
+> VS Code often automatically activates Python virtual environments for you
+> when you open an integrated terminal, which can mess with the virtual environment
+> setup by `uv`. If you're running commands and you see a warning like this:
+> "warning: `VIRTUAL_ENV=/path/to/.venv` does not match the project environment path
+> `.venv` and will be ignored; use `--active` to target the active environment instead"
+> you can safely ignore it as long as you're running the Backups CLI commands in the
+> `src/backups` directory. Do NOT use the `--active` flag because that will use
+> a totally different virtual environment, such as the `src/notebooks/.venv`,
+> and cause errors.
+
 Run `--help` with any of the commands for more information.
 
 Create a configuration file to save yourself the effort of typing a bunch of CLI arguments.
@@ -67,13 +99,24 @@ to be retrieved later by the web app. We recommend one of two methods:
 For both methods, you can refer to the documentation linked above. To save yourself some reading, here is an example
 of the commands you would need to run for method 2, assuming you have [already configured and authenticated through the AWS CLI](https://github.com/berkeley-cdss/assignment-snapshots/tree/main/src/snapshots-app#aws-s3-configuration-and-authentication):
 
-1. `cd` into the folder that you want to upload, replacing `$FILE_PATH` with your desired path, e.g. `cal/cs88/fa25/ants`:
+1. `cd` into the folder that you want to upload, replacing `$FILE_PATH` with your desired path:
 ```sh
 cd data/private/$FILE_PATH
+
+# Example
+cd data/private/cal/cs88/fa25/ants
 ```
-2. Run the following command to synchronize the contents of the folder you are currently inside to the folder in our AWS S3 bucket, replacing `$BUCKET_NAME` with your desired bucket (`ucb-assignment-snapshots-eae254943a2c4f51bef67654e99560dd`) and `$FILE_PATH` with your desired path, e.g. `cal/cs88/fa25/ants`:
+1. Run the following command to synchronize the contents of the folder you are currently inside to the folder in our AWS S3 bucket, replacing `$BUCKET_NAME` with your desired bucket and `$FILE_PATH` with your desired path:
 ```sh
+# Regular sync: Upload all files in current directory to destination path in the bucket
 aws s3 sync . s3://$BUCKET_NAME/$FILE_PATH
+
+# Sync + delete: Same as above + delete any files in destination that aren't in current directory
+aws s3 sync . s3://$BUCKET_NAME/$FILE_PATH --delete
+
+# Examples
+aws s3 sync . s3://ucb-assignment-snapshots-eae254943a2c4f51bef67654e99560dd/cal/cs88/fa25/ants
+aws s3 sync . s3://ucb-assignment-snapshots-eae254943a2c4f51bef67654e99560dd/cal/cs88/fa25/ants --delete
 ```
 
 > [!NOTE]
