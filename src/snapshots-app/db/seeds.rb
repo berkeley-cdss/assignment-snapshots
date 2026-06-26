@@ -149,31 +149,31 @@ assignments = [
 #   "483b88d6"
 # ]
 
-cs61a_hashes = [ 'e3384165',
- '1faf1492',
- '0757b4af',
- '5e0b5dff',
- '55d9e0b2',
- '4349b29d',
- '27f16a00',
- '1bcf17a8',
- 'bbb281e4',
- '18e36d10',
- 'd0d1b4b0',
- '94d2cb91',
- '09e6bcbc',
- '08a08a79',
- '1a3aee97',
- '3ff28b43',
- '4972bef4',
- 'a8faf137',
- 'd6797b5b',
- 'fc1888f1',
- 'c2b307c8',
- '395b6a1a',
- 'f0cd1289',
- '90cfed97',
- '41a86dbb' ]
+# cs61a_hashes = [ 'e3384165',
+#  '1faf1492',
+#  '0757b4af',
+#  '5e0b5dff',
+#  '55d9e0b2',
+#  '4349b29d',
+#  '27f16a00',
+#  '1bcf17a8',
+#  'bbb281e4',
+#  '18e36d10',
+#  'd0d1b4b0',
+#  '94d2cb91',
+#  '09e6bcbc',
+#  '08a08a79',
+#  '1a3aee97',
+#  '3ff28b43',
+#  '4972bef4',
+#  'a8faf137',
+#  'd6797b5b',
+#  'fc1888f1',
+#  'c2b307c8',
+#  '395b6a1a',
+#  'f0cd1289',
+#  '90cfed97',
+#  '41a86dbb' ]
 
 # c88c_hashes = [ '7dcfb139', 'cf7b9cab', '88e94290' ]
 # c88c_hashes = ['e3384165',
@@ -200,7 +200,28 @@ cs61a_hashes = [ 'e3384165',
 #  '395b6a1a',
 #  'f0cd1289',
 #  '90cfed97',
+
+
+
 #  '41a86dbb']
+
+# full 61A FA25 for tech report
+file_path = 'db/cs61a_fa25_email_hashes.txt'
+cs61a_hashes = []
+
+begin
+  File.foreach(file_path) do |line|
+    cs61a_hashes << line.strip
+  end
+
+  # Quick check to see it worked
+  puts "Successfully loaded #{cs61a_hashes.length} hashes."
+  p cs61a_hashes[0..4] # Prints the first 5 hashes to verify
+
+rescue Errno::ENOENT
+  puts "Error: The file '#{file_path}' could not be found."
+end
+
 student_email_hashes = cs61a_hashes
 
 students = [
@@ -229,8 +250,8 @@ students = [
 
 def create_fake_student(hash)
   {
-    first_name: Faker::Name.unique.first_name,
-    last_name: Faker::Name.unique.last_name,
+    first_name: Faker::Name.first_name,
+    last_name: Faker::Name.last_name,
     email: hash,
     email_hash: hash,
     student_id: Faker::Number.unique.number(digits: 10)
