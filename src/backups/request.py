@@ -4,17 +4,20 @@ to the OkPy server to retrieve student backups
 """
 
 import requests
-from typing import List, Dict
+from typing import List, Dict, Union
 from tqdm import tqdm
 
 BASE_URL = "https://okpy.org/api/v3"
+BACKUP_BATCH_SIZE = 150
+HARD_LIMIT = 600
+ERROR_401_MESSAGE = "OkPy API response had 401 status code. Update your OkPy token in the `.env` file with the result from running `python3 ok --get-token` in any OkPy assignment directory and then try again"
 
 
 def get_backups(
     assignment_endpoint: str,
     email: str,
     access_token: str,
-    limit: int = 150,
+    limit: int = BACKUP_BATCH_SIZE,
     offset: int = 0,
 ) -> requests.Response:
     """
@@ -48,6 +51,7 @@ def get_backups(
         BASE_URL + api_endpoint,
         params=params,
         headers=headers,
+        timeout=30,  # seconds (10 is too low)
     )
 
 
@@ -76,10 +80,17 @@ def get_backups_for_all_assignments(
     hw_start: int,
     hw_end: int,
     projects: List[str],
-    limit: int = 150,
+    limit: Union[int, None] = 150,
     offset: int = 0,
 ) -> dict:
-    """Get backups for all assignments of one particular user"""
+    """
+    Get backups for all assignments of one particular user.
+    If `limit` is `None`, iteratively fetch all their backups (up to `HARD_LIMIT` backups to
+    prevent infinite looping) in batches of `BACKUPS_BATCH_SIZE` and ignore `offset`.
+    """
+    fetch_all = limit is None
+    has_more = True
+
     lab_names = get_all_lab_names(lab_start, lab_end)
     hw_names = get_all_hw_names(hw_start, hw_end)
     all_names = lab_names + hw_names + projects
@@ -90,27 +101,72 @@ def get_backups_for_all_assignments(
         assignment_endpoint = f"{course_endpoint}/{assignment_name}"
 
         try:
-            response = get_backups(
-                assignment_endpoint,
-                email,
-                access_token,
-                limit,
-                offset,
-            )
-
-            if response.status_code == 401:
-                raise RuntimeError(
-                    "OkPy API response had 401 status code. Update your OkPy token in the `.env` file with the result from running `python3 ok --get-token` in any OkPy assignment directory and then try again"
+            if not fetch_all:
+                response = get_backups(
+                    assignment_endpoint,
+                    email,
+                    access_token,
+                    limit,
+                    offset,
                 )
 
-            if not response.ok:
-                print(
-                    f"Response for user {email}, assignment {assignment_name} did not have OK status code: {response.status_code}: {response.reason}. {response.text}"
-                )
+                if response.status_code == 401:
+                    raise RuntimeError(ERROR_401_MESSAGE)
 
-            all_responses[assignment_name] = response.json()
+                if not response.ok:
+                    print(
+                        f"Response for user {email}, assignment {assignment_name} did not have OK status code: {response.status_code}: {response.reason}. {response.text}"
+                    )
+
+                all_responses[assignment_name] = response.json()
+            else:
+                merged_responses = None
+                limit = BACKUP_BATCH_SIZE
+                offset = 0
+
+                while has_more and offset < HARD_LIMIT:
+                    response = get_backups(
+                        assignment_endpoint,
+                        email,
+                        access_token,
+                        limit,
+                        offset,
+                    )
+
+                    if response.status_code == 401:
+                        raise RuntimeError(ERROR_401_MESSAGE)
+
+                    if not response.ok:
+                        print(
+                            f"Response for user {email}, assignment {assignment_name} did not have OK status code: {response.status_code}: {response.reason}. {response.text}"
+                        )
+
+                    response = response.json()
+
+                    if merged_responses is None:
+                        merged_responses = response
+                    else:
+                        merged_responses["data"]["backups"].extend(
+                            response["data"]["backups"]
+                        )
+                        merged_responses["data"]["count"] = response["data"]["count"]
+                        merged_responses["data"]["limit"] = response["data"]["limit"]
+                        merged_responses["data"]["offset"] = response["data"]["offset"]
+                        merged_responses["data"]["has_more"] = response["data"][
+                            "has_more"
+                        ]
+
+                        merged_responses["code"] = response["code"]
+                        merged_responses["message"] = response["message"]
+
+                    has_more = response["data"]["has_more"]
+                    offset += BACKUP_BATCH_SIZE
+
+                all_responses[assignment_name] = merged_responses
         except RuntimeError as e:
             raise e
+        except requests.exceptions.Timeout:
+            print(f"Request for {email} timed out, skipping")
         except Exception as e:
             print(
                 f"Exception {type(e)} {e} was raised when getting backup for {email}, skipping"

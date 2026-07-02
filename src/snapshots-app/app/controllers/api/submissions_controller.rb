@@ -16,14 +16,13 @@ class Api::SubmissionsController < ApplicationController
     end
 
     student_emails_with_submissions = BackupMetadatum
-                .select("student_email")
                 .where(course: course.okpy_endpoint, assignment: assignment.okpy_endpoint)
-                .group("student_email")
                 .pluck(:student_email)
+                .to_set
 
     submissions = []
     course.students.each do |student|
-      if student_emails_with_submissions.include?(student.email)
+      if student_emails_with_submissions.member?(student.email)
         submissions << student
       end
     end

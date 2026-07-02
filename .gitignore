@@ -2,3 +2,4 @@
 data/private/
 
 .DS_Store
+.ruff_cache/

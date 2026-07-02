@@ -8,6 +8,7 @@ import sqlite3
 from typing import List, Dict, Callable
 import json
 from datetime import datetime
+from rich.progress import track
 
 from db import (
     CREATE_BACKUP_METADATA_TABLE_CMD,
@@ -338,7 +339,7 @@ def store_backup_file_metadata(
             f"Computed {len(backup_file_metadata_objects)} backup file metadata objects"
         )
 
-    for bfm in backup_file_metadata_objects:
+    for bfm in track(backup_file_metadata_objects, description="Writing backup file metadata to SQLite database...", total=len(backup_file_metadata_objects)):
         insert_backup_file_metadata_record(conn, bfm)
 
     if verbose:
@@ -358,7 +359,7 @@ def responses_to_backups(
     deidentify: bool,
 ) -> int:
     num_backups = 0
-    for student_email, assignment_response_dict in emails_to_responses.items():
+    for student_email, assignment_response_dict in track(emails_to_responses.items(), description="Writing OkPy API output to disk and SQLite database...", total=len(emails_to_responses)):
         for assignment, response in assignment_response_dict.items():
             # NOTE: For older semesters, the Ants project endpoint was 'proj03' instead of 'ants',
             # so here we manually correct it when storing the data for consistency
@@ -413,7 +414,7 @@ def store_lint_errors(
     if verbose:
         print(f"Parsed {len(lint_errors)} lint errors")
 
-    for err in lint_errors:
+    for err in track(lint_errors, description="Writing lint errors to SQLite database...", total=len(lint_errors)):
         insert_lint_error_record(conn, err)
 
     if verbose:

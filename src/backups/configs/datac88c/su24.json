@@ -2,7 +2,7 @@
     "okpy_api": {
         "course_endpoint": "cal/cs88/sp24",
         "sub_course_endpoint": "cal/cs88/su24",
-        "limit": 150,
+        "limit": null,
         "offset": 0
     },
     "course": {
