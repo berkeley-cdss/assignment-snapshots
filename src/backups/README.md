@@ -5,7 +5,7 @@
 1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/)
 2. `cd` into this directory (`src/backups`)
 3. Run `uv sync` to install dependencies and create the virtual environment (`.venv/`)
-4. **Optional**, only if you wish to run the `request` command to request OkPy backups: Create** a `.env` file (follow the `.env-template`):
+4. **Optional**, only if you wish to run the `request` command to request OkPy backups: Create a `.env` file (follow the `.env-template`):
     - Update the `.env` file with your [OkPy access token](https://okpy.github.io/documentation/ok-api.html#ok-server-api-authentication). You must have staff permissions for the course you want to query and you must periodically re-request your token.
 
 > [!NOTE]
@@ -51,7 +51,7 @@ uv run python3 main.py backup-file-metadata
 Run `--help` with any of the commands for more information.
 
 Create a configuration file to save yourself the effort of typing a bunch of CLI arguments.
-An example can be found in [src/backups/backup_config.json](src/backups/backup_config.json).
+An example can be found in [./configs/dev/backup_config.json](./configs/dev/backup_config.json).
 All fields are required (e.g. they must either be provided in the config or via the CLI).
 If you provide both a config and CLI arguments, the CLI arguments will override anything in the config.
 
@@ -93,17 +93,18 @@ sqlite3 data/private/out/dev/c88c_fa25.db .dump > data/private/out/dev/c88c_fa25
 3. Update the SQL file:
     1. Remove `../../data/private/` prefix from paths. **IMPORTANT:** Make sure you are removing the trailing `/`.
     2. Remove/comment out `CREATE TABLE` statements since that will interfere with the Rails database migrations (Rails will already handle table creation on its own end, so if you have a duplicate `CREATE TABLE` statement Rails will error).
+    3. Also remove `CREATE INDEX` statements (which may have been created through code written in `src/notebooks`)
 4. **Optional if not done already:** [Generate corresponding Rails model(s)](https://guides.rubyonrails.org/command_line.html#generating-models) **in the `src/snapshots-app` directory** by running the following command. If you are an internal contributor working with the toy data from `data.zip`, skip this step.
 ```sh
 rails generate model <model_name> <column_name:data_type> ...
 ```
 > [!CAUTION]
 > THE FOLLOWING STEP WILL RESET (e.g. delete everything) AND RE-MIGRATE THE RAILS DB. BE CAREFUL!
-5. Run the following command **in the `src/snapshots-app` directory**:
+1. Run the following command **in the `src/snapshots-app` directory**:
 ```sh
 rails db:migrate:reset
 ```
-6. Run the following command **in the root directory** of the repository to execute commands from output `.sql` dump into the Rails app `development.sqlite3` database. Replace `$PATH_TO_SQL_FILE` with the same value from steps 1 and 2:
+1. Run the following command **in the root directory** of the repository to execute commands from output `.sql` dump into the Rails app `development.sqlite3` database. Replace `$PATH_TO_SQL_FILE` with the same value from steps 1 and 2:
 ```sh
 # General command
 sqlite3 src/snapshots-app/storage/development.sqlite3 < $PATH_TO_SQL_FILE

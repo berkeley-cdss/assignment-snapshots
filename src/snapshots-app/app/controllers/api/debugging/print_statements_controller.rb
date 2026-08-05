@@ -1,8 +1,6 @@
-# TODO unit tests
 class Api::Debugging::PrintStatementsController < ApplicationController
   CACHE_TTL = 1.hour
 
-  # TODO: don't hardcode this
   IGNORE_LINES = [
     "print('All bees are vanquished. You win!')",
     "print('The bees reached homebase or the queen ant queen has perished. Please try again :(')",
@@ -12,7 +10,6 @@ class Api::Debugging::PrintStatementsController < ApplicationController
   # Regex for Python print statements: print(...)
   PRINT_REGEX = /^\s*print\s*\(.*\)/
 
-  # TODO deduplicate from FilesController
   def fetch_file_from_local(object_key)
     file_path = Rails.root.join("../../data/private/#{object_key}")
     if File.exist?(file_path)
@@ -65,8 +62,6 @@ class Api::Debugging::PrintStatementsController < ApplicationController
       return
     end
 
-    # TODO error if student doesn't have any backups for this assignment and course
-
     backups = BackupMetadatum.where(
       course: course.okpy_endpoint,
       assignment: assignment.okpy_endpoint,
@@ -91,28 +86,28 @@ class Api::Debugging::PrintStatementsController < ApplicationController
       has_print = contains_user_print?(contents)
 
       {
-        id: index + 1,
+        id: backup.backup_id,
         problem: problem_names.join(", "),
         timestamp: backup.created,
         passing: is_passing,
-        # TODO don't hardcode this (other assignments may have multiple files)
         files: [ { name: "ants.py", contents: contents, hasPrint: has_print } ],
         has_print: has_print # internal flag for grouping
       }
     end
 
     # Identify the indices of backups that contain prints
-    print_indices = all_data.each_index.select { |i| all_data[i][:has_print] }
+    print_indices = all_data.each_index.select { |i| all_data[i][:has_print] and all_data[i][:problem] != "" }
 
     return render json: [] if print_indices.empty?
 
-    # Group consecutive print indices into sessions
+    # Group consecutive print indices and same problem name into sessions
     # e.g., [1, 2, 5, 6, 7] -> [[1, 2], [5, 6, 7]]
     sessions = []
     if print_indices.any?
       current_session = [ print_indices.first ]
       print_indices[1..].each do |idx|
-        if idx == current_session.last + 1
+        prev_idx = current_session.last
+        if idx == prev_idx + 1 and all_data[prev_idx][:problem] == all_data[idx][:problem]
           current_session << idx
         else
           sessions << current_session
@@ -122,7 +117,7 @@ class Api::Debugging::PrintStatementsController < ApplicationController
       sessions << current_session
     end
 
-    # Expand sessions to include +/- 5 backups and flatten/deduplicate
+    # Expand sessions to include +/- 5 backups with the same problem and flatten/deduplicate
     # Use a Set to ensure that if sessions overlap (within 10 backups of each other),
     # we don't include the same backup twice.
     final_indices = Set.new
@@ -130,7 +125,11 @@ class Api::Debugging::PrintStatementsController < ApplicationController
       start_idx = [ 0, session_range.min - 5 ].max
       end_idx = [ all_data.length - 1, session_range.max + 5 ].min
 
-      (start_idx..end_idx).each { |i| final_indices.add(i) }
+      (start_idx..end_idx).each do |i|
+        if all_data[i][:problem] == all_data[session_range[0]][:problem]
+          final_indices.add(i)
+        end
+      end
     end
 
     # Extract the data for the final indices and sort by timestamp

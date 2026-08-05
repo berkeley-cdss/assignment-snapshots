@@ -40,7 +40,6 @@ from models import (
 
 PREFIX = "../../data/private"
 
-# TODO make this programmatically adjustable
 FILENAME_PREFIX = "/Users/rebeccadang/Desktop/Code/ucb/berkeley-cdss/assignment-snapshots/data/private/"
 
 
@@ -79,7 +78,6 @@ def create_backup_and_write_messages(
             continue
 
         if kind not in MESSAGE_KIND_TO_CLASS:
-            # TODO use typer error output formatting
             print(
                 f"OkPy message kind {kind} in backup_id {backup_id} unrecognized, skipping"
             )
@@ -362,6 +360,11 @@ def responses_to_backups(
     num_backups = 0
     for student_email, assignment_response_dict in emails_to_responses.items():
         for assignment, response in assignment_response_dict.items():
+            # NOTE: For older semesters, the Ants project endpoint was 'proj03' instead of 'ants',
+            # so here we manually correct it when storing the data for consistency
+            if assignment == "proj03":
+                assignment = "ants"
+
             if response["code"] == 200:  # skip backups that had an error
                 curr_backups = response["data"]["backups"]
                 for backup_dict in curr_backups:

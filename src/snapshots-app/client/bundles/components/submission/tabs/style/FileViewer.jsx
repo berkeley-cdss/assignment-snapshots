@@ -8,7 +8,6 @@ import Editor, { useMonaco } from "@monaco-editor/react";
 
 import "./FileViewer.css";
 
-// TODO deduplicate with FileViewer in submission folder
 function FileViewer({ editorRef, code, language, lightMode, lintErrors }) {
   const monaco = useMonaco();
   const [editorMounted, setEditorMounted] = React.useState(false);
@@ -96,7 +95,6 @@ function FileViewer({ editorRef, code, language, lightMode, lintErrors }) {
 
   return (
     <>
-      {/* TODO fix alignment and scroll */}
       <div
         style={{
           display: "flex",

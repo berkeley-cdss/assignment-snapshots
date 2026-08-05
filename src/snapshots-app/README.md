@@ -122,7 +122,7 @@ This is a [React on Rails](https://www.shakacode.com/react-on-rails/docs/) app. 
 
 [S3](https://aws.amazon.com/s3/) is used to store assignment snapshot files. To access S3, you will need to:
 
-1. Request `PowerUserAccess` through [UC Berkeley's managed AWS instance](https://technology.berkeley.edu/bcloud-aws-central-faq). (You should contact [Lisa Yan](mailto:yanlisa@berkeley.edu) and [Michael Ball](ball@berkeley.edu) to get added properly since you will need access to the correct S3 buckets. See also: [internal onboarding docs](https://docs.google.com/document/d/1KhpRW0GYBY-HRSRG8b6z3EbRSFQJaqVPPUsha_puY2I/edit?tab=t.0).)
+1. Request `PowerUserAccess` through [UC Berkeley's managed AWS instance](https://technology.berkeley.edu/bcloud-aws-central-faq). (You should contact [Lisa Yan](mailto:yanlisa@berkeley.edu) and [Michael Ball](mailto:ball@berkeley.edu) to get added properly since you will need access to the correct S3 buckets. See also: [internal onboarding docs](https://docs.google.com/document/d/1KhpRW0GYBY-HRSRG8b6z3EbRSFQJaqVPPUsha_puY2I/edit?tab=t.0).)
 2. Install the [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
 3. For local development, [configure logging in with SSO](https://docs.aws.amazon.com/sdkref/latest/guide/access-sso.html) with these configuration values and use the `AWSPowerUserAccess` role:
 ```sh

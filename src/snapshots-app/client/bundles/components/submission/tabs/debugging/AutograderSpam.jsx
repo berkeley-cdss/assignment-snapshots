@@ -118,7 +118,6 @@ const AutograderSpam = () => {
       flex: 2,
       valueGetter: (value, row) => new Date(row.startTimestamp),
       sortComparator: (v1, v2) => v1 - v2,
-      // TODO fix popper being hidden by DataGrid on the far left side when hovering over the slider thumbs
       renderCell: (params) => {
         const getSliderValueText = (value) => {
           if (value === params.row.startIndex) {

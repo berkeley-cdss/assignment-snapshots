@@ -29,8 +29,6 @@ class Api::BackupFileMetadataController < ApplicationController
         return
       end
 
-      # TODO error if student doesn't have any backups for this assignment and course
-
       assignment_file_names = AssignmentFile.where(assignment_id: assignment_id).map { |af| af.file_name }
       backup_metadata = BackupMetadatum.where(course: course.okpy_endpoint, assignment: assignment.okpy_endpoint, student_email: student.email).order(:created)
       file_contents_locations = backup_metadata.filter_map do |backup|

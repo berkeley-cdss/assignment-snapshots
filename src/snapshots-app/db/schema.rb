@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_18_234456) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_14_193627) do
   create_table "analytics_messages", primary_key: "backup_id", id: :string, force: :cascade do |t|
     t.boolean "unlock", null: false
     t.json "question_cli_names"
@@ -27,6 +27,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_18_234456) do
   create_table "assignment_problems", force: :cascade do |t|
     t.integer "assignment_id", null: false
     t.string "display_name", null: false
+    t.integer "problem_index"
     t.index ["assignment_id"], name: "index_assignment_problems_on_assignment_id"
   end
 

@@ -1,7 +1,5 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-# TODO: make file_contents_location values more realistic (should include backup id and student email hash)
-
 recommend_unused_import:
   file_contents_location: cal/cs88/fa25/maps/student_id/backup_id/recommend.py
   start_location_row: 3

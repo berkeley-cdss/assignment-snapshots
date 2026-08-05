@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { styled } from "@mui/material/styles";
 import Toolbar from "@mui/material/Toolbar";
 import Box from "@mui/material/Box";
@@ -19,6 +19,7 @@ import { FormControl, InputLabel } from "@mui/material";
 import DifferenceIcon from "@mui/icons-material/Difference";
 
 import FileViewer from "./FileViewer";
+import BasicFileViewer from "./BasicFileViewer";
 import Graphs from "./Graphs";
 import Timeline from "./Timeline";
 import AutograderOutputDialog from "./AutograderOutputDialog";
@@ -26,8 +27,7 @@ import UnlockingTestOutputDialog from "./UnlockingTestOutputDialog";
 import DiffViewer from "./DiffViewer";
 import InfoTooltip from "../../../common/InfoTooltip";
 import { backupsAtom } from "../../../../state/atoms";
-
-// TODO minWidth: 0 prevent main content from stretching out to sidebars, but this seems rather hacky?
+import { Editor } from "@monaco-editor/react";
 
 const LeftSidebar = styled("aside")(({ theme }) => ({
   flex: "1.5 0 0",
@@ -45,7 +45,7 @@ const MainContent = styled("main")(({ theme }) => ({
 }));
 
 const RightSidebar = styled("aside")(({ theme }) => ({
-  flex: "2 0 0",
+  flex: "1 0 0",
   borderLeft: `1px solid ${theme.palette.divider}`,
   padding: theme.spacing(2),
   minWidth: 0,
@@ -70,7 +70,7 @@ function TimelineTab() {
   const [code, setCode] = React.useState("");
   const [autograderOutput, setAutograderOutput] = React.useState("");
 
-  const [lightMode, setLightMode] = React.useState(true);
+  const [lightMode, setLightMode] = React.useState(false);
 
   const [lintErrors, setLintErrors] = React.useState([]);
   const [filesToMetadata, setFilesToMetadata] = React.useState(null);
@@ -88,6 +88,8 @@ function TimelineTab() {
 
   const routeParams = useParams();
   const navigate = useNavigate();
+
+  const editorRef = useRef(null);
 
   // Fetch backups
   React.useEffect(() => {
@@ -237,14 +239,15 @@ function TimelineTab() {
 
   // Fetch previous backup file contents
   React.useEffect(() => {
-    if (selectedBackup === 0 || backups.length === 0 || file === "") {
+    if (backups.length === 0 || file === "") {
       return;
     }
 
     const queryParams = new URLSearchParams();
+    const prevBackupIndex = Math.min(selectedBackup + 1, backups.length - 1);
     queryParams.append(
       "object_key",
-      `${backups[selectedBackup - 1].file_contents_location}/${file}`,
+      `${backups[prevBackupIndex].file_contents_location}/${file}`,
     );
 
     fetch(`/api/files?${queryParams}`, {
@@ -260,14 +263,6 @@ function TimelineTab() {
         setPrevFileContents(responseData.file_contents);
       });
   }, [backups, selectedBackup, file]);
-
-  const backupCreatedTimestamps = React.useMemo(() => {
-    if (backups.length === 0) {
-      return [];
-    }
-
-    return backups.map((backup) => backup.created);
-  }, [backups]);
 
   function getTotalQuestionsSolved(history) {
     return history.reduce(
@@ -354,8 +349,6 @@ function TimelineTab() {
 
   function getOutputButton() {
     if (backups.length !== 0) {
-      // TODO not really sure why but sometimes even if a test case is unlocking type, there are no unlock messages.
-      // if this is the case, don't display the "unlocking tests output" button
       if (
         backups[selectedBackup].unlock &&
         backups[selectedBackup].unlock_message_cases.length !== 0
@@ -411,6 +404,43 @@ function TimelineTab() {
     return null;
   }
 
+  function goToLine(lineNumber) {
+    if (editorRef.current) {
+      // Centers the line in the viewport
+      editorRef.current.revealLineInCenter(lineNumber);
+
+      // Moves the cursor to that line
+      editorRef.current.setPosition({ lineNumber: lineNumber, column: 1 });
+
+      // Focuses the editor
+      editorRef.current.focus();
+    }
+  }
+
+  function getProblemLines(code, problemNames) {
+    const result = {};
+    problemNames.forEach((name) => {
+      result[name] = [];
+    });
+
+    const lines = code.split("\n");
+
+    lines.forEach((lineText, index) => {
+      const trimmedLine = lineText.trim();
+
+      if (trimmedLine.startsWith("# BEGIN ")) {
+        const problemName = trimmedLine.replace("# BEGIN ", "").trim();
+
+        // If this name is in our target list, add the line number (1-indexed)
+        if (result.hasOwnProperty(problemName)) {
+          result[problemName].push(index + 1);
+        }
+      }
+    });
+
+    return result;
+  }
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       {backups.length === 0 ? (
@@ -425,14 +455,13 @@ function TimelineTab() {
               handleBackupSelect={handleBackupSelect}
             />
           </LeftSidebar>
-          {/* TODO make width more responsive */}
           <MainContent>
             {/* Main Content Area */}
             <div
               style={{
-                position: "sticky",
-                top: -20,
-                zIndex: 10,
+                // position: "sticky",
+                // top: -20,
+                // zIndex: 10,
                 background: "white",
                 paddingBottom: "1rem",
                 marginBottom: "1rem",
@@ -467,7 +496,7 @@ function TimelineTab() {
                   ></FormControlLabel>
                 </FormGroup>
 
-                {selectedBackup !== 0 &&
+                {/* {selectedBackup !== 0 &&
                 code === "" &&
                 prevFileContents === "" ? (
                   <CircularProgress />
@@ -495,7 +524,7 @@ function TimelineTab() {
                       ? "No diff available"
                       : "Diff available"}
                   </Tooltip>
-                )}
+                )} */}
 
                 <Tooltip title="Copy code">
                   <IconButton
@@ -531,17 +560,45 @@ function TimelineTab() {
             {code === "" ? (
               <CircularProgress />
             ) : (
-              <FileViewer
-                code={code}
-                language={getLanguage(file)}
-                lightMode={lightMode}
-                lintErrors={lintErrors}
-                // NOTE: This is needed so that the FileViewer component
-                // re-mounts after DiffViewer dialog closes, otherwise
-                // error occurs because Monaco editor ref gets disposed
-                // when DiffViewer dialog opens
-                key={`${file}-${diffViewerOpen}`}
-              />
+              <div
+                style={{
+                  paddingLeft: "1rem",
+                  paddingRight: "1rem",
+                  height: "100%",
+                }}
+              >
+                {code === "" ||
+                prevFileContents === "" ||
+                prevFileContents === code ? (
+                  <BasicFileViewer
+                    code={code}
+                    language={getLanguage(file)}
+                    lightMode={lightMode}
+                    editorRef={editorRef}
+                  />
+                ) : (
+                  <DiffViewer
+                    open={true}
+                    onClose={() => setDiffViewerOpen(false)}
+                    currentFileContents={code}
+                    selectedFile={file}
+                    prevFileContents={prevFileContents}
+                    lightMode={lightMode}
+                    editorRef={editorRef}
+                  />
+                )}
+              </div>
+              // <FileViewer
+              //   code={code}
+              //   language={getLanguage(file)}
+              //   lightMode={lightMode}
+              //   lintErrors={lintErrors}
+              //   // NOTE: This is needed so that the FileViewer component
+              //   // re-mounts after DiffViewer dialog closes, otherwise
+              //   // error occurs because Monaco editor ref gets disposed
+              //   // when DiffViewer dialog opens
+              //   key={`${file}-${diffViewerOpen}`}
+              // />
             )}
 
             <Toolbar />
@@ -552,15 +609,12 @@ function TimelineTab() {
               <CircularProgress />
             ) : (
               <Graphs
-                file={file}
-                backupCreatedTimestamps={backupCreatedTimestamps}
-                fileMetadata={filesToMetadata[file]}
                 numQuestionsSolved={numQuestionsSolved}
-                numQuestionsUnsolved={numQuestionsUnsolved}
-                numAttempts={numAttempts}
                 currBackupHistory={backups[selectedBackup].history}
                 allProblemDisplayNames={allProblemDisplayNames}
                 selectedBackup={selectedBackup}
+                problemLines={getProblemLines(code, allProblemDisplayNames)}
+                editorRef={editorRef}
               />
             )}
           </RightSidebar>
@@ -575,15 +629,6 @@ function TimelineTab() {
       />
 
       {getOutputDialog()}
-
-      <DiffViewer
-        open={diffViewerOpen}
-        onClose={() => setDiffViewerOpen(false)}
-        prevBackup={backups[selectedBackup - 1]}
-        currentFileContents={code}
-        selectedFile={file}
-        prevFileContents={prevFileContents}
-      />
     </Box>
   );
 }

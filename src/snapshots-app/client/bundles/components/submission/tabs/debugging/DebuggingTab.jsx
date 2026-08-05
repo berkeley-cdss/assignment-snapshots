@@ -34,13 +34,12 @@ function DebuggingTab({}) {
       icon: <TrendingUp />,
       component: <AutograderSpam />,
     },
-    // {
-    //   text: "Print Statements",
-    //   icon: <Print />,
-    //   component: <PrintStatements />,
-    // },
+    {
+      text: "Print Statements",
+      icon: <Print />,
+      component: <PrintStatements />,
+    },
     { text: "Errors", icon: <Dangerous />, component: <Errors /> },
-    // TODO(stretch): implement these pages
     // { text: 'Test Regressions', icon: <SyncProblem />, component: <TestRegressions /> },
     // { text: 'Pseudocode Detection', icon: <Lightbulb />, component: <PseudocodeDetection /> },
   ];

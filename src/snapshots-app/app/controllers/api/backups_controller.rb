@@ -1,5 +1,3 @@
-# TODO update tests
-
 class Api::BackupsController < ApplicationController
   def show
     course_id = params[:course_id].to_i
@@ -23,8 +21,6 @@ class Api::BackupsController < ApplicationController
       render json: { "error": "User ID #{user_id} not a student in course ID #{course_id}" }, status: :not_found
       return
     end
-
-    # TODO error if student doesn't have any backups for this assignment and course
 
     assignment_file_names = AssignmentFile.where(assignment_id: assignment_id).map { |af| af.file_name }
     assignment_problem_names = AssignmentProblem.where(assignment_id: assignment_id).map { |ap| ap.display_name }

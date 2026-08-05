@@ -20,6 +20,8 @@ Rails.application.routes.draw do
     get "lint_errors", to: "lint_errors#show"
     get "backup_file_metadata/:course_id/:assignment_id/:user_id", to: "backup_file_metadata#show"
     get "summary_statistics/:course_id/:assignment_id/:user_id", to: "summary_statistics#show"
+    get "problem_timeline/:course_id/:assignment_id/:user_id", to: "problem_timeline#show"
+    get "problem_calendar/:course_id/:assignment_id/:user_id", to: "problem_calendar#show"
 
     namespace :debugging, defaults: { format: :json } do
       get "autograder_spam/:course_id/:assignment_id/:user_id", to: "autograder_spam#show"
@@ -33,11 +35,4 @@ Rails.application.routes.draw do
   # # fallback: any HTML request not handled above should render the react SPA (single page application)
   # react-router handles client-side routing
   get "*path", to: "login#index", constraints: ->(req) { req.format.html? }
-
-  # TODO setup nested routes?
-  # TODO these routes don't work with react-router client-side routing
-  # get "courses" => "courses#index"
-  # get "courses/:courseId" => "courses#show", as: :course
-  # get "courses/:courseId/assignments/:assignmentId" => "assignments#show", as: :assignment
-  # get "courses/:courseId/assignments/:assignmentId/students/:studentId" => "submissions#show", as: :submission
 end

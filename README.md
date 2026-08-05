@@ -54,12 +54,13 @@ the black Python formatter upon running `git commit`. Hooks can be added to [`.p
 ## Contributors
 
 - Faculty advisors
-    - [Lisa Yan](yanlisa@berkeley.edu) (Spring 2025 - present)
-    - [Michael Ball](ball@berkeley.edu) (Spring 2025 - present)
-    - [Kay Ousterhout](keo@eecs.berkeley.edu) (Spring 2026 - present)
+    - [Lisa Yan](mailto:yanlisa@berkeley.edu) (Spring 2025 - present)
+    - [Michael Ball](mailto:ball@berkeley.edu) (Spring 2025 - present)
+    - [Kay Ousterhout](mailto:keo@eecs.berkeley.edu) (Spring 2026 - present)
 - Students
-    - [Rebecca Dang](mailto:rdang@berkeley.edu) (Spring 2025 - present) (5th Year MS EECS)
-    - [Richard Villagomez](mailto:richard.villagomez@berkeley.edu) (Spring 2026 - present)
+    - [Rebecca Dang](mailto:rdang@berkeley.edu) (Spring 2025 - Spring 2026) (5th Year MS EECS '26)
+    - [Chloe Marick](mailto:chloemarick@berkeley.edu) (Spring 2026 - present) (5th Year MS EECS '27)
+    - [Richard Villagomez](mailto:richard.villagomez@berkeley.edu) (Spring 2026)
     - [Jasmine Sov](mailto:jasminesov@berkeley.edu) (Spring 2026 - present)
 
 If you are affiliated with UC Berkeley and are interested in working on this project long-term, please reach out to us!

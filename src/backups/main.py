@@ -76,7 +76,10 @@ def request(
         str, typer.Option(help=".txt file containing student emails, one per line")
     ] = None,
     course_endpoint: Annotated[
-        str, typer.Option(help="OkPy course endpoint, e.g. 'cal/cs88/sp25'")
+        str,
+        typer.Option(
+            help="Real OkPy course endpoint where the backups are actually stored, e.g. 'cal/cs88/sp25'"
+        ),
     ] = None,
     limit: Annotated[
         int,
@@ -205,7 +208,16 @@ def request(
 @app.command()
 def store(
     course_endpoint: Annotated[
-        str, typer.Option(help="OkPy course endpoint, e.g. 'cal/cs88/sp25'")
+        str,
+        typer.Option(
+            help="Real OkPy course endpoint where the backups are actually stored, e.g. 'cal/cs88/sp25'"
+        ),
+    ] = None,
+    sub_course_endpoint: Annotated[
+        str,
+        typer.Option(
+            help="Substitute OkPy course endpoint (affects output file contents paths), e.g. 'cal/cs88/sp25'"
+        ),
     ] = None,
     dump: Annotated[
         str,
@@ -237,11 +249,18 @@ def store(
 
     If any arguments are not specified, this command will use the values in the CONFIG .json file.
     """
-    # TODO add prompt when overwriting db or actual files
     config_dict = read_config(config)
 
     if course_endpoint is None:
         course_endpoint = config_dict["okpy_api"]["course_endpoint"]
+
+    # if sub_course_endpoint exists, replace course_endpoint with it
+    if sub_course_endpoint is None:
+        course_endpoint = config_dict["okpy_api"].get(
+            "sub_course_endpoint", course_endpoint
+        )
+    else:
+        course_endpoint = sub_course_endpoint
 
     if dump is None:
         dump = config_dict["data"]["dump"]
@@ -324,7 +343,6 @@ def lint(
 
     If any arguments are not specified, this command will use the values in the CONFIG .json file.
     """
-    # TODO add prompt when overwriting db or actual files
     config_dict = read_config(config)
 
     if database is None:
@@ -374,7 +392,6 @@ def backup_file_metadata(
 
     If any arguments are not specified, this command will use the values in the CONFIG .json file.
     """
-    # TODO add prompt when overwriting db or actual files
     config_dict = read_config(config)
 
     if database is None:

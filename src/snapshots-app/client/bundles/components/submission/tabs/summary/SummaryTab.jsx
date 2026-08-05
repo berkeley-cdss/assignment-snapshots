@@ -24,33 +24,22 @@ import {
 import { useParams } from "react-router";
 
 import StatisticsDashboard from "./StatisticsDashboard";
-import ProblemGanttPlot from "./ProblemGanttPlot";
-// import ProblemTimeline from "./ProblemTimeline";
-// import GanttPlot from "./GanttPlot";
 import InfoTooltip from "../../../common/InfoTooltip";
+import BackupGanttPlot from "./BackupGanttPlot";
+import BackupCalendarChart from "./BackupCalendarChart";
 
-// TODO: move graphs from Submission Layout into here
-// TODO: lines added/removed rich git diff chart like encourse
-
-// TODO: problem summaries [subtasks]
-// TODO: number of backups for each problem
-// TODO: plot time spent on unlocking vs correctness tests for each problem
-
-// TODO: radar plot
-
-// TODO: don't hardcode these options for just ants
 const SCORE_HISTOGRAM_OPTIONS = {
   histogram: {
-    bucketSize: 10,
+    bucketSize: 5,
     minValue: 0,
-    maxValue: 50,
+    maxValue: 25,
   },
 
   hAxis: {
     // manually sets the scale of the X-axis
     viewWindow: {
       min: 0,
-      max: 50,
+      max: 25,
     },
   },
   legend: { position: "none" },
@@ -58,7 +47,7 @@ const SCORE_HISTOGRAM_OPTIONS = {
 
 const PROBLEMS_SOLVED_HISTOGRAM_OPTIONS = {
   histogram: {
-    bucketSize: 5,
+    bucketSize: 1,
     minValue: 0,
     maxValue: 15,
   },
@@ -185,7 +174,7 @@ function SummaryTab({}) {
                 "Timestamp of last backup minus timestamp of first backup",
               component: (
                 <StatisticsDashboard
-                  title="Total Time Spent (min)"
+                  title="Total Time Spent (days)"
                   tooltip="Hover over chart for more details"
                   studentValue={
                     summaryStats.total_time_spent_distribution.studentValue
@@ -242,12 +231,12 @@ function SummaryTab({}) {
           marginBottom: "2rem",
         }}
       >
-        <Typography variant="h4">Summary Statistics</Typography>
-        <InfoTooltip info="Summary statistics about this student's performance on this assignment, with comparisons to other students" />
+        <Typography variant="h4">Summary</Typography>
+        <InfoTooltip info="Summary statistics and visualizations about this student's performance on this assignment" />
       </div>
 
       {menuItems.length > 0 ? (
-        <Box sx={{ display: "flex", gap: 3, minHeight: "80vh" }}>
+        <Box sx={{ display: "flex", gap: 3, minHeight: "50vh" }}>
           {/* Left Sidebar */}
           <Paper
             elevation={2}
@@ -294,15 +283,16 @@ function SummaryTab({}) {
           >
             {menuItems[activeIndex].component}
           </Paper>
-
-          <ProblemGanttPlot />
         </Box>
       ) : (
         <CircularProgress />
       )}
 
+      <BackupCalendarChart />
+      <BackupGanttPlot />
+
       {chartsReady ? (
-        <>
+        <div style={{ marginTop: "2rem" }}>
           <LineChart
             xAxis={xAxis}
             series={[
@@ -342,7 +332,7 @@ function SummaryTab({}) {
             ]}
             height={height}
           />
-        </>
+        </div>
       ) : (
         <CircularProgress />
       )}

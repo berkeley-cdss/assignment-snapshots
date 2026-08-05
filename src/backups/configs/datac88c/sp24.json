@@ -16,7 +16,7 @@
     },
     "data": {
         "in_roster": "../../data/private/out/datac88c/sp24/roster.csv",
-        "out_roster": "../../data/private/out/datac88c/sp24/emails.txt",
+        "out_roster": "../../data/private/out/datac88c/sp24/emails_separated.txt",
         "dump": "../../data/private/out/datac88c/sp24/okpy_api_output.json",
         "database": "../../data/private/out/datac88c/sp24/snapshots.db",
         "lint_json": "../../data/private/out/datac88c/sp24/lint_errors.json"

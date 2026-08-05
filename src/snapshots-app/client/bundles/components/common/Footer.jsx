@@ -23,7 +23,6 @@ function Footer() {
         Copyright &copy; {new Date().getFullYear()} Regents of the University of
         California and respective authors.
       </span>
-      {/* TODO why does this go off to page to the right? */}
       <span style={{ flex: 1, textAlign: "right" }}>
         This app is a{" "}
         <Link href="https://github.com/berkeley-cdss">Seamless Learning</Link>{" "}
